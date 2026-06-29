@@ -5,13 +5,19 @@ interface Props {
 	title?: string;
 	description?: string;
 	keywords?: string;
+	image?: string;
+	type?: string;
+	url?: string;
+	publishedTime?: string;
+	author?: string;
+	schema?: object;
 }
 
-const { title, description, keywords } = Astro.props;
+const { title, description, keywords, image, type, url, publishedTime, author, schema } = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 
-<Layout title={title} description={description} keywords={keywords}>
+<Layout title={title} description={description} keywords={keywords} image={image} type={type} url={url} publishedTime={publishedTime} author={author} schema={schema}>
 	<div class="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 w-full" style="padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);">
 		<aside id="desktop-sidebar" class="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 sticky top-0 h-full flex flex-col shrink-0 transition-all duration-300" transition:persist="desktop-sidebar">
 			<script is:inline>

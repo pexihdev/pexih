@@ -116,26 +116,69 @@ const savedPosts = [1, 2, 3, 4]; // Change to [] to see empty state
       }
     ];
 
-    function getSavedBookmarks() {
+    let bookmarks = [];
+    let activeFilter = "All";
+    let searchQuery = "";
+
+    async function initializeBookmarks() {
+      // Load local first for immediate display
       try {
         const stored = localStorage.getItem('pexih-bookmarks');
         if (!stored) {
           localStorage.setItem('pexih-bookmarks', JSON.stringify(seedBookmarks));
-          return seedBookmarks;
+          bookmarks = seedBookmarks;
+        } else {
+          bookmarks = JSON.parse(stored);
         }
-        return JSON.parse(stored);
       } catch (e) {
-        return seedBookmarks;
+        bookmarks = seedBookmarks;
+      }
+      
+      renderFilters();
+      renderBookmarks();
+
+      // Fetch from backend
+      try {
+        const res = await fetch('/api/bookmarks');
+        if (res.ok) {
+          const remoteBookmarks = await res.json();
+          if (remoteBookmarks && remoteBookmarks.length > 0) {
+            // Merge or replace. Let's map remote structure to local structure
+            const mapped = remoteBookmarks.map((rb: any) => ({
+              id: String(rb.id),
+              title: rb.title,
+              category: rb.category || 'General',
+              img: rb.coverImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format,compress&fit=crop&w=200&q=80',
+              author: { name: rb.authorName || 'Pexih User' },
+              readTime: rb.readingTime || '5 min read',
+              label: currentLang === 'id' ? "Dibaca Nanti" : "Read Later",
+              savedAt: rb.createdAt || Date.now()
+            }));
+            
+            // Create a map to deduplicate by ID
+            const map = new Map();
+            mapped.forEach((b: any) => map.set(b.id, b));
+            // Keep local overrides if they exist? Let's just override with local labels if we want, but server is truth
+            bookmarks.forEach((b: any) => {
+              if(!map.has(b.id)) map.set(b.id, b); // keep local ones not on server
+            });
+            
+            bookmarks = Array.from(map.values()).sort((a: any, b: any) => b.savedAt - a.savedAt);
+            saveBookmarks(bookmarks);
+            renderFilters();
+            renderBookmarks();
+          }
+        }
+      } catch(e) {
+        console.error('Failed to sync bookmarks', e);
       }
     }
 
-    function saveBookmarks(bookmarks: any[]) {
-      localStorage.setItem('pexih-bookmarks', JSON.stringify(bookmarks));
+    function saveBookmarks(b: any[]) {
+      localStorage.setItem('pexih-bookmarks', JSON.stringify(b));
     }
 
-    let bookmarks = getSavedBookmarks();
-    let activeFilter = "All";
-    let searchQuery = "";
+    initializeBookmarks();
 
     function renderFilters() {
       if (!categoriesContainer) return;
@@ -260,6 +303,17 @@ const savedPosts = [1, 2, 3, 4]; // Change to [] to see empty state
           
           if (window.toast) {
             window.toast(currentLang === 'id' ? "Bookmark dihapus" : "Bookmark removed");
+          }
+          
+          // Sync unbookmark to backend
+          try {
+            fetch('/api/interactions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ articleId: targetId, interactionType: 'unbookmark' })
+            });
+          } catch (e) {
+            console.error('Failed to log unbookmark interaction:', e);
           }
           
           renderFilters();

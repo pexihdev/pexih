@@ -749,6 +749,7 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
         }
 
         const draftData = {
+          articleId: document.getElementById('article-id').value,
           title,
           category,
           status,
@@ -769,28 +770,38 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
         localStorage.setItem(draftKey, JSON.stringify(draftData));
         
         // Auto-save to cloud
-        try {
-          fetch('/api/revisions/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(draftData)
-          }).then(() => {
-            if (indicator) {
-              indicator.textContent = 'Draf tersimpan';
-              setTimeout(() => {
-                indicator.classList.add('opacity-0');
-              }, 2500);
-            }
-          }).catch(err => {
-            console.error('Cloud auto-save error:', err);
-            if (indicator) {
-              indicator.textContent = 'Disimpan lokal';
-              setTimeout(() => {
-                indicator.classList.add('opacity-0');
-              }, 2500);
-            }
-          });
-        } catch (err) {}
+        if (draftData.articleId) {
+          try {
+            fetch('/api/revisions/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(draftData)
+            }).then(() => {
+              if (indicator) {
+                indicator.textContent = 'Draf tersimpan';
+                setTimeout(() => {
+                  indicator.classList.add('opacity-0');
+                }, 2500);
+              }
+            }).catch(err => {
+              console.error('Cloud auto-save error:', err);
+              if (indicator) {
+                indicator.textContent = 'Disimpan lokal';
+                setTimeout(() => {
+                  indicator.classList.add('opacity-0');
+                }, 2500);
+              }
+            });
+          } catch (err) {}
+        } else {
+          // For new articles, just say saved locally
+          if (indicator) {
+            indicator.textContent = 'Draf tersimpan (Lokal)';
+            setTimeout(() => {
+              indicator.classList.add('opacity-0');
+            }, 2500);
+          }
+        }
       }, 10000);
 
       const saveBtn = document.getElementById('save-btn');

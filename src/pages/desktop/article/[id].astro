@@ -47,6 +47,19 @@ if (!article) {
 
 const plainTextDesc = article.metaDescription || (article.content.replace(/[#_*~`>\[\]\(\)]/g, '').replace(/\n/g, ' ').substring(0, 150).trim() + '...');
 
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": article.title,
+  "description": plainTextDesc,
+  "image": article.img || `https://images.unsplash.com/photo-${1550000000000 + Number(id || 1) * 5}?auto=format,compress&fit=crop&w=1200&q=80`,
+  "datePublished": new Date(Number(article.createdAt)).toISOString(),
+  "author": {
+    "@type": "Person",
+    "name": article.author?.name || 'Author Name'
+  }
+};
+
 const articleData = {
   id: article.id,
   title: article.title,
@@ -79,7 +92,17 @@ if (relatedArticles.length === 0) {
 }
 ---
 
-<DesktopLayout title={article.title} description={plainTextDesc} keywords={article.metaKeywords}>
+<DesktopLayout 
+  title={article.title} 
+  description={plainTextDesc} 
+  keywords={article.metaKeywords}
+  image={schema.image}
+  type="article"
+  url={Astro.url.href}
+  publishedTime={schema.datePublished}
+  author={schema.author.name}
+  schema={schema}
+>
   <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-3 pb-2 px-5 flex items-center gap-3 h-[53px] sticky top-0 z-50" transition:name="desktop-header">
     <!-- Reading Progress Bar -->
     <div class="absolute bottom-0 left-0 h-[2px] bg-orange-600 w-0 transition-all duration-150 z-10" id="desktop-reading-progress"></div>
@@ -419,6 +442,17 @@ if (relatedArticles.length === 0) {
               const currentLang = localStorage.getItem('language') || 'en';
               window.toast(currentLang === 'id' ? "Bookmark dihapus" : "Bookmark removed");
             }
+            
+            // Sync unbookmark to backend
+            try {
+              fetch('/api/interactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ articleId, interactionType: 'unbookmark' })
+              });
+            } catch (e) {
+              console.error('Failed to log unbookmark interaction:', e);
+            }
             return;
           }
 
@@ -686,12 +720,11 @@ if (relatedArticles.length === 0) {
             submitBtn.disabled = true;
 
             try {
-              const res = await fetch(`${backendUrl}/api/comments`, {
+              const res = await fetch(`/api/comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   articleId,
-                  author: 'Guest User',
                   content,
                   parentId: commentParentId.value || null
                 })
@@ -704,7 +737,8 @@ if (relatedArticles.length === 0) {
                 if (window.toast) window.toast("Comment posted!");
                 loadComments();
               } else {
-                if (window.toast) window.toast("Failed to post comment");
+                const errData = await res.json();
+                if (window.toast) window.toast(errData.error || "Failed to post comment");
               }
             } catch (err) {
               if (window.toast) window.toast("Error posting comment");

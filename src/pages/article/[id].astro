@@ -504,6 +504,17 @@ if (relatedArticles.length === 0) {
               const currentLang = localStorage.getItem('language') || 'en';
               window.toast(currentLang === 'id' ? "Bookmark dihapus" : "Bookmark removed");
             }
+            
+            // Sync unbookmark to backend
+            try {
+              fetch('/api/interactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ articleId, interactionType: 'unbookmark' })
+              });
+            } catch (e) {
+              console.error('Failed to log unbookmark interaction:', e);
+            }
             return;
           }
 
@@ -809,12 +820,11 @@ if (relatedArticles.length === 0) {
             submitBtn.disabled = true;
 
             try {
-              const res = await fetch(`${backendUrl}/api/comments`, {
+              const res = await fetch(`/api/comments`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   articleId,
-                  author: 'Guest User', // In real app, this would be from user session
                   content,
                   parentId: commentParentId.value || null
                 })
@@ -827,7 +837,8 @@ if (relatedArticles.length === 0) {
                 if (window.toast) window.toast("Comment posted!");
                 loadComments();
               } else {
-                if (window.toast) window.toast("Failed to post comment");
+                const errData = await res.json();
+                if (window.toast) window.toast(errData.error || "Failed to post comment");
               }
             } catch (err) {
               if (window.toast) window.toast("Error posting comment");

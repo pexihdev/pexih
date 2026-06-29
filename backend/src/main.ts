@@ -1112,6 +1112,34 @@ app.get("/api/interactions/:articleId", async (req, res) => {
   }
 });
 
+app.get("/api/bookmarks", async (req, res) => {
+  try {
+    const username = (req.query.username || "guest") as string;
+    
+    // Get bookmarks by user
+    const userBookmarks = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        coverImage: articles.coverImage,
+        category: articles.category,
+        createdAt: articles.createdAt,
+        readingTime: articles.readingTime,
+        authorName: articles.authorName,
+      })
+      .from(bookmarks)
+      .innerJoin(articles, eq(bookmarks.articleId, articles.id))
+      .where(eq(bookmarks.username, username))
+      .orderBy(desc(bookmarks.createdAt));
+      
+    res.json(userBookmarks);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // 8. Article Revisions (Cloud Draft)
 app.get("/api/revisions", async (req, res) => {
   try {
