@@ -11,7 +11,7 @@ const { title, showBottomNav = true } = Astro.props;
 ---
 
 <Layout title={title}>
-	<main class="fixed inset-0 w-full max-w-[400px] mx-auto flex flex-col bg-white dark:bg-gray-900 shadow-sm font-sans overflow-y-auto overflow-x-hidden relative" id="admin-mobile-main-wrapper" style={`overflow: hidden !important; height: 100vh !important; max-height: 100vh !important; height: 100dvh !important; max-height: 100dvh !important; padding-bottom: ${showBottomNav ? 'calc(72px + env(safe-area-inset-bottom))' : 'calc(20px + env(safe-area-inset-bottom))'} !important;`}>
+	<main class="fixed inset-0 w-full max-w-[400px] mx-auto flex flex-col bg-white dark:bg-gray-900 shadow-sm font-sans overflow-y-auto overflow-x-hidden relative" id="admin-mobile-main-wrapper" style={`transform: translateZ(0); overflow: hidden !important; height: 100vh !important; max-height: 100vh !important; height: 100dvh !important; max-height: 100dvh !important; padding-bottom: ${showBottomNav ? 'calc(72px + env(safe-area-inset-bottom))' : 'calc(20px + env(safe-area-inset-bottom))'} !important;`}>
 		<div id="admin-mobile-scroll-container" class="flex-1 h-full min-h-0 max-h-full overflow-y-auto overflow-x-hidden relative w-full flex flex-col" style="-webkit-overflow-scrolling: touch; touch-action: pan-y; height: 100% !important; max-height: 100% !important;">
 			<slot />
 		</div>
@@ -20,29 +20,9 @@ const { title, showBottomNav = true } = Astro.props;
 
 	<script is:inline>
 		(function() {
-			const handleAdminMobileHeader = (doc) => {
-				const scrollContainer = doc.getElementById('admin-mobile-scroll-container');
-				const mainWrapper = doc.getElementById('admin-mobile-main-wrapper');
-				if (scrollContainer && mainWrapper) {
-					const header = scrollContainer.querySelector('.fixed.top-0');
-					if (header) {
-						header.classList.remove('fixed');
-						header.classList.add('absolute');
-						mainWrapper.insertBefore(header, scrollContainer);
-					}
-				}
-			};
-
 			if (!window._adminMobileHeaderInitialized) {
 				window._adminMobileHeaderInitialized = true;
-				
-				document.addEventListener('astro:before-swap', (e) => {
-					handleAdminMobileHeader(e.newDocument);
-				});
-
-				document.addEventListener('astro:page-load', () => {
-					handleAdminMobileHeader(document);
-				});
+				// Admin mobile logic can be placed here if needed
 			}
 		})();
 	</script>

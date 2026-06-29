@@ -18,7 +18,7 @@ const { title, showBottomNav = true, ...seoProps } = Astro.props;
 ---
 
 <Layout title={title} {...seoProps}>
-	<main class="fixed inset-0 w-full max-w-[400px] mx-auto flex flex-col bg-white dark:bg-gray-900 shadow-sm font-sans overflow-y-auto overflow-x-hidden overscroll-y-none relative" id="mobile-main-wrapper" style={`overflow: hidden !important; height: 100vh !important; max-height: 100vh !important; height: 100dvh !important; max-height: 100dvh !important; padding-bottom: ${showBottomNav ? 'calc(72px + env(safe-area-inset-bottom))' : 'calc(20px + env(safe-area-inset-bottom))'} !important;`}>
+	<main class="fixed inset-0 w-full max-w-[400px] mx-auto flex flex-col bg-white dark:bg-gray-900 shadow-sm font-sans overflow-y-auto overflow-x-hidden overscroll-y-none relative" id="mobile-main-wrapper" style={`transform: translateZ(0); overflow: hidden !important; height: 100vh !important; max-height: 100vh !important; height: 100dvh !important; max-height: 100dvh !important; padding-bottom: ${showBottomNav ? 'calc(72px + env(safe-area-inset-bottom))' : 'calc(20px + env(safe-area-inset-bottom))'} !important;`}>
 		<div id="mobile-scroll-container" class="flex-1 h-full min-h-0 max-h-full overflow-y-auto overflow-x-hidden overscroll-y-none relative w-full flex flex-col" style="-webkit-overflow-scrolling: touch; touch-action: pan-y; height: 100% !important; max-height: 100% !important;">
 			<!-- PTR Indicator -->
 			<div id="ptr-indicator" class="absolute left-0 w-full flex items-center justify-center z-40 opacity-0 pointer-events-none" style="top: calc(52px + env(safe-area-inset-top)); transform: translateY(-20px);">
@@ -46,28 +46,10 @@ const { title, showBottomNav = true, ...seoProps } = Astro.props;
 
 	<script is:inline>
 		(function() {
-			const handleMobileHeader = (doc) => {
-				const scrollContainer = doc.getElementById('mobile-scroll-container');
-				const mainWrapper = doc.getElementById('mobile-main-wrapper');
-				if (scrollContainer && mainWrapper) {
-					const header = scrollContainer.querySelector('.fixed.top-0');
-					if (header) {
-						header.classList.remove('fixed');
-						header.classList.add('absolute');
-						mainWrapper.insertBefore(header, scrollContainer);
-					}
-				}
-			};
-
 			if (!window._mobileHeaderInitialized) {
 				window._mobileHeaderInitialized = true;
 				
-				document.addEventListener('astro:before-swap', (e) => {
-					handleMobileHeader(e.newDocument);
-				});
-
 				document.addEventListener('astro:page-load', () => {
-					handleMobileHeader(document);
 					
 					const scrollContainer = document.getElementById('mobile-scroll-container');
 					const mainWrapper = document.getElementById('mobile-main-wrapper');
