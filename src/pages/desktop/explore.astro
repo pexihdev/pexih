@@ -3,21 +3,26 @@ import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import HeaderActions from '../../components/HeaderActions.astro';
 import EmptyState from '../../components/EmptyState.astro';
 
-// Fetch articles from the Backend API for SSR
+// Fetch articles and categories from the Backend API for SSR
 let exploreArticles = [];
+let topicCategories = [];
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 try {
-  const res = await fetch(`${backendUrl}/api/articles`);
-  if (res.ok) {
-    const data = await res.json();
+  const [artRes, catRes] = await Promise.all([
+    fetch(`${backendUrl}/api/articles`),
+    fetch(`${backendUrl}/api/categories`)
+  ]);
+  if (artRes.ok) {
+    const data = await artRes.json();
     exploreArticles = data
       .sort((a, b) => (Number(b.views) || 0) - (Number(a.views) || 0))
       .slice(0, 10);
-  } else {
-    throw new Error('Failed to fetch from API');
+  }
+  if (catRes.ok) {
+    topicCategories = await catRes.json();
   }
 } catch (e) {
-  console.error("Failed to fetch articles from API", e);
+  console.error("Failed to fetch data from API", e);
 }
 
 // Fallback to dummy data if API fails or returns empty
@@ -44,7 +49,7 @@ const cleanMarkdown = (text: string) => {
 ---
 <DesktopLayout title="Explore - PEXIH">
   <!-- Header -->
-  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-3 pb-2 px-5 flex items-center justify-between h-[53px] sticky top-0 z-50">
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-3 pb-2 px-5 flex items-center justify-between h-[53px] sticky top-0 z-50" transition:name="desktop-header">
     <div class="flex items-center gap-2">
       <h1 class="text-[16px] font-bold text-gray-900 dark:text-white" data-i18n="nav.explore">Explore</h1>
     </div>
@@ -61,10 +66,18 @@ const cleanMarkdown = (text: string) => {
   <div class="p-8 max-w-7xl mx-auto space-y-8">
     <!-- Categories Filter Bar -->
     <div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide border-b border-gray-100 dark:border-gray-800">
-      <button class="px-5 py-2 rounded-full bg-orange-600 text-white text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ease-out">All Topics</button>
-      <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out">Technology</button>
-      <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out">Design</button>
-      <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out">Lifestyle</button>
+      <button class="px-5 py-2 rounded-full bg-orange-600 text-white text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ease-out" data-i18n="explore.allTopics">All Topics</button>
+      {topicCategories.length > 0 ? (
+        topicCategories.map(cat => (
+          <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out" data-i18n={`category.${cat.slug || cat.title.toLowerCase().replace(/\s+/g, '-')}`}>{cat.title}</button>
+        ))
+      ) : (
+        <>
+          <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out" data-i18n="category.technology">Technology</button>
+          <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out" data-i18n="category.design">Design</button>
+          <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out" data-i18n="category.lifestyle">Lifestyle</button>
+        </>
+      )}
     </div>
 
     <!-- Content Area -->
@@ -148,7 +161,9 @@ const cleanMarkdown = (text: string) => {
       <div class="explore-empty-state hidden py-12">
         <EmptyState 
           title="No Results Found" 
+          titleI18n="empty.noResults"
           description="We couldn't find any articles matching your search. Try different keywords or categories."
+          descriptionI18n="empty.noResultsDesc"
           icon={`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`}
         />
       </div>

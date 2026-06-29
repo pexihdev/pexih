@@ -13,7 +13,7 @@ const currentPath = Astro.url.pathname;
 
 <Layout title={title} description={description} keywords={keywords}>
 	<div class="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 w-full" style="padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);">
-		<aside id="desktop-sidebar" class="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 sticky top-0 h-full flex flex-col shrink-0 transition-all duration-300">
+		<aside id="desktop-sidebar" class="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 sticky top-0 h-full flex flex-col shrink-0 transition-all duration-300" transition:persist="desktop-sidebar">
 			<script is:inline>
 				(function() {
 					if (localStorage.getItem('desktop-sidebar-collapsed') === 'true') {
@@ -33,28 +33,52 @@ const currentPath = Astro.url.pathname;
 				</button>
 			</div>
 			
-			<nav class="flex-1 py-4 px-3 space-y-1">
-				<a href="/desktop" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath === '/desktop' ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
+			<nav class="flex-1 py-4 px-3 space-y-1" id="desktop-sidebar-links">
+				<a href="/desktop" data-path="/desktop" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath === '/desktop' ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
 					<span class="text-sm sidebar-text" data-i18n="nav.home">Home</span>
 				</a>
-				<a href="/desktop/explore" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/desktop/explore') ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
+				<a href="/desktop/explore" data-path="/desktop/explore" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/desktop/explore') ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
 					<span class="text-sm sidebar-text" data-i18n="nav.explore">Explore</span>
 				</a>
-				<a href="/desktop/writer" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/desktop/writer') ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
+				<a href="/desktop/writer" data-path="/desktop/writer" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/desktop/writer') ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
 					<span class="text-sm sidebar-text">Create Post</span>
 				</a>
-				<a href="/desktop/bookmarks" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/desktop/bookmarks') ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
+				<a href="/desktop/bookmarks" data-path="/desktop/bookmarks" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/desktop/bookmarks') ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
 					<span class="text-sm sidebar-text" data-i18n="nav.bookmark">Saved</span>
 				</a>
-				<a href="/desktop/profile" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/desktop/profile') ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
+				<a href="/desktop/profile" data-path="/desktop/profile" class={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/desktop/profile') ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'}`}>
 					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 shrink-0"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
 					<span class="text-sm sidebar-text" data-i18n="nav.profile">Profile</span>
 				</a>
 			</nav>
+
+			<script>
+				document.addEventListener('astro:page-load', () => {
+					const currentPath = window.location.pathname;
+					const nav = document.getElementById('desktop-sidebar-links');
+					if (!nav) return;
+					
+					const links = nav.querySelectorAll('a[data-path]');
+					links.forEach(link => {
+						const path = link.getAttribute('data-path');
+						if (!path) return;
+						
+						const isActive = path === '/desktop' ? currentPath === '/desktop' : currentPath.startsWith(path);
+						
+						if (isActive) {
+							link.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-50', 'dark:hover:bg-gray-800', 'hover:text-gray-900', 'dark:hover:text-white');
+							link.classList.add('bg-orange-50', 'dark:bg-orange-900/30', 'text-orange-600', 'dark:text-orange-500', 'font-medium');
+						} else {
+							link.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:bg-gray-50', 'dark:hover:bg-gray-800', 'hover:text-gray-900', 'dark:hover:text-white');
+							link.classList.remove('bg-orange-50', 'dark:bg-orange-900/30', 'text-orange-600', 'dark:text-orange-500', 'font-medium');
+						}
+					});
+				});
+			</script>
 			
 			<div class="p-4 border-t border-gray-100 dark:border-gray-800">
 				<a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">

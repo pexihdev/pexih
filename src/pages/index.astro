@@ -4,19 +4,26 @@ import HeaderActions from '../components/HeaderActions.astro';
 import EmptyState from '../components/EmptyState.astro';
 import ArticleSkeleton from '../components/ArticleSkeleton.astro';
 
-// Fetch articles from the Backend API for SSR
+// Fetch articles and categories from the Backend API for SSR
 let feedArticles = [];
+let topicCategories = [];
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 try {
-  const res = await fetch(`${backendUrl}/api/articles`);
-  if (res.ok) {
-    const data = await res.json();
+  const [artRes, catRes] = await Promise.all([
+    fetch(`${backendUrl}/api/articles`),
+    fetch(`${backendUrl}/api/categories`)
+  ]);
+  
+  if (artRes.ok) {
+    const data = await artRes.json();
     feedArticles = data.slice(0, 5); // Limit to 5 for home feed
-  } else {
-    throw new Error('Failed to fetch from API');
+  }
+  
+  if (catRes.ok) {
+    topicCategories = await catRes.json();
   }
 } catch (e) {
-  console.error("Failed to fetch articles from API", e);
+  console.error("Failed to fetch data from API", e);
 }
 
 // Fallback to dummy data if API fails or returns empty
@@ -32,11 +39,21 @@ if (feedArticles.length === 0) {
     views: "1.2k"
   }));
 }
+
+if (topicCategories.length === 0) {
+  topicCategories = [
+    { title: "Technology", slug: "technology", color: "3b82f6" },
+    { title: "Design", slug: "design", color: "8b5cf6" },
+    { title: "Lifestyle", slug: "lifestyle", color: "f59e0b" },
+    { title: "Business", slug: "business", color: "10b981" },
+    { title: "Health", slug: "health", color: "ef4444" }
+  ];
+}
 ---
 <MobileLayout title="Home">
-  <div class="fixed top-0 w-full max-w-[400px] z-50">
-    <div class="w-full bg-white dark:bg-gray-900" style="height: env(safe-area-inset-top);"></div>
-    <div class="bg-white dark:bg-gray-900 pt-3 pb-2 px-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between h-[53px]">
+  <div class="fixed top-0 w-full max-w-[400px] z-50 bg-white dark:bg-gray-900" transition:name="mobile-header">
+    <div class="w-full" style="height: env(safe-area-inset-top);"></div>
+    <div class="pt-3 pb-2 px-5 flex items-center justify-between h-[53px]">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold text-[14px]">P</div>
         <h1 class="text-[16px] font-bold text-gray-900 dark:text-white"><span translate="no" class="notranslate">PE<span class="text-orange-600">X</span>IH</span></h1>
@@ -48,32 +65,96 @@ if (feedArticles.length === 0) {
         <HeaderActions />
       </div>
     </div>
+    
+    <!-- Feed Tabs -->
+    <div class="flex items-center px-4 border-b border-gray-100 dark:border-gray-800 feed-tabs">
+      <button class="flex-1 py-3 text-[11px] font-bold text-orange-600 border-b-2 border-orange-600 transition-colors tab-btn" data-tab="foryou" data-i18n="home.forYou">For You</button>
+      <button class="flex-1 py-3 text-[11px] font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent transition-colors tab-btn" data-tab="following" data-i18n="home.following">Following</button>
+    </div>
   </div>
 
-  <div class="shrink-0" style="height: calc(53px + env(safe-area-inset-top));"></div>
+  <div class="shrink-0" style="height: calc(96px + env(safe-area-inset-top));"></div>
   <div class="px-4 py-2 space-y-4">
     <!-- Story/Topics section -->
     <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide topic-filters">
-      {[1, 2, 3, 4, 5].map((item) => (
-        <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer topic-item" data-topic={item}>
-          <div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 transition-all duration-300 topic-ring">
-            <div class="w-full h-full rounded-full border-2 border-white dark:border-gray-900 overflow-hidden pexih-placeholder bg-gray-100 dark:bg-gray-800">
-              <img 
-                src={`https://images.unsplash.com/photo-${1550000000000 + item}?auto=format,compress&fit=crop&w=150&q=80`} 
-                alt={`Topic ${item} representation`} 
-                width="150"
-                height="150"
-                class="w-full h-full object-cover aspect-square transition-opacity duration-300 opacity-0" 
-                onload="this.classList.remove('opacity-0')"
-                loading="lazy" 
-                decoding="async"
-                referrerpolicy="no-referrer" 
-              />
+      {topicCategories.length > 0 ? (
+        <>
+        {topicCategories.map((cat, index) => {
+          const slug = cat.slug || cat.title.toLowerCase().replace(/\s+/g, '-');
+          const categoryImages = {
+            technology: "1518770660439-4636190af475",
+            design: "1561070791266-4f4699042b32",
+            lifestyle: "1507525428034-b723cf961d3e",
+            business: "1460925895917-afdab827c52f",
+            health: "1505751172876-fa8fabad363c"
+          };
+          const imgSrc = categoryImages[slug] 
+            ? `https://images.unsplash.com/photo-${categoryImages[slug]}?auto=format,compress&fit=crop&w=150&q=80`
+            : `https://ui-avatars.com/api/?name=${cat.title}&background=${cat.color ? cat.color.replace('#', '') : 'f97316'}&color=fff&size=150`;
+
+          return (
+          <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer topic-item" data-topic={slug} data-topic-name={cat.title}>
+            <div class={`w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr transition-all duration-300 topic-ring ${index === 0 ? 'from-orange-400 to-orange-600' : 'from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'}`}>
+              <div class="w-full h-full rounded-full border-2 border-white dark:border-gray-900 overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
+                <img 
+                  src={imgSrc} 
+                  alt={`${cat.title} representation`} 
+                  width="150"
+                  height="150"
+                  class="w-full h-full object-cover aspect-square transition-opacity duration-300 opacity-0 absolute inset-0" 
+                  onload="this.classList.remove('opacity-0')"
+                  loading="lazy" 
+                  decoding="async"
+                  referrerpolicy="no-referrer" 
+                />
+              </div>
             </div>
+            <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300 text-center w-16 truncate" data-i18n={`category.${slug}`}>{cat.title}</span>
           </div>
-          <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300">Topic {item}</span>
-        </div>
-      ))}
+        )})
+          }
+          <a href="/explore" class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
+            <div class="w-14 h-14 rounded-full p-0.5 bg-gray-100 dark:bg-gray-800 transition-all duration-300">
+              <div class="w-full h-full rounded-full border-2 border-white dark:border-gray-900 bg-white dark:bg-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </div>
+            </div>
+            <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300 text-center w-16 truncate" data-i18n="home.seeAll">See All</span>
+          </a>
+        </>
+      ) : (
+        [1, 2, 3, 4, 5].map((item, index) => (
+          <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer topic-item" data-topic={item} data-topic-name={`Topic ${item}`}>
+            <div class={`w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr transition-all duration-300 topic-ring ${index === 0 ? 'from-orange-400 to-orange-600' : 'from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'}`}>
+              <div class="w-full h-full rounded-full border-2 border-white dark:border-gray-900 overflow-hidden pexih-placeholder bg-gray-100 dark:bg-gray-800">
+                <img 
+                  src={`https://images.unsplash.com/photo-${1550000000000 + item}?auto=format,compress&fit=crop&w=150&q=80`} 
+                  alt={`Topic ${item} representation`} 
+                  width="150"
+                  height="150"
+                  class="w-full h-full object-cover aspect-square transition-opacity duration-300 opacity-0" 
+                  onload="this.classList.remove('opacity-0')"
+                  loading="lazy" 
+                  decoding="async"
+                  referrerpolicy="no-referrer" 
+                />
+              </div>
+            </div>
+            <span class="text-[9px] font-medium text-gray-700 dark:text-gray-300">Topic {item}</span>
+          </div>
+        ))
+      )}
+    </div>
+
+    <div id="topic-actions-container" class="hidden flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800 mb-2">
+      <span class="text-[12px] font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-orange-600"></span>
+        <span id="current-topic-name">Topic</span>
+      </span>
+      <button class="px-3 py-1.5 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 text-orange-600 dark:text-orange-500 text-[10px] font-bold rounded-full border border-orange-200 dark:border-orange-800 transition-all active:scale-95 flex items-center gap-1" id="follow-topic-btn" data-topic-id="">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        <span data-i18n="action.followTopic">Follow Topic</span>
+      </button>
     </div>
 
     <div class="article-transition-wrapper">
@@ -176,10 +257,12 @@ if (feedArticles.length === 0) {
       <div class="search-empty-state hidden">
         <EmptyState 
           title="No Stories Found" 
+          titleI18n="empty.noStories"
           description="There are no stories in this topic yet. Be the first to share something!"
+          descriptionI18n="empty.noStoriesDesc"
           icon={`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 13h4"/></svg>`}
         >
-          <a href="/writer" class="mt-4 px-5 py-2 bg-orange-600 text-white text-[10px] font-bold rounded-full hover:bg-orange-700 transition-colors">
+          <a href="/writer" class="mt-4 px-5 py-2 bg-orange-600 text-white text-[10px] font-bold rounded-full hover:bg-orange-700 transition-colors" data-i18n="empty.writeStory">
             Write a Story
           </a>
         </EmptyState>
@@ -195,6 +278,70 @@ if (feedArticles.length === 0) {
     const skeleton = document.querySelector('.skeleton-container');
     const content = document.querySelector('.actual-content-container');
     const searchEmptyState = document.querySelector('.search-empty-state');
+    const topicActionsContainer = document.getElementById('topic-actions-container');
+    const currentTopicName = document.getElementById('current-topic-name');
+    const followTopicBtn = document.getElementById('follow-topic-btn');
+    const feedTabs = document.querySelectorAll('.tab-btn');
+
+    // Follow Topic logic
+    if (followTopicBtn) {
+      followTopicBtn.addEventListener('click', () => {
+        const isFollowing = followTopicBtn.classList.contains('followed');
+        if (isFollowing) {
+          followTopicBtn.classList.remove('followed', 'bg-orange-600', 'text-white');
+          followTopicBtn.classList.add('bg-orange-50', 'dark:bg-orange-900/30', 'text-orange-600', 'dark:text-orange-500');
+          // Update text, we need to respect i18n but for simple demo:
+          const span = followTopicBtn.querySelector('span');
+          if(span) {
+            span.setAttribute('data-i18n', 'action.followTopic');
+            span.textContent = 'Follow Topic'; // Or use localized string
+            // Retrigger i18n logic if global translate exists, for now just update attr
+          }
+          if ((window as any).toast) (window as any).toast("Topic unfollowed");
+        } else {
+          followTopicBtn.classList.add('followed', 'bg-orange-600', 'text-white');
+          followTopicBtn.classList.remove('bg-orange-50', 'dark:bg-orange-900/30', 'text-orange-600', 'dark:text-orange-500');
+          const span = followTopicBtn.querySelector('span');
+          if(span) {
+            span.setAttribute('data-i18n', 'action.followingTopic');
+            span.textContent = 'Following';
+          }
+          if ((window as any).toast) (window as any).toast("Topic followed");
+        }
+      });
+    }
+
+    // Tabs logic
+    feedTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        feedTabs.forEach(t => {
+          t.classList.remove('text-orange-600', 'border-orange-600', 'font-bold');
+          t.classList.add('text-gray-500', 'dark:text-gray-400', 'border-transparent', 'font-medium');
+        });
+        const target = e.currentTarget as HTMLElement;
+        target.classList.remove('text-gray-500', 'dark:text-gray-400', 'border-transparent', 'font-medium');
+        target.classList.add('text-orange-600', 'border-orange-600', 'font-bold');
+        
+        // Show skeleton as transition
+        if (content && skeleton && searchEmptyState) {
+          content.classList.add('hidden');
+          searchEmptyState.classList.add('hidden');
+          skeleton.classList.remove('hidden');
+          if (topicActionsContainer) topicActionsContainer.classList.add('hidden');
+          
+          setTimeout(() => {
+            skeleton.classList.add('hidden');
+            const tabId = target.getAttribute('data-tab');
+            if (tabId === 'following') {
+              searchEmptyState.classList.remove('hidden'); // Demo empty following
+            } else {
+              content.classList.remove('hidden');
+              triggerStaggeredAnimation(content as HTMLElement);
+            }
+          }, 600);
+        }
+      });
+    });
 
     function triggerStaggeredAnimation(container: HTMLElement | null) {
       if (!container) return;
@@ -236,20 +383,28 @@ if (feedArticles.length === 0) {
           ring.classList.remove('from-gray-200', 'to-gray-300', 'dark:from-gray-700', 'dark:to-gray-800');
           ring.classList.add('from-orange-400', 'to-orange-600');
         }
+
+        const topicName = target.getAttribute('data-topic-name');
         
         // Show skeleton
         if (content && skeleton && searchEmptyState) {
           content.classList.add('hidden');
           searchEmptyState.classList.add('hidden');
           skeleton.classList.remove('hidden');
+          if (topicActionsContainer) topicActionsContainer.classList.add('hidden');
           
           // Simulate network request
           setTimeout(() => {
             skeleton.classList.add('hidden');
             
-            // Demonstrate empty state for topic 4 and 5
+            if (topicActionsContainer && currentTopicName && topicName) {
+              currentTopicName.textContent = topicName;
+              topicActionsContainer.classList.remove('hidden');
+            }
+
+            // Demonstrate empty state for topic 4 and 5 or business and health
             const topicId = target.getAttribute('data-topic');
-            if (topicId === '4' || topicId === '5') {
+            if (topicId === '4' || topicId === '5' || topicId === 'business' || topicId === 'health') {
               searchEmptyState.classList.remove('hidden');
             } else {
               content.classList.remove('hidden');

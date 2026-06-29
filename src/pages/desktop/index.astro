@@ -3,18 +3,23 @@ import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import HeaderActions from '../../components/HeaderActions.astro';
 import EmptyState from '../../components/EmptyState.astro';
 
-// Fetch articles from the Backend API for SSR
+// Fetch articles and categories from the Backend API for SSR
 let feedArticles = [];
+let topicCategories = [];
 const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 try {
-  const res = await fetch(`${backendUrl}/api/articles`);
-  if (res.ok) {
-    feedArticles = await res.json();
-  } else {
-    throw new Error('Failed to fetch from API');
+  const [artRes, catRes] = await Promise.all([
+    fetch(`${backendUrl}/api/articles`),
+    fetch(`${backendUrl}/api/categories`)
+  ]);
+  if (artRes.ok) {
+    feedArticles = await artRes.json();
+  }
+  if (catRes.ok) {
+    topicCategories = await catRes.json();
   }
 } catch (e) {
-  console.error("Failed to fetch articles from API", e);
+  console.error("Failed to fetch data from API", e);
 }
 
 // Fallback to dummy data if API fails or returns empty
@@ -33,7 +38,7 @@ if (feedArticles.length === 0) {
 }
 ---
 <DesktopLayout title="Desktop Dashboard">
-  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-3 pb-2 px-5 flex items-center justify-between h-[53px] sticky top-0 z-50">
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-3 pb-2 px-5 flex items-center justify-between h-[53px] sticky top-0 z-50" transition:name="desktop-header">
     <div class="flex items-center gap-2">
       <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">Dashboard</h1>
     </div>
@@ -56,6 +61,24 @@ if (feedArticles.length === 0) {
         <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-500 font-bold shrink-0">P</div>
         <input id="post-input-trigger" type="text" placeholder="Share your knowledge..." class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-colors dark:text-white cursor-pointer" onclick="window.location.href='/writer'" />
         <button class="bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-orange-700 transition-colors shrink-0" onclick="window.location.href='/writer'">Post</button>
+      </div>
+
+      <!-- Feed Tabs -->
+      <div class="flex items-center border-b border-gray-200 dark:border-gray-800 feed-tabs">
+        <button class="px-6 py-4 text-sm font-bold text-orange-600 border-b-2 border-orange-600 transition-colors tab-btn" data-tab="foryou" data-i18n="home.forYou">For You</button>
+        <button class="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-b-2 border-transparent transition-colors tab-btn" data-tab="following" data-i18n="home.following">Following</button>
+      </div>
+
+      <!-- Topic Action Header -->
+      <div id="desktop-topic-actions-container" class="hidden flex items-center justify-between pb-2 mb-4 border-b border-gray-100 dark:border-gray-800">
+        <span class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-orange-600"></span>
+          <span id="desktop-current-topic-name">Topic</span>
+        </span>
+        <button class="px-4 py-2 bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 text-orange-600 dark:text-orange-500 text-sm font-bold rounded-full border border-orange-200 dark:border-orange-800 transition-all active:scale-95 flex items-center gap-2" id="desktop-follow-topic-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          <span data-i18n="action.followTopic">Follow Topic</span>
+        </button>
       </div>
 
       <div class="desktop-feed-wrapper">
@@ -152,7 +175,9 @@ if (feedArticles.length === 0) {
         <div class="desktop-empty-state hidden bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-12">
           <EmptyState 
             title="No Results Found" 
+            titleI18n="empty.noResults"
             description="We couldn't find any articles matching your search or filters. Try different keywords or tags."
+            descriptionI18n="empty.noResultsDesc"
             icon={`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`}
           />
         </div>
@@ -198,10 +223,16 @@ if (feedArticles.length === 0) {
       <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-5">
         <h3 class="font-bold text-gray-900 dark:text-white mb-4">Trending Topics</h3>
         <div class="flex flex-wrap gap-2 topic-pills">
-          <span class="desktop-tag px-3 py-1.5 rounded-full bg-orange-600 text-white text-xs font-bold border border-orange-600 cursor-pointer transition-all active:scale-95" data-tag="all">All Topics</span>
-          {['Technology', 'Design', 'Web Dev', 'Astro', 'Node.js', 'Lifestyle', 'General'].map(tag => (
-            <span class="desktop-tag px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/50 transition-all active:scale-95" data-tag={tag.toLowerCase()}>{tag}</span>
-          ))}
+          <span class="desktop-tag px-3 py-1.5 rounded-full bg-orange-600 text-white text-xs font-bold border border-orange-600 cursor-pointer transition-all active:scale-95" data-tag="all" data-i18n="explore.allTopics">All Topics</span>
+          {topicCategories.length > 0 ? (
+            topicCategories.map(cat => (
+              <span class="desktop-tag px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/50 transition-all active:scale-95" data-tag={cat.title.toLowerCase()} data-i18n={`category.${cat.slug || cat.title.toLowerCase().replace(/\s+/g, '-')}`}>{cat.title}</span>
+            ))
+          ) : (
+            ['Technology', 'Design', 'Web Dev', 'Astro', 'Node.js', 'Lifestyle', 'General'].map(tag => (
+              <span class="desktop-tag px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/50 transition-all active:scale-95" data-tag={tag.toLowerCase()} data-i18n={`category.${tag.toLowerCase().replace(/\s+/g, '-')}`}>{tag}</span>
+            ))
+          )}
         </div>
       </div>
       
@@ -246,10 +277,78 @@ if (feedArticles.length === 0) {
     const emptyState = document.querySelector('.desktop-empty-state');
     const articleCards = document.querySelectorAll('.desktop-article-card');
     const tags = document.querySelectorAll('.desktop-tag');
+    const feedTabs = document.querySelectorAll('.tab-btn');
+    const topicActionsContainer = document.getElementById('desktop-topic-actions-container');
+    const currentTopicName = document.getElementById('desktop-current-topic-name');
+    const followTopicBtn = document.getElementById('desktop-follow-topic-btn');
     
     let activeTag = 'all';
     let searchQuery = '';
     let timeoutId: any = null;
+
+    // Follow Topic logic
+    if (followTopicBtn) {
+      followTopicBtn.addEventListener('click', () => {
+        const isFollowing = followTopicBtn.classList.contains('followed');
+        if (isFollowing) {
+          followTopicBtn.classList.remove('followed', 'bg-orange-600', 'text-white');
+          followTopicBtn.classList.add('bg-orange-50', 'dark:bg-orange-900/30', 'text-orange-600', 'dark:text-orange-500');
+          const span = followTopicBtn.querySelector('span');
+          if(span) {
+            span.setAttribute('data-i18n', 'action.followTopic');
+            span.textContent = 'Follow Topic';
+          }
+          if ((window as any).toast) (window as any).toast("Topic unfollowed");
+        } else {
+          followTopicBtn.classList.add('followed', 'bg-orange-600', 'text-white');
+          followTopicBtn.classList.remove('bg-orange-50', 'dark:bg-orange-900/30', 'text-orange-600', 'dark:text-orange-500');
+          const span = followTopicBtn.querySelector('span');
+          if(span) {
+            span.setAttribute('data-i18n', 'action.followingTopic');
+            span.textContent = 'Following';
+          }
+          if ((window as any).toast) (window as any).toast("Topic followed");
+        }
+      });
+    }
+
+    // Tabs logic
+    feedTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        feedTabs.forEach(t => {
+          t.classList.remove('text-orange-600', 'border-orange-600', 'font-bold');
+          t.classList.add('text-gray-500', 'dark:text-gray-400', 'border-transparent', 'font-medium');
+        });
+        const target = e.currentTarget as HTMLElement;
+        target.classList.remove('text-gray-500', 'dark:text-gray-400', 'border-transparent', 'font-medium');
+        target.classList.add('text-orange-600', 'border-orange-600', 'font-bold');
+        
+        if (content && skeleton && emptyState) {
+          content.classList.add('hidden');
+          emptyState.classList.add('hidden');
+          skeleton.classList.remove('hidden');
+          if (topicActionsContainer) topicActionsContainer.classList.add('hidden');
+          
+          setTimeout(() => {
+            skeleton.classList.add('hidden');
+            const tabId = target.getAttribute('data-tab');
+            if (tabId === 'following') {
+              emptyState.classList.remove('hidden'); // Demo empty following
+            } else {
+              activeTag = 'all'; // Reset tag
+              tags.forEach(btn => {
+                if(btn.getAttribute('data-tag') === 'all') {
+                  btn.className = "desktop-tag px-3 py-1.5 rounded-full bg-orange-600 text-white text-xs font-bold border border-orange-600 cursor-pointer transition-all active:scale-95";
+                } else {
+                  btn.className = "desktop-tag px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/50 transition-all active:scale-95";
+                }
+              });
+              filterArticles();
+            }
+          }, 400);
+        }
+      });
+    });
 
     function triggerStaggeredAnimation(container: HTMLElement | null) {
       if (!container) return;
@@ -317,9 +416,15 @@ if (feedArticles.length === 0) {
           content.classList.add('hidden');
           emptyState?.classList.add('hidden');
           skeleton.classList.remove('hidden');
+          if (topicActionsContainer) topicActionsContainer.classList.add('hidden');
           
           setTimeout(() => {
             skeleton.classList.add('hidden');
+            if (activeTag !== 'all' && topicActionsContainer && currentTopicName) {
+              const tagText = tagBtn.textContent || '';
+              currentTopicName.textContent = tagText;
+              topicActionsContainer.classList.remove('hidden');
+            }
             filterArticles();
           }, 400);
         } else {

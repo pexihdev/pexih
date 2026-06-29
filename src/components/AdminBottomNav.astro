@@ -4,13 +4,13 @@ import Layout from '../layouts/Layout.astro';
 const currentPath = Astro.url.pathname;
 ---
 
-<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] z-50">
-  <nav class="w-full h-[52px] bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 flex items-center justify-around px-2">
-    <a href="/admin" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath === '/admin' ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] z-50" transition:persist="admin-bottom-nav">
+  <nav class="w-full h-[52px] bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 flex items-center justify-around px-2" id="admin-bottom-nav-links">
+    <a href="/admin" data-path="/admin" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath === '/admin' ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
       <span class="text-[8px] font-medium">Dashboard</span>
     </a>
-    <a href="/admin/users" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/admin/users') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
+    <a href="/admin/users" data-path="/admin/users" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/admin/users') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span class="text-[8px] font-medium">Users</span>
     </a>
@@ -19,14 +19,38 @@ const currentPath = Astro.url.pathname;
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
       </div>
     </a>
-    <a href="/admin/analytics" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/admin/analytics') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
+    <a href="/admin/analytics" data-path="/admin/analytics" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/admin/analytics') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
       <span class="text-[8px] font-medium">Analytics</span>
     </a>
-    <a href="/admin/settings" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/admin/settings') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
+    <a href="/admin/settings" data-path="/admin/settings" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/admin/settings') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
       <span class="text-[8px] font-medium">Settings</span>
     </a>
   </nav>
   <div class="w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md" style="height: env(safe-area-inset-bottom);"></div>
 </div>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const currentPath = window.location.pathname;
+    const nav = document.getElementById('admin-bottom-nav-links');
+    if (!nav) return;
+    
+    const links = nav.querySelectorAll('a[data-path]');
+    links.forEach(link => {
+      const path = link.getAttribute('data-path');
+      if (!path) return;
+      
+      const isActive = path === '/admin' ? currentPath === '/admin' : currentPath.startsWith(path);
+      
+      if (isActive) {
+        link.classList.remove('text-gray-400', 'hover:text-gray-600');
+        link.classList.add('text-orange-600');
+      } else {
+        link.classList.add('text-gray-400', 'hover:text-gray-600');
+        link.classList.remove('text-orange-600');
+      }
+    });
+  });
+</script>

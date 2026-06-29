@@ -2,13 +2,13 @@
 const currentPath = Astro.url.pathname;
 ---
 
-<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] z-50">
-  <nav class="w-full h-[52px] bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 flex items-center justify-around px-2">
-    <a href="/" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath === '/' ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] z-50" transition:persist="mobile-bottom-nav">
+  <nav class="w-full h-[52px] bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 flex items-center justify-around px-2" id="mobile-bottom-nav-links">
+    <a href="/" data-path="/" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath === '/' ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span class="text-[8px] font-medium" data-i18n="nav.home">Home</span>
     </a>
-    <a href="/explore" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/explore') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
+    <a href="/explore" data-path="/explore" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/explore') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
       <span class="text-[8px] font-medium" data-i18n="nav.explore">Explore</span>
     </a>
@@ -17,14 +17,38 @@ const currentPath = Astro.url.pathname;
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
       </div>
     </a>
-    <a href="/bookmarks" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/bookmarks') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
+    <a href="/bookmarks" data-path="/bookmarks" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/bookmarks') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
       <span class="text-[8px] font-medium" data-i18n="nav.bookmark">Saved</span>
     </a>
-    <a href="/profile" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/profile') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
+    <a href="/profile" data-path="/profile" class={`flex flex-col items-center justify-center w-12 h-full gap-1 transition-all duration-200 active:scale-95 ease-out ${currentPath.startsWith('/profile') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-600'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span class="text-[8px] font-medium" data-i18n="nav.profile">Profile</span>
     </a>
   </nav>
   <div class="w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md" style="height: env(safe-area-inset-bottom);"></div>
 </div>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const currentPath = window.location.pathname;
+    const nav = document.getElementById('mobile-bottom-nav-links');
+    if (!nav) return;
+    
+    const links = nav.querySelectorAll('a[data-path]');
+    links.forEach(link => {
+      const path = link.getAttribute('data-path');
+      if (!path) return;
+      
+      const isActive = path === '/' ? currentPath === '/' : currentPath.startsWith(path);
+      
+      if (isActive) {
+        link.classList.remove('text-gray-400', 'hover:text-gray-600');
+        link.classList.add('text-orange-600');
+      } else {
+        link.classList.add('text-gray-400', 'hover:text-gray-600');
+        link.classList.remove('text-orange-600');
+      }
+    });
+  });
+</script>
