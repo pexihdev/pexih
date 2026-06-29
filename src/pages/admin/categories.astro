@@ -4,7 +4,7 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
 // Fetch initially for SSR speed
 let initialCategories = [];
 try {
-  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
   const res = await fetch(`${backendUrl}/api/categories`);
   if (res.ok) {
     initialCategories = await res.json();
@@ -28,7 +28,7 @@ try {
     </div>
   </div>
 
-  <div class="" style="height: calc(52px + max(env(safe-area-inset-top), 16px));"></div>
+  <div class="" style="height: calc(44px + max(env(safe-area-inset-top), 16px));"></div>
   <div class="p-4 pb-12 space-y-4">
     <!-- Search -->
     <div class="relative">

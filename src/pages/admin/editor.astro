@@ -5,7 +5,7 @@ const id = Astro.url.searchParams.get('id');
 let article = null;
 let categoryOptions = ['Minimalism', 'UI/UX', 'Technology', 'Culture', 'General'];
 
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 
 try {
   if (id) {
@@ -62,7 +62,7 @@ const publishDateValue = article ? formatDatetimeLocal(article.publishedAt || ar
     </div>
   </div>
 
-  <div class="" style="height: calc(52px + max(env(safe-area-inset-top), 16px));"></div>
+  <div class="" style="height: calc(44px + max(env(safe-area-inset-top), 16px));"></div>
   <!-- Include Quill stylesheet -->
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   

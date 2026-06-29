@@ -12,7 +12,7 @@ const { title, showBottomNav = true } = Astro.props;
 
 <Layout title={title}>
 	<main class={`fixed inset-0 w-full max-w-[400px] mx-auto flex flex-col bg-white dark:bg-gray-900 shadow-sm font-sans overflow-y-auto overflow-x-hidden relative ${showBottomNav ? 'pb-[52px]' : ''}`} id="admin-mobile-main-wrapper" style="overflow: hidden !important;">
-		<div id="admin-mobile-scroll-container" class="flex-1 h-full max-h-full overflow-y-auto overflow-x-hidden relative w-full flex flex-col" style="-webkit-overflow-scrolling: touch; touch-action: pan-y;">
+		<div id="admin-mobile-scroll-container" class="flex-1 h-full min-h-0 max-h-full overflow-y-auto overflow-x-hidden relative w-full flex flex-col" style="-webkit-overflow-scrolling: touch; touch-action: pan-y;">
 			<slot />
 		</div>
 		{showBottomNav && <AdminBottomNav />}

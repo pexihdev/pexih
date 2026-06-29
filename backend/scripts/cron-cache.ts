@@ -5,7 +5,7 @@ import { resolve } from 'path';
 config({ path: resolve(__dirname, '../../.env') });
 config({ path: resolve(__dirname, '../.env') });
 
-const BACKEND_URL = process.env.PUBLIC_BACKEND_URL || 'https://pexih-backend.vercel.app';
+const BACKEND_URL = process.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 
 async function runCron() {
   console.log('⏳ CRON JOB INITIATED: Synchronizing edge cache & automated scheduling pipeline...');

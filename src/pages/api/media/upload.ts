@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 
 export const POST: APIRoute = async ({ request }) => {
   try {

@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { setSessionCookie } from '../../../lib/auth';
 
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {

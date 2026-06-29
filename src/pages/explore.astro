@@ -6,7 +6,7 @@ import ArticleSkeleton from '../components/ArticleSkeleton.astro';
 
 // Fetch articles from the Backend API for SSR
 let exploreArticles = [];
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 try {
   const res = await fetch(`${backendUrl}/api/articles`);
   if (res.ok) {
@@ -71,7 +71,7 @@ const trendingPosts = exploreArticles.slice(1);
   </div>
 
   <!-- Spacer to prevent overlap with fixed header -->
-  <div class="" style="height: calc(52px + max(env(safe-area-inset-top), 16px));"></div>
+  <div class="" style="height: calc(44px + max(env(safe-area-inset-top), 16px));"></div>
 
   <div class="px-4 py-2 space-y-4">
     <!-- Categories -->

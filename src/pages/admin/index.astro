@@ -17,7 +17,7 @@ function parseViews(v: string | null | undefined): number {
 }
 
 // Fetch stats from API
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 let allUsers = [];
 let allArticles = [];
 
@@ -153,7 +153,7 @@ const finalLogs = mappedLogs.length > 0 ? mappedLogs : fallbackLogs;
     </div>
   </div>
 
-  <div class="" style="height: calc(52px + max(env(safe-area-inset-top), 16px));"></div>
+  <div class="" style="height: calc(44px + max(env(safe-area-inset-top), 16px));"></div>
   <div class="p-4 space-y-4">
     <!-- Stat Cards -->
     <div class="grid grid-cols-2 gap-3">

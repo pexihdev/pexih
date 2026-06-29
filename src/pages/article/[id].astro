@@ -6,7 +6,7 @@ const { id } = Astro.params;
 
 let article = null;
 let htmlContent = '';
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 
 if (id) {
   try {
@@ -111,7 +111,7 @@ const articleJson = JSON.stringify(articleData);
   </div>
 
   <div class="pb-16 bg-white dark:bg-gray-900 min-h-screen animate-fade-in">
-    <div style="height: calc(52px + max(env(safe-area-inset-top), 16px));"></div>
+    <div style="height: calc(44px + max(env(safe-area-inset-top), 16px));"></div>
     <div class="aspect-[16/9] w-full relative bg-gray-100 dark:bg-gray-800">
       <img 
         src={article.img || `https://images.unsplash.com/photo-${1550000000000 + Number(id || 1) * 5}?auto=format,compress&fit=crop&w=800&q=80`} 

@@ -40,5 +40,5 @@
 
 /* Fix for fixed headers in mobile layout */
 main.fixed.inset-0 > div.fixed.top-0 + div {
-  margin-top: 52px;
+  margin-top: 44px;
 }

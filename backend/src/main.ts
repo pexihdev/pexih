@@ -19,10 +19,7 @@ const JWT_SECRET = new TextEncoder().encode(
 
 const app = express();
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow all origins to support multiple Vercel deployments (Frontend, Admin Panel)
-    callback(null, true);
-  },
+  origin: '*',
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
   credentials: true,
 }));

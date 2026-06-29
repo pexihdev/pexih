@@ -4,7 +4,7 @@ import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
 // Fetch initially for SSR speed
 let initialCategories = [];
 try {
-  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
   const res = await fetch(`${backendUrl}/api/categories`);
   if (res.ok) {
     initialCategories = await res.json();

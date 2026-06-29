@@ -3,7 +3,7 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
 
 let allArticles = [];
 try {
-  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
   const res = await fetch(`${backendUrl}/api/articles`);
   if (res.ok) {
     allArticles = await res.json();
@@ -27,7 +27,7 @@ const draftCount = allArticles.filter(a => a.status === 'draft').length;
     </div>
   </div>
 
-  <div class="" style="height: calc(52px + max(env(safe-area-inset-top), 16px));"></div>
+  <div class="" style="height: calc(44px + max(env(safe-area-inset-top), 16px));"></div>
   <div class="p-4 pb-20 space-y-4">
     <!-- Filter tabs -->
     <div class="flex gap-4 border-b border-gray-200 dark:border-gray-800 pb-2">

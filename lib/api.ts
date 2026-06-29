@@ -2,7 +2,7 @@ import { Article, Category } from "./articlesData";
 import { getTagColorFromName, slugify, getArticleTags, generateArticleId } from "./utils";
 
 // Look for a configured backend url or default to a proxy via Next.js
-let API_BASE = "https://pexih-backend.vercel.app";
+let API_BASE = "https://pexih-api.vercel.app";
 try {
   if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.PUBLIC_BACKEND_URL) {
     API_BASE = (import.meta as any).env.PUBLIC_BACKEND_URL;

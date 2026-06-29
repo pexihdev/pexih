@@ -5,7 +5,7 @@ const id = Astro.url.searchParams.get('id');
 let article = null;
 let categoryOptions = ['Minimalism', 'UI/UX', 'Technology', 'Culture', 'General'];
 
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
 
 try {
   if (id) {
