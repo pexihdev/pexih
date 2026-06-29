@@ -505,7 +505,7 @@ app.put('/api/users/:id/status', async (req, res) => {
       return res.status(400).json({ error: 'Invalid status' });
     }
     
-    await db.update(users).set({ status }).where(eq(users.id, id));
+    await db.update(users).set({ status } as any).where(eq(users.id, id));
     res.json({ success: true, message: `User status updated to ${status}` });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -705,7 +705,7 @@ app.post('/api/comments/:id/like', async (req, res) => {
     const comment = await db.select().from(comments).where(eq(comments.id, id)).limit(1);
     if (comment.length === 0) return res.status(404).json({ error: 'Not found' });
     const newLikes = (comment[0].likes || 0) + 1;
-    await db.update(comments).set({ likes: newLikes }).where(eq(comments.id, id));
+    await db.update(comments).set({ likes: newLikes } as any).where(eq(comments.id, id));
     res.json({ success: true, likes: newLikes });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -886,7 +886,7 @@ app.post('/api/media/upload', upload.single('file'), async (req, res) => {
     
     // We must use fetch with form-data since this is Express (not web Request API)
     const formData = new FormData();
-    const blob = new Blob([file.buffer], { type: file.mimetype });
+    const blob = new Blob([file.buffer as any], { type: file.mimetype });
     formData.append('file', blob, file.originalname);
     formData.append('api_key', apiKey);
     formData.append('timestamp', timestamp);
