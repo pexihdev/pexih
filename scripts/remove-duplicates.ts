@@ -2,8 +2,13 @@ import pg from 'pg';
 const { Pool } = pg;
 import { Redis } from '@upstash/redis';
 
-// Set up connection strings (pulls from system environment, with Neon pooler fallback)
-const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_vPaxrZCIX85y@ep-damp-river-aetebz2v-pooler.c-2.us-east-2.aws.neon.tech/yondaimeauhah?sslmode=require&channel_binding=require';
+// Set up connection strings (pulls from system environment)
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('❌ Error: DATABASE_URL is required to run the cleanup script.');
+  process.exit(1);
+}
 
 // Set up Upstash Redis credentials
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;

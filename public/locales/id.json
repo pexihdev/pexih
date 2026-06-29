@@ -5,5 +5,10 @@
   "nav.profile": "Profil",
   "header.goodMorning": "Selamat Pagi",
   "header.search": "Cari artikel...",
-  "article.readMore": "Baca Selengkapnya"
+  "article.readMore": "Baca Selengkapnya",
+  "article.font": "Font",
+  "article.size": "Ukuran",
+  "article.typeface": "Gaya Font",
+  "article.sans": "Sans-serif",
+  "article.serif": "Serif"
 }

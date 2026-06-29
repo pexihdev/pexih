@@ -61,6 +61,18 @@ const schema = {
     "name": article.author?.name || 'Author Name'
   }
 };
+
+const articleData = {
+  id: article.id,
+  title: article.title,
+  category: article.category || 'General',
+  img: article.img,
+  author: article.author || { name: 'Anonymous' },
+  readTime: article.readTime || '5 min read',
+  createdAt: article.createdAt || Date.now().toString()
+};
+
+const articleJson = JSON.stringify(articleData);
 ---
 
 <MobileLayout 
@@ -77,7 +89,7 @@ const schema = {
 >
   <div class="fixed top-0 w-full max-w-[400px] z-50">
     <div class="w-full h-[max(env(safe-area-inset-top),16px)] bg-white dark:bg-gray-900"></div>
-    <div class="h-[52px] px-5 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between relative">
+    <div class="pt-3 pb-2 px-5 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between relative">
       <!-- Reading Progress Bar -->
       <div class="absolute bottom-0 left-0 h-[2px] bg-orange-600 w-0 transition-all duration-150 z-10" id="reading-progress"></div>
       
@@ -88,7 +100,7 @@ const schema = {
         Article
       </div>
       <div class="flex items-center gap-1">
-        <button aria-label="Bookmark" id="bookmark-btn" data-article-id={article.id} class="text-gray-600 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95 ease-out">
+        <button aria-label="Bookmark" id="bookmark-btn" data-article-id={article.id} data-article-json={articleJson} class="text-gray-600 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95 ease-out">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
         </button>
         <button aria-label="Share" id="share-btn" class="text-gray-600 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95 ease-out">
@@ -146,13 +158,13 @@ const schema = {
       <!-- Typography & Reading Control Panel -->
       <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-850/50 rounded-xl p-2.5 mb-5 border border-gray-100 dark:border-gray-800/80">
         <div class="flex items-center gap-1.5">
-          <span class="text-[8px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1">Font</span>
-          <button id="font-sans-btn" class="px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer">Sans</button>
-          <button id="font-serif-btn" class="px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer">Serif</button>
+          <span class="text-[8px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1" data-i18n="article.font">Font</span>
+          <button id="font-sans-btn" class="px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer" data-i18n="article.sans">Sans</button>
+          <button id="font-serif-btn" class="px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer" data-i18n="article.serif">Serif</button>
         </div>
         <div class="h-4 w-px bg-gray-200 dark:bg-gray-700"></div>
         <div class="flex items-center gap-1.5">
-          <span class="text-[8px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1">Size</span>
+          <span class="text-[8px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1" data-i18n="article.size">Size</span>
           <button id="font-dec-btn" class="w-6 h-6 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[9px] font-black text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 active:scale-90 transition-all cursor-pointer">A-</button>
           <span id="font-size-badge" class="text-[9px] font-bold text-gray-500 dark:text-gray-400 w-8 text-center select-none">100%</span>
           <button id="font-inc-btn" class="w-6 h-6 flex items-center justify-center rounded bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[9px] font-black text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 active:scale-90 transition-all cursor-pointer">A+</button>
@@ -187,9 +199,68 @@ const schema = {
         </div>
       </div>
     </div>
+
+    <!-- Bookmark Category Selection Micro-Modal -->
+    <div id="bookmark-modal" class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 opacity-0 pointer-events-none transition-all duration-300">
+      <div id="bookmark-modal-container" class="w-full max-w-[400px] bg-white dark:bg-gray-900 rounded-t-2xl p-5 shadow-lg transform translate-y-full transition-transform duration-300">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-[14px] font-black text-gray-900 dark:text-white flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+            <span data-i18n="bookmark.saveTitle">Simpan ke Koleksi</span>
+          </h4>
+          <button id="close-bookmark-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <p class="text-[10px] text-gray-500 dark:text-gray-400 mb-4" data-i18n="bookmark.saveDesc">Pilih label atau kategori untuk artikel ini agar mudah ditemukan nanti.</p>
+
+        <!-- Predefined Labels -->
+        <div class="grid grid-cols-1 gap-2 mb-4">
+          <button type="button" class="label-option flex items-center justify-between px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800 text-left hover:bg-orange-50 dark:hover:bg-orange-950/20 text-[11px] text-gray-700 dark:text-gray-300 font-bold transition-all" data-label="Dibaca Nanti">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span data-i18n="bookmark.readLater">Dibaca Nanti</span>
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon hidden text-orange-600"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button type="button" class="label-option flex items-center justify-between px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800 text-left hover:bg-orange-50 dark:hover:bg-orange-950/20 text-[11px] text-gray-700 dark:text-gray-300 font-bold transition-all" data-label="Penting">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-red-500"></span>
+              <span data-i18n="bookmark.important">Penting</span>
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon hidden text-orange-600"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+          <button type="button" class="label-option flex items-center justify-between px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800 text-left hover:bg-orange-50 dark:hover:bg-orange-950/20 text-[11px] text-gray-700 dark:text-gray-300 font-bold transition-all" data-label="Referensi">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span data-i18n="bookmark.reference">Referensi</span>
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon hidden text-orange-600"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Custom Label input -->
+        <div class="mb-4">
+          <label class="block text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5" data-i18n="bookmark.customLabel">Label Kustom</label>
+          <input type="text" id="custom-label-input" placeholder="Misal: Inspirasi Desain..." class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-800 rounded-xl px-3 py-2 text-[11px] text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500 transition-all">
+        </div>
+
+        <div class="flex gap-2">
+          <button id="cancel-bookmark-btn" class="flex-1 py-2 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[11px] font-bold rounded-xl active:scale-95 transition-all" data-i18n="bookmark.cancel">Batal</button>
+          <button id="save-bookmark-btn" class="flex-1 py-2 bg-orange-600 text-white text-[11px] font-bold rounded-xl hover:bg-orange-700 active:scale-95 transition-all" data-i18n="bookmark.save">Simpan</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <style is:global>
+    #article-content.font-serif, #article-content.font-serif * {
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif !important;
+    }
+    #article-content.font-sans, #article-content.font-sans * {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    }
     .prose h1, .prose h2, .prose h3, .prose h4 {
       color: #111827;
       font-weight: 700;
@@ -294,27 +365,165 @@ const schema = {
         });
       }
 
-      // Bookmark/Save button handler
+      // Bookmark/Save button handler with Label Selection Modal
       const bookmarkBtn = document.getElementById('bookmark-btn');
-      if (bookmarkBtn) {
-        bookmarkBtn.addEventListener('click', async () => {
-          const articleId = bookmarkBtn.getAttribute('data-article-id');
-          if (window.toast) {
-            window.toast("Article saved");
-          }
-          bookmarkBtn.classList.replace('text-gray-600', 'text-orange-600');
-          bookmarkBtn.classList.replace('dark:text-gray-300', 'dark:text-orange-500');
+      const bookmarkModal = document.getElementById('bookmark-modal');
+      const bookmarkModalContainer = document.getElementById('bookmark-modal-container');
+      const closeBookmarkModalBtn = document.getElementById('close-bookmark-modal');
+      const cancelBookmarkBtn = document.getElementById('cancel-bookmark-btn');
+      const saveBookmarkBtn = document.getElementById('save-bookmark-btn');
+      const labelOptions = document.querySelectorAll('.label-option');
+      const customLabelInput = document.getElementById('custom-label-input') as HTMLInputElement;
 
-          if (articleId) {
-            try {
-              await fetch('/api/interactions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ articleId, interactionType: 'bookmark' })
+      let selectedLabel = "Dibaca Nanti";
+      let currentArticleJson = null;
+
+      function getSavedBookmarks() {
+        try {
+          return JSON.parse(localStorage.getItem('pexih-bookmarks') || '[]');
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveBookmarksToStorage(bookmarks) {
+        localStorage.setItem('pexih-bookmarks', JSON.stringify(bookmarks));
+      }
+
+      const updateBookmarkButtonState = () => {
+        if (!bookmarkBtn) return;
+        const articleId = bookmarkBtn.getAttribute('data-article-id');
+        const bookmarks = getSavedBookmarks();
+        const isSaved = bookmarks.some(b => b.id === articleId);
+
+        if (isSaved) {
+          bookmarkBtn.classList.remove('text-gray-600', 'dark:text-gray-300');
+          bookmarkBtn.classList.add('text-orange-600', 'dark:text-orange-500');
+        } else {
+          bookmarkBtn.classList.remove('text-orange-600', 'dark:text-orange-500');
+          bookmarkBtn.classList.add('text-gray-600', 'dark:text-gray-300');
+        }
+      };
+
+      updateBookmarkButtonState();
+
+      if (bookmarkBtn && bookmarkModal && bookmarkModalContainer) {
+        labelOptions.forEach(opt => {
+          opt.addEventListener('click', () => {
+            labelOptions.forEach(o => {
+              o.classList.remove('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+              o.classList.add('border-gray-100', 'dark:border-gray-800');
+              o.querySelector('.check-icon')?.classList.add('hidden');
+            });
+            opt.classList.remove('border-gray-100', 'dark:border-gray-800');
+            opt.classList.add('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+            opt.querySelector('.check-icon')?.classList.remove('hidden');
+            selectedLabel = opt.getAttribute('data-label') || '';
+            if (customLabelInput) customLabelInput.value = '';
+          });
+        });
+
+        if (customLabelInput) {
+          customLabelInput.addEventListener('input', () => {
+            if (customLabelInput.value.trim() !== '') {
+              labelOptions.forEach(o => {
+                o.classList.remove('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+                o.classList.add('border-gray-100', 'dark:border-gray-800');
+                o.querySelector('.check-icon')?.classList.add('hidden');
               });
-            } catch (e) {
-              console.error('Failed to log bookmark interaction:', e);
+              selectedLabel = customLabelInput.value.trim();
             }
+          });
+        }
+
+        bookmarkBtn.addEventListener('click', () => {
+          const articleId = bookmarkBtn.getAttribute('data-article-id');
+          const bookmarks = getSavedBookmarks();
+          const existing = bookmarks.find(b => b.id === articleId);
+
+          if (existing) {
+            const updated = bookmarks.filter(b => b.id !== articleId);
+            saveBookmarksToStorage(updated);
+            updateBookmarkButtonState();
+            if (window.toast) {
+              const currentLang = localStorage.getItem('language') || 'en';
+              window.toast(currentLang === 'id' ? "Bookmark dihapus" : "Bookmark removed");
+            }
+            return;
+          }
+
+          const jsonStr = bookmarkBtn.getAttribute('data-article-json');
+          if (jsonStr) {
+            try {
+              currentArticleJson = JSON.parse(jsonStr);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+
+          labelOptions.forEach((o, i) => {
+            o.classList.remove('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+            o.classList.add('border-gray-100', 'dark:border-gray-800');
+            o.querySelector('.check-icon')?.classList.add('hidden');
+            if (i === 0) {
+              o.classList.add('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+              o.querySelector('.check-icon')?.classList.remove('hidden');
+              selectedLabel = o.getAttribute('data-label') || 'Dibaca Nanti';
+            }
+          });
+          if (customLabelInput) customLabelInput.value = '';
+
+          bookmarkModal.classList.remove('opacity-0', 'pointer-events-none');
+          bookmarkModalContainer.classList.remove('translate-y-full');
+        });
+
+        const closeModal = () => {
+          bookmarkModal.classList.add('opacity-0', 'pointer-events-none');
+          bookmarkModalContainer.classList.add('translate-y-full');
+        };
+
+        closeBookmarkModalBtn?.addEventListener('click', closeModal);
+        cancelBookmarkBtn?.addEventListener('click', closeModal);
+        bookmarkModal.addEventListener('click', (e) => {
+          if (e.target === bookmarkModal) closeModal();
+        });
+
+        saveBookmarkBtn?.addEventListener('click', async () => {
+          if (!currentArticleJson) return;
+
+          const bookmarks = getSavedBookmarks();
+          const labelToSave = customLabelInput?.value.trim() !== '' ? customLabelInput.value.trim() : selectedLabel;
+
+          const newBookmark = {
+            ...currentArticleJson,
+            label: labelToSave || 'Dibaca Nanti',
+            savedAt: Date.now()
+          };
+
+          const index = bookmarks.findIndex(b => b.id === newBookmark.id);
+          if (index > -1) {
+            bookmarks[index] = newBookmark;
+          } else {
+            bookmarks.push(newBookmark);
+          }
+
+          saveBookmarksToStorage(bookmarks);
+          updateBookmarkButtonState();
+          closeModal();
+
+          if (window.toast) {
+            const currentLang = localStorage.getItem('language') || 'en';
+            window.toast(currentLang === 'id' ? "Artikel disimpan" : "Article saved");
+          }
+
+          try {
+            await fetch('/api/interactions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ articleId: currentArticleJson.id, interactionType: 'bookmark' })
+            });
+          } catch (e) {
+            console.error('Failed to log bookmark interaction:', e);
           }
         });
       }
@@ -390,9 +599,8 @@ const schema = {
       const container = document.querySelector('main') || document.body;
       
       const updateProgress = () => {
-        // Find the scrollable element. In mobile layout, it's likely the wrapper or window.
-        // PEXIH Mobile uses a fixed wrapper with overflow-y-auto
-        const wrapper = document.querySelector('.overflow-y-auto') || window;
+        // Find the scrollable element. In mobile layout, it's the mobile-scroll-container.
+        const wrapper = document.getElementById('mobile-scroll-container') || document.querySelector('.overflow-y-auto') || window;
         const scrollEl = wrapper === window ? document.documentElement : wrapper;
         
         const scrollTop = scrollEl.scrollTop || window.scrollY;
@@ -405,7 +613,7 @@ const schema = {
         }
       };
 
-      const scrollWrapper = document.querySelector('.overflow-y-auto') || window;
+      const scrollWrapper = document.getElementById('mobile-scroll-container') || document.querySelector('.overflow-y-auto') || window;
       scrollWrapper.addEventListener('scroll', updateProgress);
       // Run once on load
       updateProgress();

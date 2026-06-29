@@ -150,7 +150,7 @@ const currentPath = Astro.url.pathname;
 			document.addEventListener('astro:page-load', setupAdminSidebarToggle);
 		</script>
 		
-		<main class="flex-1 w-full flex flex-col h-screen overflow-y-auto bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+		<main class="flex-1 min-h-0 w-full flex flex-col overflow-y-auto bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 			<slot />
 		</main>
 	</div>

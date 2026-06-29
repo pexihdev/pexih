@@ -9,6 +9,11 @@ coverage/
 .vercel/
 out/
 
+# Astro & Build Outputs
+.astro/
+dist/
+/backend/dist/
+
 # Temporary and backup files generated during runs
 backup-d1.sql
 backup-postgres.json

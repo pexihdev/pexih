@@ -23,10 +23,8 @@ const savedPosts = [1, 2, 3, 4];
 
   <div class="p-8 max-w-7xl mx-auto space-y-8">
     <!-- Categories Filter Bar -->
-    <div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide border-b border-gray-100 dark:border-gray-800">
-      <button class="px-5 py-2 rounded-full bg-orange-600 text-white text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ease-out">All Collections</button>
-      <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out">Reading List</button>
-      <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out">Inspirations</button>
+    <div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide border-b border-gray-100 dark:border-gray-800" id="desktop-bookmarks-categories">
+      <!-- Generated via JS -->
     </div>
 
     <!-- Content Area -->
@@ -46,40 +44,12 @@ const savedPosts = [1, 2, 3, 4];
 
       <!-- Real Content (2-Column Grid for Desktop) -->
       <div class="bookmarks-actual-content">
-        {savedPosts.length > 0 ? (
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {savedPosts.map((item) => (
-              <div class="flex gap-4 items-center group bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-orange-500 transition-all duration-300 relative">
-                <a href={`/desktop/article/${item}`} class="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
-                  <img 
-                    src={`https://images.unsplash.com/photo-${1550000000000 + item * 20}?auto=format,compress&fit=crop&w=300&q=80`} 
-                    alt={`Thumbnail for saved post ${item}`} 
-                    width="96"
-                    height="96"
-                    class="w-full h-full object-cover aspect-square group-hover:scale-105 transition-transform duration-300" 
-                    loading="lazy" 
-                    decoding="async"
-                    referrerpolicy="no-referrer" 
-                  />
-                </a>
-                <div class="flex-1 min-w-0 pr-6">
-                  <span class="text-[9px] text-orange-600 dark:text-orange-500 font-bold uppercase tracking-wider">Saved Post</span>
-                  <a href={`/desktop/article/${item}`} class="block group/link">
-                    <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug mt-1 mb-1.5 group-hover/link:text-orange-600 dark:group-hover/link:text-orange-500 transition-colors line-clamp-2">How to build intuitive mobile interfaces in 2026</h4>
-                  </a>
-                  <div class="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
-                    <span class="font-semibold text-gray-700 dark:text-gray-300">Jane Doe</span>
-                    <span>•</span>
-                    <span>10 min read</span>
-                  </div>
-                </div>
-                <button class="absolute top-4 right-4 p-2 text-gray-400 hover:text-orange-600 dark:text-gray-500 dark:hover:text-orange-500 transition-colors" aria-label="Remove from saved">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="desktop-bookmarks-list">
+          <!-- Dynamic Bookmarks list loaded via JS -->
+        </div>
+
+        <!-- Normal Empty State (hidden by default) -->
+        <div id="desktop-normal-empty-state" class="hidden py-8">
           <EmptyState 
             title="No Bookmarks Yet" 
             description="You haven't saved any articles. Explore and save your favorite posts to read them later."
@@ -89,7 +59,7 @@ const savedPosts = [1, 2, 3, 4];
               Explore Articles
             </a>
           </EmptyState>
-        )}
+        </div>
       </div>
 
       <!-- Empty state for search/filter -->
@@ -105,70 +75,210 @@ const savedPosts = [1, 2, 3, 4];
 </DesktopLayout>
 
 <script>
-  // Handle client-side category filtering and skeleton transition
   document.addEventListener('astro:page-load', () => {
-    const categoryBtns = document.querySelectorAll('.max-w-7xl button');
+    const listContainer = document.getElementById('desktop-bookmarks-list');
+    const categoriesContainer = document.getElementById('desktop-bookmarks-categories');
     const skeleton = document.querySelector('.bookmarks-skeleton');
-    const content = document.querySelector('.bookmarks-actual-content');
     const emptyState = document.querySelector('.bookmarks-empty-state');
+    const normalEmptyState = document.getElementById('desktop-normal-empty-state');
     const searchInput = document.getElementById('desktop-bookmarks-search') as HTMLInputElement;
-    
-    categoryBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        // Update active state
-        categoryBtns.forEach(b => {
-          b.className = 'px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out';
-        });
-        const target = e.target as HTMLElement;
-        target.className = 'px-5 py-2 rounded-full bg-orange-600 text-white text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ease-out';
-        
-        // Show skeleton
-        if (content && skeleton && emptyState) {
-          content.classList.add('hidden');
-          emptyState.classList.add('hidden');
-          skeleton.classList.remove('hidden');
-          
-          // Simulate network request
-          setTimeout(() => {
-            skeleton.classList.add('hidden');
-            
-            // Just for demonstration, if "Inspirations" is clicked, show empty state
-            if (target.textContent?.trim() === 'Inspirations') {
-              emptyState.classList.remove('hidden');
-            } else {
-              content.classList.remove('hidden');
-            }
-          }, 450);
+
+    const currentLang = localStorage.getItem('language') || 'en';
+
+    // Seed data
+    const seedBookmarks = [
+      {
+        id: "1",
+        title: "How to build intuitive mobile interfaces in 2026",
+        category: "Design",
+        img: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format,compress&fit=crop&w=300&q=80",
+        author: { name: "Jane Doe" },
+        readTime: "10 min read",
+        label: currentLang === 'id' ? "Dibaca Nanti" : "Read Later",
+        savedAt: Date.now() - 3600000 * 2
+      },
+      {
+        id: "2",
+        title: "Exploring the Digital Frontier with Astro & Node.js",
+        category: "Technology",
+        img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format,compress&fit=crop&w=300&q=80",
+        author: { name: "Alex Rivers" },
+        readTime: "5 min read",
+        label: currentLang === 'id' ? "Penting" : "Important",
+        savedAt: Date.now() - 3600000
+      },
+      {
+        id: "3",
+        title: "Mastering Fluid Grid Systems & Visual Hierarchy",
+        category: "Development",
+        img: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format,compress&fit=crop&w=300&q=80",
+        author: { name: "Sarah Conner" },
+        readTime: "8 min read",
+        label: currentLang === 'id' ? "Referensi" : "Reference",
+        savedAt: Date.now()
+      }
+    ];
+
+    function getSavedBookmarks() {
+      try {
+        const stored = localStorage.getItem('pexih-bookmarks');
+        if (!stored) {
+          localStorage.setItem('pexih-bookmarks', JSON.stringify(seedBookmarks));
+          return seedBookmarks;
         }
+        return JSON.parse(stored);
+      } catch (e) {
+        return seedBookmarks;
+      }
+    }
+
+    function saveBookmarks(bookmarks: any[]) {
+      localStorage.setItem('pexih-bookmarks', JSON.stringify(bookmarks));
+    }
+
+    let bookmarks = getSavedBookmarks();
+    let activeFilter = "All";
+    let searchQuery = "";
+
+    function renderFilters() {
+      if (!categoriesContainer) return;
+      const labels = ["All", ...new Set(bookmarks.map(b => b.label))];
+      
+      categoriesContainer.innerHTML = labels.map(label => {
+        const isActive = activeFilter === label;
+        const btnClass = isActive 
+          ? "px-5 py-2 rounded-full bg-orange-600 text-white text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ease-out cursor-pointer"
+          : "px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out cursor-pointer";
+        
+        let displayName = label;
+        if (label === "All") displayName = currentLang === 'id' ? "Semua Koleksi" : "All Collections";
+        
+        return `<button class="${btnClass}" data-filter="${label}">${displayName}</button>`;
+      }).join('');
+
+      // Add listeners
+      categoriesContainer.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const target = e.target as HTMLButtonElement;
+          activeFilter = target.getAttribute('data-filter') || 'All';
+          
+          if (listContainer && skeleton && emptyState) {
+            listContainer.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            skeleton.classList.remove('hidden');
+            
+            setTimeout(() => {
+              skeleton.classList.add('hidden');
+              renderBookmarks();
+              renderFilters(); // Update styles
+            }, 300);
+          }
+        });
       });
-    });
+    }
+
+    function renderBookmarks() {
+      if (!listContainer) return;
+
+      let filtered = bookmarks;
+      
+      // Filter by category label
+      if (activeFilter !== "All") {
+        filtered = filtered.filter(b => b.label === activeFilter);
+      }
+
+      // Filter by search query
+      if (searchQuery) {
+        filtered = filtered.filter(b => b.title.toLowerCase().includes(searchQuery));
+      }
+
+      // Toggle display of empty states
+      if (bookmarks.length === 0) {
+        normalEmptyState?.classList.remove('hidden');
+        listContainer.classList.add('hidden');
+        emptyState?.classList.add('hidden');
+        return;
+      } else {
+        normalEmptyState?.classList.add('hidden');
+      }
+
+      if (filtered.length === 0) {
+        emptyState?.classList.remove('hidden');
+        listContainer.classList.add('hidden');
+        return;
+      } else {
+        emptyState?.classList.add('hidden');
+        listContainer.classList.remove('hidden');
+      }
+
+      listContainer.innerHTML = filtered.map((b, index) => {
+        let badgeColor = "bg-orange-100 text-orange-600 dark:bg-orange-950/20 dark:text-orange-400 border border-orange-100/50 dark:border-orange-500/10";
+        if (b.label === "Penting" || b.label === "Important") badgeColor = "bg-red-100 text-red-600 dark:bg-red-950/20 dark:text-red-400 border border-red-100/50 dark:border-red-500/10";
+        else if (b.label === "Dibaca Nanti" || b.label === "Read Later") badgeColor = "bg-blue-100 text-blue-600 dark:bg-blue-950/20 dark:text-blue-400 border border-blue-100/50 dark:border-blue-500/10";
+        else if (b.label === "Referensi" || b.label === "Reference") badgeColor = "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-500/10";
+
+        return `
+          <div class="flex gap-4 items-center group bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-orange-500 transition-all duration-300 relative animate-fade-in" style="animation-delay: ${index * 75}ms">
+            <a href="/desktop/article/${b.id}" class="w-24 h-24 rounded-lg overflow-hidden pexih-placeholder bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
+              <img 
+                src="${b.img}" 
+                alt="Thumbnail" 
+                width="96"
+                height="96"
+                class="w-full h-full object-cover aspect-square group-hover:scale-105 transition-all duration-300 opacity-0" 
+                onload="this.classList.remove('opacity-0')"
+                loading="lazy"
+                referrerpolicy="no-referrer" 
+              />
+            </a>
+            <div class="flex-1 min-w-0 pr-6">
+              <div class="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                <span class="text-[8px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">${b.category}</span>
+                <span class="text-[8px] px-1.5 py-0.5 rounded-full font-bold ${badgeColor}">${b.label}</span>
+              </div>
+              <a href="/desktop/article/${b.id}" class="block group/link">
+                <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug mt-1 mb-1.5 group-hover/link:text-orange-600 dark:group-hover/link:text-orange-500 transition-colors line-clamp-2">${b.title}</h4>
+              </a>
+              <div class="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
+                <span class="font-semibold text-gray-700 dark:text-gray-300">${b.author?.name || 'Jane Doe'}</span>
+                <span>•</span>
+                <span>${b.readTime || '5 min read'}</span>
+              </div>
+            </div>
+            <button class="remove-bookmark-btn absolute top-4 right-4 p-2 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors cursor-pointer" data-id="${b.id}" aria-label="Remove from saved">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      // Add listeners to remove buttons
+      listContainer.querySelectorAll('.remove-bookmark-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          const targetId = (e.currentTarget as HTMLButtonElement).getAttribute('data-id');
+          bookmarks = bookmarks.filter(b => b.id !== targetId);
+          saveBookmarks(bookmarks);
+          
+          if (window.toast) {
+            window.toast(currentLang === 'id' ? "Bookmark dihapus" : "Bookmark removed");
+          }
+          
+          renderFilters();
+          renderBookmarks();
+        });
+      });
+    }
 
     if (searchInput) {
       searchInput.addEventListener('input', () => {
-        const query = searchInput.value.toLowerCase().trim();
-        const cards = document.querySelectorAll('.bookmarks-actual-content > div > div');
-        let hasResults = false;
-
-        cards.forEach(card => {
-          const title = card.querySelector('h4')?.textContent?.toLowerCase() || '';
-          if (title.includes(query)) {
-            (card as HTMLElement).style.display = '';
-            hasResults = true;
-          } else {
-            (card as HTMLElement).style.display = 'none';
-          }
-        });
-
-        if (emptyState) {
-          if (!hasResults && query.length > 0) {
-            emptyState.classList.remove('hidden');
-            if (content) content.classList.add('hidden');
-          } else {
-            emptyState.classList.add('hidden');
-            if (content) content.classList.remove('hidden');
-          }
-        }
+        searchQuery = searchInput.value.toLowerCase().trim();
+        renderBookmarks();
       });
     }
+
+    renderFilters();
+    renderBookmarks();
   });
 </script>

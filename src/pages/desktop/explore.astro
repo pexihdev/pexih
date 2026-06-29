@@ -44,7 +44,7 @@ const cleanMarkdown = (text: string) => {
 ---
 <DesktopLayout title="Explore - PEXIH">
   <!-- Header -->
-  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-5 h-[52px] flex items-center justify-between sticky top-0 z-50">
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-3 pb-2 px-5 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center gap-2">
       <h1 class="text-[16px] font-bold text-gray-900 dark:text-white" data-i18n="nav.explore">Explore</h1>
     </div>
@@ -89,14 +89,15 @@ const cleanMarkdown = (text: string) => {
           <!-- Left Side: Featured Article (spanning 1 col on lg) -->
           <div class="lg:col-span-1 space-y-4">
             <h3 class="text-sm font-black uppercase text-orange-600 tracking-wider">Featured Story</h3>
-            <a href={"/desktop/article/" + featuredPost.id} class="block group bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden hover:border-orange-500 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
-              <div class="aspect-[16/9] bg-gray-100 dark:bg-gray-800 overflow-hidden">
+            <a href={"/desktop/article/" + featuredPost.id} class="block group bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden hover:border-orange-500 transition-all duration-200 hover:-translate-y-1 hover:shadow-md animate-fade-in" style="animation-delay: 0ms">
+              <div class="aspect-[16/9] pexih-placeholder bg-gray-100 dark:bg-gray-800 overflow-hidden">
                 <img 
                   src={featuredPost.img || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format,compress&fit=crop&w=800&q=80"} 
                   alt={"Featured: " + featuredPost.title} 
                   width="800"
                   height="450"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 aspect-[16/9]"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 aspect-[16/9] opacity-0"
+                  onload="this.classList.remove('opacity-0')"
                   loading="eager"
                   fetchpriority="high"
                   decoding="async"
@@ -117,14 +118,15 @@ const cleanMarkdown = (text: string) => {
             <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white tracking-wider">Trending Now</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               {trendingPosts.map((item, index) => (
-                <a href={"/desktop/article/" + item.id} class="block group bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden hover:border-orange-500 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
-                  <div class="aspect-[16/9] bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                <a href={"/desktop/article/" + item.id} class="block group bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden hover:border-orange-500 transition-all duration-200 hover:-translate-y-1 hover:shadow-md animate-fade-in" style={`animation-delay: ${(index + 1) * 75}ms`}>
+                  <div class="aspect-[16/9] pexih-placeholder bg-gray-100 dark:bg-gray-800 overflow-hidden">
                     <img 
                       src={item.img || "https://images.unsplash.com/photo-" + (1550000000000 + index * 3) + "?auto=format,compress&fit=crop&w=400&q=80"} 
                       alt={"Thumbnail for " + item.title} 
                       width="400"
                       height="225"
-                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 aspect-[16/9]"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 aspect-[16/9] opacity-0"
+                      onload="this.classList.remove('opacity-0')"
                       loading="lazy"
                       decoding="async"
                       referrerpolicy="no-referrer"
@@ -195,6 +197,20 @@ const cleanMarkdown = (text: string) => {
     const content = document.querySelector('.explore-actual-content');
     const emptyState = document.querySelector('.explore-empty-state');
     const searchInput = document.getElementById('desktop-explore-search') as HTMLInputElement;
+
+    function triggerStaggeredAnimation(container: HTMLElement | null) {
+      if (!container) return;
+      const items = container.querySelectorAll('.animate-fade-in');
+      items.forEach((item: any, index: number) => {
+        item.style.animation = 'none';
+        void item.offsetWidth; // Force reflow
+        item.style.animation = '';
+        item.style.animationDelay = `${index * 75}ms`;
+      });
+    }
+
+    // Trigger initially
+    triggerStaggeredAnimation(content as HTMLElement);
     
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -220,6 +236,7 @@ const cleanMarkdown = (text: string) => {
               emptyState.classList.remove('hidden');
             } else {
               content.classList.remove('hidden');
+              triggerStaggeredAnimation(content as HTMLElement);
             }
           }, 450);
         }
@@ -360,14 +377,15 @@ const cleanMarkdown = (text: string) => {
           
           newArticles.forEach((item: any, index: number) => {
             const articleHtml = `
-              <a href="/desktop/article/${item.id}" class="block group bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden hover:border-orange-500 transition-all duration-300">
-                <div class="aspect-[16/9] bg-gray-100 dark:bg-gray-800 overflow-hidden">
+              <a href="/desktop/article/${item.id}" class="block group bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden hover:border-orange-500 transition-all duration-300 animate-fade-in" style="animation-delay: ${index * 75}ms">
+                <div class="aspect-[16/9] pexih-placeholder bg-gray-100 dark:bg-gray-800 overflow-hidden">
                   <img 
                     src="${item.img || `https://images.unsplash.com/photo-${1550000000000 + Math.floor(Math.random() * 100)}?auto=format,compress&fit=crop&w=400&q=80`}" 
                     alt="Thumbnail for ${item.title}" 
                     width="400"
                     height="225"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 aspect-[16/9]"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 aspect-[16/9] opacity-0"
+                    onload="this.classList.remove('opacity-0')"
                     loading="lazy"
                     decoding="async"
                     referrerpolicy="no-referrer"

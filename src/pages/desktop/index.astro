@@ -33,7 +33,7 @@ if (feedArticles.length === 0) {
 }
 ---
 <DesktopLayout title="Desktop Dashboard">
-  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-5 h-[52px] flex items-center justify-between sticky top-0 z-50">
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-3 pb-2 px-5 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center gap-2">
       <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">Dashboard</h1>
     </div>
@@ -113,13 +113,14 @@ if (feedArticles.length === 0) {
                 <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{post.content ? (post.content.length > 180 ? post.content.replace(/[#_*~`>\[\]\(\)]/g, '').substring(0, 180) + '...' : post.content.replace(/[#_*~`>\[\]\(\)]/g, '')) : "Discover new perspectives and insights from our community of writers and thinkers."}</p>
                 
                 {post.img && (
-                  <div class="aspect-[16/9] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4">
+                  <div class="aspect-[16/9] pexih-placeholder bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4">
                     <img 
                       src={post.img} 
                       alt={`Cover image for ${post.title}`} 
                       width="800"
                       height="450"
-                      class="w-full h-full object-cover aspect-[16/9]" 
+                      class="w-full h-full object-cover aspect-[16/9] transition-opacity duration-300 opacity-0" 
+                      onload="this.classList.remove('opacity-0')"
                       loading={index === 0 ? "eager" : "lazy"} 
                       fetchpriority={index === 0 ? "high" : "auto"}
                       decoding="async"
@@ -250,6 +251,25 @@ if (feedArticles.length === 0) {
     let searchQuery = '';
     let timeoutId: any = null;
 
+    function triggerStaggeredAnimation(container: HTMLElement | null) {
+      if (!container) return;
+      const items = container.querySelectorAll('.animate-fade-in');
+      let visibleIndex = 0;
+      items.forEach((item: any) => {
+        // Only apply animation delay to non-hidden articles
+        if (!item.classList.contains('hidden')) {
+          item.style.animation = 'none';
+          void item.offsetWidth; // Force reflow
+          item.style.animation = '';
+          item.style.animationDelay = `${visibleIndex * 75}ms`;
+          visibleIndex++;
+        }
+      });
+    }
+
+    // Trigger initially
+    triggerStaggeredAnimation(content as HTMLElement);
+
     function filterArticles() {
       let matchesCount = 0;
       
@@ -275,6 +295,7 @@ if (feedArticles.length === 0) {
       } else {
         emptyState?.classList.add('hidden');
         content?.classList.remove('hidden');
+        triggerStaggeredAnimation(content as HTMLElement);
       }
     }
 
@@ -372,14 +393,15 @@ if (feedArticles.length === 0) {
           newArticles.forEach((post, index) => {
             const articleHtml = `
               <article class="desktop-article-card bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col group animate-fade-in transition-all duration-200 hover:-translate-y-1 hover:shadow-md" style="animation-delay: ${index * 50}ms" data-title="${post.title.toLowerCase()}" data-content="${post.content ? (Array.isArray(post.content) ? post.content.join(' ').toLowerCase() : post.content.toLowerCase()) : ''}" data-category="${(post.category || 'general').toLowerCase()}">
-                <a href="/desktop/article/${post.id}" class="aspect-[16/9] block overflow-hidden relative">
+                <a href="/desktop/article/${post.id}" class="aspect-[16/9] block overflow-hidden relative pexih-placeholder bg-gray-100 dark:bg-gray-800">
                   <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10"></div>
                   <img 
                     src="${post.img || `https://images.unsplash.com/photo-${1550000000000 + Math.floor(Math.random() * 100)}?auto=format,compress&fit=crop&w=800&q=80`}" 
                     alt="Cover image for ${post.title}" 
                     width="800"
                     height="450"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-0" 
+                    onload="this.classList.remove('opacity-0')"
                     loading="lazy" 
                     fetchpriority="auto"
                     decoding="async"

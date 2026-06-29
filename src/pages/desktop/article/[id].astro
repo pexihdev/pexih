@@ -46,10 +46,22 @@ if (!article) {
 }
 
 const plainTextDesc = article.metaDescription || (article.content.replace(/[#_*~`>\[\]\(\)]/g, '').replace(/\n/g, ' ').substring(0, 150).trim() + '...');
+
+const articleData = {
+  id: article.id,
+  title: article.title,
+  category: article.category || 'General',
+  img: article.img,
+  author: article.author || { name: 'Anonymous' },
+  readTime: article.readTime || '5 min read',
+  createdAt: article.createdAt || Date.now().toString()
+};
+
+const articleJson = JSON.stringify(articleData);
 ---
 
 <DesktopLayout title={article.title} description={plainTextDesc} keywords={article.metaKeywords}>
-  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-5 h-[52px] flex items-center gap-3 sticky top-0 z-50">
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 pt-3 pb-2 px-5 flex items-center gap-3 sticky top-0 z-50">
     <!-- Reading Progress Bar -->
     <div class="absolute bottom-0 left-0 h-[2px] bg-orange-600 w-0 transition-all duration-150 z-10" id="desktop-reading-progress"></div>
     
@@ -58,7 +70,7 @@ const plainTextDesc = article.metaDescription || (article.content.replace(/[#_*~
     </button>
     <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">Article Details</h1>
     <div class="ml-auto flex items-center gap-2">
-      <button id="desktop-save-btn" data-article-id={article.id} class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+      <button id="desktop-save-btn" data-article-id={article.id} data-article-json={articleJson} class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
         Save
       </button>
@@ -113,13 +125,13 @@ const plainTextDesc = article.metaDescription || (article.content.replace(/[#_*~
         <!-- Typography & Reading Control Panel -->
         <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-800/40 rounded-2xl p-4 mb-8 border border-gray-100 dark:border-gray-800/80">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-2">Tipe Font / Typeface</span>
-            <button id="desktop-font-sans-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer">Sans-serif</button>
-            <button id="desktop-font-serif-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer">Serif</button>
+            <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-2" data-i18n="article.typeface">Tipe Font / Typeface</span>
+            <button id="desktop-font-sans-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer" data-i18n="article.sans">Sans-serif</button>
+            <button id="desktop-font-serif-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer" data-i18n="article.serif">Serif</button>
           </div>
           <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-2">Ukuran / Font Size</span>
+            <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-2" data-i18n="article.size">Ukuran / Font Size</span>
             <button id="desktop-font-dec-btn" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-black text-gray-700 dark:text-gray-300 shadow-sm hover:text-orange-600 dark:hover:text-orange-400 active:scale-90 transition-all cursor-pointer">A-</button>
             <span id="desktop-font-size-badge" class="text-xs font-bold text-gray-500 dark:text-gray-400 w-12 text-center select-none">100%</span>
             <button id="desktop-font-inc-btn" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-black text-gray-700 dark:text-gray-300 shadow-sm hover:text-orange-600 dark:hover:text-orange-400 active:scale-90 transition-all cursor-pointer">A+</button>
@@ -152,6 +164,59 @@ const plainTextDesc = article.metaDescription || (article.content.replace(/[#_*~
             <div class="text-sm text-gray-500 text-center py-8">Loading comments...</div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop Bookmark Category Selection Modal -->
+  <div id="desktop-bookmark-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 opacity-0 pointer-events-none transition-all duration-300">
+    <div id="desktop-bookmark-modal-container" class="w-full max-w-[460px] bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-2xl transform scale-95 opacity-0 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <h4 class="text-base font-black text-gray-900 dark:text-white flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+          <span data-i18n="bookmark.saveTitle">Simpan ke Koleksi</span>
+        </h4>
+        <button id="desktop-close-bookmark-modal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-5" data-i18n="bookmark.saveDesc">Pilih label atau kategori untuk artikel ini agar mudah ditemukan nanti.</p>
+
+      <!-- Predefined Labels -->
+      <div class="grid grid-cols-1 gap-2.5 mb-5">
+        <button type="button" class="desktop-label-option flex items-center justify-between px-4 py-2.5 rounded-xl border border-gray-100 dark:border-gray-800 text-left hover:bg-orange-50 dark:hover:bg-orange-950/20 text-xs text-gray-700 dark:text-gray-300 font-bold transition-all" data-label="Dibaca Nanti">
+          <span class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+            <span data-i18n="bookmark.readLater">Dibaca Nanti</span>
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon hidden text-orange-600"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <button type="button" class="desktop-label-option flex items-center justify-between px-4 py-2.5 rounded-xl border border-gray-100 dark:border-gray-800 text-left hover:bg-orange-50 dark:hover:bg-orange-950/20 text-xs text-gray-700 dark:text-gray-300 font-bold transition-all" data-label="Penting">
+          <span class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+            <span data-i18n="bookmark.important">Penting</span>
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon hidden text-orange-600"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <button type="button" class="desktop-label-option flex items-center justify-between px-4 py-2.5 rounded-xl border border-gray-100 dark:border-gray-800 text-left hover:bg-orange-50 dark:hover:bg-orange-950/20 text-xs text-gray-700 dark:text-gray-300 font-bold transition-all" data-label="Referensi">
+          <span class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span data-i18n="bookmark.reference">Referensi</span>
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="check-icon hidden text-orange-600"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Custom Label input -->
+      <div class="mb-5">
+        <label class="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2" data-i18n="bookmark.customLabel">Label Kustom</label>
+        <input type="text" id="desktop-custom-label-input" placeholder="Misal: Inspirasi Desain..." class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-150 dark:border-gray-800 rounded-xl px-4 py-2.5 text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500 transition-all">
+      </div>
+
+      <div class="flex gap-3">
+        <button id="desktop-cancel-bookmark-btn" class="flex-1 py-2.5 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs font-bold rounded-xl active:scale-95 transition-all" data-i18n="bookmark.cancel">Batal</button>
+        <button id="desktop-save-bookmark-btn" class="flex-1 py-2.5 bg-orange-600 text-white text-xs font-bold rounded-xl hover:bg-orange-700 active:scale-95 transition-all" data-i18n="bookmark.save">Simpan</button>
       </div>
     </div>
   </div>
@@ -221,27 +286,165 @@ const plainTextDesc = article.metaDescription || (article.content.replace(/[#_*~
         applyPreferences();
       }
 
-      // Desktop save button interaction
+      // Desktop save button interaction with Label Selection Modal
       const desktopSaveBtn = document.getElementById('desktop-save-btn');
-      if (desktopSaveBtn) {
-        desktopSaveBtn.addEventListener('click', async () => {
-          const articleId = desktopSaveBtn.getAttribute('data-article-id');
-          if (window.toast) {
-            window.toast("Article saved");
-          }
-          desktopSaveBtn.classList.replace('text-gray-600', 'text-orange-600');
-          desktopSaveBtn.classList.replace('dark:text-gray-300', 'dark:text-orange-500');
+      const desktopBookmarkModal = document.getElementById('desktop-bookmark-modal');
+      const desktopBookmarkModalContainer = document.getElementById('desktop-bookmark-modal-container');
+      const desktopCloseBookmarkModalBtn = document.getElementById('desktop-close-close-bookmark-modal') || document.getElementById('desktop-close-bookmark-modal');
+      const desktopCancelBookmarkBtn = document.getElementById('desktop-cancel-bookmark-btn');
+      const desktopSaveBookmarkBtn = document.getElementById('desktop-save-bookmark-btn');
+      const desktopLabelOptions = document.querySelectorAll('.desktop-label-option');
+      const desktopCustomLabelInput = document.getElementById('desktop-custom-label-input') as HTMLInputElement;
 
-          if (articleId) {
-            try {
-              await fetch('/api/interactions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ articleId, interactionType: 'bookmark' })
+      let desktopSelectedLabel = "Dibaca Nanti";
+      let desktopCurrentArticleJson = null;
+
+      function getSavedBookmarksDesktop() {
+        try {
+          return JSON.parse(localStorage.getItem('pexih-bookmarks') || '[]');
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveBookmarksToStorageDesktop(bookmarks) {
+        localStorage.setItem('pexih-bookmarks', JSON.stringify(bookmarks));
+      }
+
+      const updateDesktopBookmarkButtonState = () => {
+        if (!desktopSaveBtn) return;
+        const articleId = desktopSaveBtn.getAttribute('data-article-id');
+        const bookmarks = getSavedBookmarksDesktop();
+        const isSaved = bookmarks.some(b => b.id === articleId);
+
+        if (isSaved) {
+          desktopSaveBtn.classList.remove('text-gray-600', 'dark:text-gray-300');
+          desktopSaveBtn.classList.add('text-orange-600', 'dark:text-orange-500');
+        } else {
+          desktopSaveBtn.classList.remove('text-orange-600', 'dark:text-orange-500');
+          desktopSaveBtn.classList.add('text-gray-600', 'dark:text-gray-300');
+        }
+      };
+
+      updateDesktopBookmarkButtonState();
+
+      if (desktopSaveBtn && desktopBookmarkModal && desktopBookmarkModalContainer) {
+        desktopLabelOptions.forEach(opt => {
+          opt.addEventListener('click', () => {
+            desktopLabelOptions.forEach(o => {
+              o.classList.remove('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+              o.classList.add('border-gray-100', 'dark:border-gray-800');
+              o.querySelector('.check-icon')?.classList.add('hidden');
+            });
+            opt.classList.remove('border-gray-100', 'dark:border-gray-800');
+            opt.classList.add('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+            opt.querySelector('.check-icon')?.classList.remove('hidden');
+            desktopSelectedLabel = opt.getAttribute('data-label') || '';
+            if (desktopCustomLabelInput) desktopCustomLabelInput.value = '';
+          });
+        });
+
+        if (desktopCustomLabelInput) {
+          desktopCustomLabelInput.addEventListener('input', () => {
+            if (desktopCustomLabelInput.value.trim() !== '') {
+              desktopLabelOptions.forEach(o => {
+                o.classList.remove('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+                o.classList.add('border-gray-100', 'dark:border-gray-800');
+                o.querySelector('.check-icon')?.classList.add('hidden');
               });
-            } catch (e) {
-              console.error('Failed to log bookmark interaction:', e);
+              desktopSelectedLabel = desktopCustomLabelInput.value.trim();
             }
+          });
+        }
+
+        desktopSaveBtn.addEventListener('click', () => {
+          const articleId = desktopSaveBtn.getAttribute('data-article-id');
+          const bookmarks = getSavedBookmarksDesktop();
+          const existing = bookmarks.find(b => b.id === articleId);
+
+          if (existing) {
+            const updated = bookmarks.filter(b => b.id !== articleId);
+            saveBookmarksToStorageDesktop(updated);
+            updateDesktopBookmarkButtonState();
+            if (window.toast) {
+              const currentLang = localStorage.getItem('language') || 'en';
+              window.toast(currentLang === 'id' ? "Bookmark dihapus" : "Bookmark removed");
+            }
+            return;
+          }
+
+          const jsonStr = desktopSaveBtn.getAttribute('data-article-json');
+          if (jsonStr) {
+            try {
+              desktopCurrentArticleJson = JSON.parse(jsonStr);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+
+          desktopLabelOptions.forEach((o, i) => {
+            o.classList.remove('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+            o.classList.add('border-gray-100', 'dark:border-gray-800');
+            o.querySelector('.check-icon')?.classList.add('hidden');
+            if (i === 0) {
+              o.classList.add('border-orange-500', 'bg-orange-50', 'dark:bg-orange-950/20');
+              o.querySelector('.check-icon')?.classList.remove('hidden');
+              desktopSelectedLabel = o.getAttribute('data-label') || 'Dibaca Nanti';
+            }
+          });
+          if (desktopCustomLabelInput) desktopCustomLabelInput.value = '';
+
+          desktopBookmarkModal.classList.remove('opacity-0', 'pointer-events-none');
+          desktopBookmarkModalContainer.classList.remove('scale-95', 'opacity-0');
+        });
+
+        const closeDesktopModal = () => {
+          desktopBookmarkModal.classList.add('opacity-0', 'pointer-events-none');
+          desktopBookmarkModalContainer.classList.add('scale-95', 'opacity-0');
+        };
+
+        desktopCloseBookmarkModalBtn?.addEventListener('click', closeDesktopModal);
+        desktopCancelBookmarkBtn?.addEventListener('click', closeDesktopModal);
+        desktopBookmarkModal.addEventListener('click', (e) => {
+          if (e.target === desktopBookmarkModal) closeDesktopModal();
+        });
+
+        desktopSaveBookmarkBtn?.addEventListener('click', async () => {
+          if (!desktopCurrentArticleJson) return;
+
+          const bookmarks = getSavedBookmarksDesktop();
+          const labelToSave = desktopCustomLabelInput?.value.trim() !== '' ? desktopCustomLabelInput.value.trim() : desktopSelectedLabel;
+
+          const newBookmark = {
+            ...desktopCurrentArticleJson,
+            label: labelToSave || 'Dibaca Nanti',
+            savedAt: Date.now()
+          };
+
+          const index = bookmarks.findIndex(b => b.id === newBookmark.id);
+          if (index > -1) {
+            bookmarks[index] = newBookmark;
+          } else {
+            bookmarks.push(newBookmark);
+          }
+
+          saveBookmarksToStorageDesktop(bookmarks);
+          updateDesktopBookmarkButtonState();
+          closeDesktopModal();
+
+          if (window.toast) {
+            const currentLang = localStorage.getItem('language') || 'en';
+            window.toast(currentLang === 'id' ? "Artikel disimpan" : "Article saved");
+          }
+
+          try {
+            await fetch('/api/interactions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ articleId: desktopCurrentArticleJson.id, interactionType: 'bookmark' })
+            });
+          } catch (e) {
+            console.error('Failed to log bookmark interaction:', e);
           }
         });
       }
@@ -441,4 +644,13 @@ const plainTextDesc = article.metaDescription || (article.content.replace(/[#_*~
       }
     });
   </script>
+
+  <style is:global>
+    #desktop-article-content.font-serif, #desktop-article-content.font-serif * {
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif !important;
+    }
+    #desktop-article-content.font-sans, #desktop-article-content.font-sans * {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    }
+  </style>
 </DesktopLayout>

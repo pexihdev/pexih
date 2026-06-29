@@ -36,7 +36,7 @@ if (feedArticles.length === 0) {
 <MobileLayout title="Home">
   <div class="fixed top-0 w-full max-w-[400px] z-50">
     <div class="w-full h-[max(env(safe-area-inset-top),16px)] bg-white dark:bg-gray-900"></div>
-    <div class="bg-white dark:bg-gray-900 h-[52px] px-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+    <div class="bg-white dark:bg-gray-900 pt-3 pb-2 px-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold text-[14px]">P</div>
         <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">PE<span class="text-orange-600">X</span>IH</h1>
@@ -57,13 +57,14 @@ if (feedArticles.length === 0) {
       {[1, 2, 3, 4, 5].map((item) => (
         <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer topic-item" data-topic={item}>
           <div class="w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 transition-all duration-300 topic-ring">
-            <div class="w-full h-full rounded-full border-2 border-white dark:border-gray-900 overflow-hidden bg-gray-100 dark:bg-gray-800">
+            <div class="w-full h-full rounded-full border-2 border-white dark:border-gray-900 overflow-hidden pexih-placeholder bg-gray-100 dark:bg-gray-800">
               <img 
                 src={`https://images.unsplash.com/photo-${1550000000000 + item}?auto=format,compress&fit=crop&w=150&q=80`} 
                 alt={`Topic ${item} representation`} 
                 width="150"
                 height="150"
-                class="w-full h-full object-cover aspect-square" 
+                class="w-full h-full object-cover aspect-square transition-opacity duration-300 opacity-0" 
+                onload="this.classList.remove('opacity-0')"
                 loading="lazy" 
                 decoding="async"
                 referrerpolicy="no-referrer" 
@@ -115,13 +116,14 @@ if (feedArticles.length === 0) {
               </div>
             </div>
             
-            <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-800 relative">
+            <div class="aspect-[4/3] pexih-placeholder bg-gray-100 dark:bg-gray-800 relative">
               <img 
                 src={post.img || `https://images.unsplash.com/photo-${1550000000000 + index * 5}?auto=format,compress&fit=crop&w=600&q=80`} 
                 alt={`Cover image for ${post.title}`} 
                 width="600"
                 height="450"
-                class="w-full h-full object-cover aspect-[4/3]" 
+                class="w-full h-full object-cover aspect-[4/3] transition-opacity duration-300 opacity-0" 
+                onload="this.classList.remove('opacity-0')"
                 loading={index === 0 ? "eager" : "lazy"} 
                 fetchpriority={index === 0 ? "high" : "auto"}
                 decoding="async"
@@ -193,6 +195,20 @@ if (feedArticles.length === 0) {
     const skeleton = document.querySelector('.skeleton-container');
     const content = document.querySelector('.actual-content-container');
     const searchEmptyState = document.querySelector('.search-empty-state');
+
+    function triggerStaggeredAnimation(container: HTMLElement | null) {
+      if (!container) return;
+      const items = container.querySelectorAll('.animate-fade-in');
+      items.forEach((item: any, index: number) => {
+        item.style.animation = 'none';
+        void item.offsetWidth; // Force reflow
+        item.style.animation = '';
+        item.style.animationDelay = `${index * 75}ms`;
+      });
+    }
+
+    // Trigger initially
+    triggerStaggeredAnimation(content as HTMLElement);
     
     // Set first topic active by default
     if (topicItems.length > 0) {
@@ -237,6 +253,7 @@ if (feedArticles.length === 0) {
               searchEmptyState.classList.remove('hidden');
             } else {
               content.classList.remove('hidden');
+              triggerStaggeredAnimation(content as HTMLElement);
             }
           }, 600);
         }
@@ -298,13 +315,14 @@ if (feedArticles.length === 0) {
                   </div>
                 </div>
                 
-                <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-800 relative">
+                <div class="aspect-[4/3] pexih-placeholder bg-gray-100 dark:bg-gray-800 relative">
                   <img 
                     src="${post.img || `https://images.unsplash.com/photo-${1550000000000 + Math.floor(Math.random() * 100)}?auto=format,compress&fit=crop&w=600&q=80`}" 
                     alt="Cover image for ${post.title}" 
                     width="600"
                     height="450"
-                    class="w-full h-full object-cover aspect-[4/3]" 
+                    class="w-full h-full object-cover aspect-[4/3] transition-opacity duration-300 opacity-0" 
+                    onload="this.classList.remove('opacity-0')"
                     loading="lazy" 
                     fetchpriority="auto"
                     decoding="async"

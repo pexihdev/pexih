@@ -5,5 +5,10 @@
   "nav.profile": "Profile",
   "header.goodMorning": "Good Morning",
   "header.search": "Search articles...",
-  "article.readMore": "Read More"
+  "article.readMore": "Read More",
+  "article.font": "Font",
+  "article.size": "Size",
+  "article.typeface": "Typeface",
+  "article.sans": "Sans-serif",
+  "article.serif": "Serif"
 }

@@ -5,7 +5,11 @@ import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import * as schema from '../app/_applet/db/schema';
 
 async function main() {
-  const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_vPaxrZCIX85y@ep-damp-river-aetebz2v-pooler.c-2.us-east-2.aws.neon.tech/yondaimeauhah?sslmode=require&channel_binding=require';
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Error: DATABASE_URL is required to run migrations.');
+    process.exit(1);
+  }
   console.log('Connecting to Neon database...');
   const pool = new Pool({
     connectionString,

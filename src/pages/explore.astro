@@ -42,7 +42,7 @@ const trendingPosts = exploreArticles.slice(1);
 <MobileLayout title="Explore">
   <div class="fixed top-0 w-full max-w-[400px] z-50">
     <div class="w-full h-[max(env(safe-area-inset-top),16px)] bg-white dark:bg-gray-900"></div>
-    <div class="bg-white dark:bg-gray-900 h-[52px] px-5 border-b border-gray-100 dark:border-gray-800">
+    <div class="bg-white dark:bg-gray-900 pt-3 pb-2 px-5 border-b border-gray-100 dark:border-gray-800">
       <!-- Standard Header View -->
       <div id="header-standard-view" class="h-full flex items-center justify-between w-full">
         <h1 class="text-[16px] font-bold text-gray-900 dark:text-white" data-i18n="nav.explore">Explore</h1>
@@ -92,14 +92,15 @@ const trendingPosts = exploreArticles.slice(1);
         {exploreArticles.length > 0 ? (
           <>
             <!-- Featured Post -->
-            <a href={`/article/${featuredPost.id}`} class="block rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm relative mb-4">
-              <div class="aspect-[16/9] bg-gray-200 dark:bg-gray-800 w-full relative">
+            <a href={`/article/${featuredPost.id}`} class="block rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm relative mb-4 animate-fade-in" style="animation-delay: 0ms">
+              <div class="aspect-[16/9] pexih-placeholder bg-gray-200 dark:bg-gray-800 w-full relative">
                 <img 
                   src={featuredPost.img || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format,compress&fit=crop&w=600&q=80"} 
                   alt={`Featured Post: ${featuredPost.title}`} 
                   width="600"
                   height="337"
-                  class="w-full h-full object-cover aspect-[16/9]" 
+                  class="w-full h-full object-cover aspect-[16/9] transition-opacity duration-300 opacity-0" 
+                  onload="this.classList.remove('opacity-0')"
                   loading="eager" 
                   fetchpriority="high"
                   decoding="async"
@@ -118,14 +119,15 @@ const trendingPosts = exploreArticles.slice(1);
               <h3 class="text-[12px] font-bold text-gray-900 dark:text-white mb-2">Trending Now</h3>
               
               {trendingPosts.map((item, index) => (
-                <a href={`/article/${item.id}`} class="flex gap-3 items-center group article-item">
-                  <div class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
+                <a href={`/article/${item.id}`} class="flex gap-3 items-center group article-item animate-fade-in" style={`animation-delay: ${(index + 1) * 75}ms`}>
+                  <div class="w-20 h-20 rounded-lg overflow-hidden pexih-placeholder bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
                     <img 
                       src={item.img || `https://images.unsplash.com/photo-${1550000000000 + index}?auto=format,compress&fit=crop&w=200&q=80`} 
                       alt={`Thumbnail for ${item.title}`} 
                       width="80"
                       height="80"
-                      class="w-full h-full object-cover aspect-square" 
+                      class="w-full h-full object-cover aspect-square transition-opacity duration-300 opacity-0" 
+                      onload="this.classList.remove('opacity-0')"
                       loading="lazy" 
                       decoding="async"
                       referrerpolicy="no-referrer" 
@@ -180,6 +182,20 @@ const trendingPosts = exploreArticles.slice(1);
     const skeleton = document.querySelector('.skeleton-container');
     const content = document.querySelector('.actual-content-container');
     const searchEmptyState = document.querySelector('.search-empty-state');
+
+    function triggerStaggeredAnimation(container: HTMLElement | null) {
+      if (!container) return;
+      const items = container.querySelectorAll('.animate-fade-in');
+      items.forEach((item: any, index: number) => {
+        item.style.animation = 'none';
+        void item.offsetWidth; // Force reflow
+        item.style.animation = '';
+        item.style.animationDelay = `${index * 75}ms`;
+      });
+    }
+
+    // Trigger initially
+    triggerStaggeredAnimation(content as HTMLElement);
     
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -205,6 +221,7 @@ const trendingPosts = exploreArticles.slice(1);
               searchEmptyState.classList.remove('hidden');
             } else {
               content.classList.remove('hidden');
+              triggerStaggeredAnimation(content as HTMLElement);
             }
           }, 600);
         }
@@ -372,14 +389,15 @@ const trendingPosts = exploreArticles.slice(1);
           
           newArticles.forEach((item: any, index: number) => {
             const articleHtml = `
-              <a href="/article/${item.id}" class="flex gap-3 items-center group article-item">
-                <div class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
+              <a href="/article/${item.id}" class="flex gap-3 items-center group article-item animate-fade-in" style="animation-delay: ${index * 75}ms">
+                <div class="w-20 h-20 rounded-lg overflow-hidden pexih-placeholder bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
                   <img 
                     src="${item.img || `https://images.unsplash.com/photo-${1550000000000 + index}?auto=format,compress&fit=crop&w=200&q=80`}" 
                     alt="Thumbnail for ${item.title}" 
                     width="80"
                     height="80"
-                    class="w-full h-full object-cover aspect-square" 
+                    class="w-full h-full object-cover aspect-square transition-opacity duration-300 opacity-0" 
+                    onload="this.classList.remove('opacity-0')"
                     loading="lazy" 
                     decoding="async"
                     referrerpolicy="no-referrer" 
