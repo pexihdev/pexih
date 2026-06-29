@@ -1363,6 +1363,25 @@ app.get("/api/status", (req, res) => {
 
 // Start server only if not in Vercel serverless environment
 if (!process.env.VERCEL) {
+  // Sync missing columns for article_revisions
+  import("./db").then(({ pool }) => {
+    pool.query(`
+      CREATE TABLE IF NOT EXISTS "article_revisions" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "article_id" text NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+        "title" text NOT NULL,
+        "content" text NOT NULL,
+        "category" text NOT NULL DEFAULT '',
+        "img" text NOT NULL DEFAULT '',
+        "updated_by" integer,
+        "created_at" bigint NOT NULL
+      );
+      ALTER TABLE "article_revisions" ADD COLUMN IF NOT EXISTS "category" text NOT NULL DEFAULT '';
+      ALTER TABLE "article_revisions" ADD COLUMN IF NOT EXISTS "img" text NOT NULL DEFAULT '';
+      ALTER TABLE "article_revisions" ADD COLUMN IF NOT EXISTS "updated_by" integer;
+    `).catch(console.error);
+  });
+
   const port = process.env.PORT || 8080;
   app.listen(port, () => {
     console.log(

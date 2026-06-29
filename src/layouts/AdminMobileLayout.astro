@@ -19,17 +19,31 @@ const { title, showBottomNav = true } = Astro.props;
 	</main>
 
 	<script is:inline>
-		document.addEventListener('astro:page-load', () => {
-			const scrollContainer = document.getElementById('admin-mobile-scroll-container');
-			const mainWrapper = document.getElementById('admin-mobile-main-wrapper');
-			if (scrollContainer && mainWrapper) {
-				const header = scrollContainer.querySelector('.fixed.top-0');
-				if (header) {
-					header.classList.remove('fixed');
-					header.classList.add('absolute');
-					mainWrapper.insertBefore(header, scrollContainer);
+		(function() {
+			const handleAdminMobileHeader = (doc) => {
+				const scrollContainer = doc.getElementById('admin-mobile-scroll-container');
+				const mainWrapper = doc.getElementById('admin-mobile-main-wrapper');
+				if (scrollContainer && mainWrapper) {
+					const header = scrollContainer.querySelector('.fixed.top-0');
+					if (header) {
+						header.classList.remove('fixed');
+						header.classList.add('absolute');
+						mainWrapper.insertBefore(header, scrollContainer);
+					}
 				}
+			};
+
+			if (!window._adminMobileHeaderInitialized) {
+				window._adminMobileHeaderInitialized = true;
+				
+				document.addEventListener('astro:before-swap', (e) => {
+					handleAdminMobileHeader(e.newDocument);
+				});
+
+				document.addEventListener('astro:page-load', () => {
+					handleAdminMobileHeader(document);
+				});
 			}
-		});
+		})();
 	</script>
 </Layout>

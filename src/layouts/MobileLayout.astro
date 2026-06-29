@@ -45,40 +45,53 @@ const { title, showBottomNav = true, ...seoProps } = Astro.props;
 	</main>
 
 	<script is:inline>
-		document.addEventListener('astro:page-load', () => {
-			const scrollContainer = document.getElementById('mobile-scroll-container');
-			const mainWrapper = document.getElementById('mobile-main-wrapper');
-			const fab = document.getElementById('scroll-to-top-fab');
-			
-			// Move header with .fixed.top-0 to be outside scroll-container but inside main-wrapper
-			if (scrollContainer && mainWrapper) {
-				const header = scrollContainer.querySelector('.fixed.top-0');
-				if (header) {
-					header.classList.remove('fixed');
-					header.classList.add('absolute');
-					mainWrapper.insertBefore(header, scrollContainer);
-				}
-			}
-			
-			if (scrollContainer && fab) {
-				scrollContainer.addEventListener('scroll', () => {
-					if (scrollContainer.scrollTop > 300) {
-						fab.classList.remove('opacity-0', 'pointer-events-none');
-						fab.style.transform = 'translateY(0)';
-					} else {
-						fab.classList.add('opacity-0', 'pointer-events-none');
-						fab.style.transform = 'translateY(20px)';
+		(function() {
+			const handleMobileHeader = (doc) => {
+				const scrollContainer = doc.getElementById('mobile-scroll-container');
+				const mainWrapper = doc.getElementById('mobile-main-wrapper');
+				if (scrollContainer && mainWrapper) {
+					const header = scrollContainer.querySelector('.fixed.top-0');
+					if (header) {
+						header.classList.remove('fixed');
+						header.classList.add('absolute');
+						mainWrapper.insertBefore(header, scrollContainer);
 					}
+				}
+			};
+
+			if (!window._mobileHeaderInitialized) {
+				window._mobileHeaderInitialized = true;
+				
+				document.addEventListener('astro:before-swap', (e) => {
+					handleMobileHeader(e.newDocument);
 				});
 
-				fab.addEventListener('click', () => {
-					scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
-				});
-			}
+				document.addEventListener('astro:page-load', () => {
+					handleMobileHeader(document);
+					
+					const scrollContainer = document.getElementById('mobile-scroll-container');
+					const mainWrapper = document.getElementById('mobile-main-wrapper');
+					const fab = document.getElementById('scroll-to-top-fab');
+					
+					if (scrollContainer && fab) {
+						scrollContainer.addEventListener('scroll', () => {
+							if (scrollContainer.scrollTop > 300) {
+								fab.classList.remove('opacity-0', 'pointer-events-none');
+								fab.style.transform = 'translateY(0)';
+							} else {
+								fab.classList.add('opacity-0', 'pointer-events-none');
+								fab.style.transform = 'translateY(20px)';
+							}
+						});
 
-			// Pull to Refresh Logic (Only Home & Explore)
-			const path = window.location.pathname.replace(/\/$/, '') || '/';
-			if (['/', '/explore'].includes(path) && scrollContainer) {
+						fab.addEventListener('click', () => {
+							scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+						});
+					}
+
+					// Pull to Refresh Logic (Only Home & Explore)
+					const path = window.location.pathname.replace(/\/$/, '') || '/';
+					if (['/', '/explore'].includes(path) && scrollContainer) {
 				const contentWrapper = document.getElementById('mobile-content-wrapper');
 				const ptrIndicator = document.getElementById('ptr-indicator');
 				const ptrSpinner = document.getElementById('ptr-spinner');
@@ -209,6 +222,8 @@ const { title, showBottomNav = true, ...seoProps } = Astro.props;
 					console.error('Bookmark error:', err);
 				}
 			});
-		});
+		}); // End astro:page-load
+		} // end if initialized
+		})();
 	</script>
 </Layout>
