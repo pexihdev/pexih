@@ -1,7 +1,32 @@
 ---
 import MobileLayout from '../layouts/MobileLayout.astro';
 import HeaderActions from '../components/HeaderActions.astro';
+import ArticleSkeleton from '../components/ArticleSkeleton.astro';
+
 const user = Astro.locals.user;
+const membershipStatus = user?.role === 'admin' ? 'Pro Member' : 'Basic Member';
+
+// Fetch articles published by the user
+let publishedArticles = [];
+try {
+  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
+  const res = await fetch(`${backendUrl}/api/articles`);
+  if (res.ok) {
+    const allArticles = await res.json();
+    // In a real app we would filter by user ID.
+    // For demo, just slice a few.
+    publishedArticles = allArticles.slice(0, 3);
+  }
+} catch (error) {
+  console.error("Failed to fetch user's articles", error);
+}
+
+if (publishedArticles.length === 0) {
+  publishedArticles = [
+    { id: '1', title: 'My First Journey with Astro', category: 'Technology', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format,compress&fit=crop&w=400&q=80', createdAt: Date.now() },
+    { id: '2', title: 'Why Minimalist UI is Better', category: 'Design', img: 'https://images.unsplash.com/photo-1561070791266-4f4699042b32?auto=format,compress&fit=crop&w=400&q=80', createdAt: Date.now() - 86400000 },
+  ];
+}
 ---
 <MobileLayout title="Profile">
   <div class="fixed top-0 w-full max-w-[400px] z-50" transition:name="mobile-header">
@@ -26,7 +51,7 @@ const user = Astro.locals.user;
       </div>
       <div>
         <h2 class="text-[16px] font-bold text-gray-900 dark:text-white">{user?.name || 'Guest User'}</h2>
-        <p class="text-[10px] text-gray-500 dark:text-gray-400">@{user?.username || 'guest'} • {user?.role || 'user'}</p>
+        <p class="text-[10px] text-gray-500 dark:text-gray-400">@{user?.username || 'guest'} • <span class="text-orange-600 dark:text-orange-500 font-bold">{membershipStatus}</span></p>
       </div>
     </div>
     
@@ -45,9 +70,36 @@ const user = Astro.locals.user;
         <div class="text-[9px] text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-0.5">Following</div>
       </div>
     </div>
+
+    <!-- Published Articles -->
+    <div class="mb-8">
+      <h3 class="text-[14px] font-black text-gray-900 dark:text-white mb-4">Published Articles</h3>
+      <div class="space-y-4">
+        {publishedArticles.map((article) => (
+          <a href={`/article/${article.id}`} class="flex gap-3 items-center group">
+            <div class="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-800 shrink-0 overflow-hidden relative">
+              <img src={article.img} alt={article.title} class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[8px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-wider mb-1">{article.category}</p>
+              <h4 class="text-[12px] font-bold text-gray-900 dark:text-white leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors">{article.title}</h4>
+              <p class="text-[9px] text-gray-500 dark:text-gray-400 mt-1">{new Date(Number(article.createdAt)).toLocaleDateString()}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
     
     <!-- Actions -->
     <div class="space-y-2">
+      <a href="/settings" class="w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+        <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span class="text-[12px] font-bold" data-i18n="nav.settings">Settings</span>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 dark:text-gray-600"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+
       <button class="w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
         <div class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

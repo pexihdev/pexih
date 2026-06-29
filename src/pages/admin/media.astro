@@ -67,11 +67,14 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
       empty.classList.remove('flex');
 
       grid.innerHTML = mobileMediaList.map(item => `
-        <div class="group relative aspect-square rounded overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800" onclick="copyToClipboard('${item.url}')">
-          <img src="${item.url}" alt="Media" class="w-full h-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
-          <div class="absolute inset-0 bg-black/40 opacity-0 active:opacity-100 transition-opacity flex items-center justify-center">
+        <div class="group relative aspect-square rounded overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          <img src="${item.url}" alt="Media" class="w-full h-full object-cover" loading="lazy" referrerpolicy="no-referrer" onclick="copyToClipboard('${item.url}')" />
+          <div class="absolute inset-0 bg-black/40 opacity-0 active:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
             <span class="text-[8px] text-white font-bold bg-black/50 px-2 py-1 rounded-full">Copy Link</span>
           </div>
+          <button onclick="deleteMedia(${item.id})" class="absolute top-1 right-1 p-1 bg-white/20 hover:bg-red-500 rounded text-white opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          </button>
         </div>
       `).join('');
     }
@@ -79,6 +82,22 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
     window.copyToClipboard = (text) => {
       navigator.clipboard.writeText(text);
       window.toast('Link copied');
+    };
+
+    window.deleteMedia = async (id) => {
+      if (!confirm('Delete this image?')) return;
+      window.toast('Deleting...');
+      try {
+        const res = await fetch('/api/media/' + id, { method: 'DELETE' });
+        if (res.ok) {
+          window.toast('Deleted');
+          loadMedia();
+        } else {
+          window.toast('Failed to delete');
+        }
+      } catch (e) {
+        window.toast('Error deleting');
+      }
     };
 
     document.getElementById('mobile-upload-input').addEventListener('change', async (e) => {

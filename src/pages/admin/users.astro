@@ -19,9 +19,9 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
       </div>
       <select id="role-filter" class="px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[11px] font-bold focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors dark:text-white">
         <option value="all">All Roles</option>
-        <option value="Admin">Admin</option>
-        <option value="Writer">Writer</option>
-        <option value="User">User</option>
+        <option value="admin">Admin</option>
+        <option value="writer">Writer</option>
+        <option value="user">User</option>
       </select>
     </div>
     
@@ -43,7 +43,7 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
         <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800"></div>
         <div class="flex-1 space-y-2">
           <div class="w-3/4 h-3 bg-gray-200 dark:bg-gray-800 rounded"></div>
-          <div class="w-1/2 h-2 bg-gray-150 dark:bg-gray-850 rounded"></div>
+          <div class="w-1/2 h-2 bg-gray-100 dark:bg-gray-800 rounded"></div>
         </div>
       </div>
       <div class="flex items-center gap-3 p-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 animate-pulse">
@@ -115,7 +115,7 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-700 dark:text-orange-500 font-bold text-[12px]">
-                ${user.name.charAt(0)}
+                ${user.name.charAt(0).toUpperCase()}
               </div>
               <div>
                 <p class="text-[12px] font-bold text-gray-900 dark:text-white">${user.name}</p>
@@ -123,11 +123,15 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
               </div>
             </div>
             <div class="text-right flex flex-col items-end gap-1">
-              <span class="inline-block px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
- user.role === 'Admin' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : 
-                user.role === 'Writer' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' :
-                'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
-              }">${user.role}</span>
+              <select onchange="updateRole(${user.id}, this.value)" class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[9px] font-bold rounded px-1 py-0.5 outline-none ${
+                user.role === 'admin' ? 'text-purple-600 dark:text-purple-400' : 
+                user.role === 'writer' ? 'text-blue-600 dark:text-blue-400' :
+                'text-gray-600 dark:text-gray-300'
+              }">
+                <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
+                <option value="writer" ${user.role === 'writer' ? 'selected' : ''}>Writer</option>
+                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+              </select>
               <span class="inline-block px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
  user.status === 'Active' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
               }">${user.status}</span>
@@ -144,6 +148,27 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
         </div>
       `).join('');
     }
+
+    window.updateRole = async function(userId, newRole) {
+      window.toast('Updating role...');
+      try {
+        const res = await fetch(`/api/users/${userId}/role`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role: newRole })
+        });
+        if (res.ok) {
+          const user = users.find(u => u.id === userId);
+          if(user) user.role = newRole;
+          renderUsers();
+          window.toast('Role updated successfully');
+        } else {
+          window.toast('Failed to update role');
+        }
+      } catch (e) {
+        window.toast('Error updating role');
+      }
+    };
 
     // Modal Logic
     function requestAction(action, userId) {
@@ -261,7 +286,7 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
           id: u.id,
           name: u.name || u.username || 'User',
           email: u.email || '',
-          role: u.role || 'User',
+          role: u.role ? u.role.toLowerCase() : 'user',
           status: u.status || 'Active',
           date: u.createdAt ? new Date(Number(u.createdAt)).toLocaleDateString() : 'Just now'
         }));

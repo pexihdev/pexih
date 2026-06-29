@@ -58,6 +58,25 @@ const articleData = {
 };
 
 const articleJson = JSON.stringify(articleData);
+
+let relatedArticles = [];
+try {
+  const relatedRes = await fetch(`${backendUrl}/api/articles?category=${article.category}`);
+  if (relatedRes.ok) {
+    const allRelated = await relatedRes.json();
+    relatedArticles = allRelated.filter(a => String(a.id) !== String(article.id)).slice(0, 3);
+  }
+} catch (error) {
+  console.error('Failed to fetch related articles', error);
+}
+
+if (relatedArticles.length === 0) {
+  relatedArticles = [
+    { id: '2', title: 'The Next Big Thing in Web Development', img: `https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format,compress&fit=crop&w=800&q=80`, category: 'Technology', createdAt: Date.now() },
+    { id: '3', title: 'Why Design Matters More Than Ever', img: `https://images.unsplash.com/photo-1561070791266-4f4699042b32?auto=format,compress&fit=crop&w=800&q=80`, category: 'Design', createdAt: Date.now() - 86400000 },
+    { id: '4', title: 'A Guide to Future Interactions', img: `https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format,compress&fit=crop&w=800&q=80`, category: 'Technology', createdAt: Date.now() - 172800000 },
+  ];
+}
 ---
 
 <DesktopLayout title={article.title} description={plainTextDesc} keywords={article.metaKeywords}>
@@ -70,13 +89,17 @@ const articleJson = JSON.stringify(articleData);
     </button>
     <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">Article Details</h1>
     <div class="ml-auto flex items-center gap-2">
+      <button id="desktop-like-btn" data-article-id={article.id} class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+        <span data-i18n="article.like">Like</span>
+      </button>
       <button id="desktop-save-btn" data-article-id={article.id} data-article-json={articleJson} class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-        Save
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        <span data-i18n="article.bookmark">Save</span>
       </button>
       <button class="flex items-center gap-1.5 bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors" onclick="window.toast('Link copied')">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
-        Share
+        <span data-i18n="article.share">Share</span>
       </button>
     </div>
   </div>
@@ -140,6 +163,31 @@ const articleJson = JSON.stringify(articleData);
 
         <div id="desktop-article-content" class="text-[14px] md:text-base text-gray-700 dark:text-gray-300 space-y-6 prose dark:prose-invert max-w-none transition-all duration-150" set:html={htmlContent}>
         </div>
+
+        <!-- Related Articles -->
+        {relatedArticles && relatedArticles.length > 0 && (
+          <div class="mt-16 pt-10 border-t border-gray-100 dark:border-gray-800">
+            <h3 class="text-2xl font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+              Related Articles
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedArticles.map((item) => (
+                <a href={`/desktop/article/${item.id}`} class="group flex flex-col gap-4">
+                  <div class="aspect-[16/9] rounded-2xl bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
+                    <img src={item.img || `https://images.unsplash.com/photo-1550000000000?auto=format,compress&fit=crop&w=800&q=80`} alt={item.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    <div class="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
+                  </div>
+                  <div>
+                    <span class="text-xs font-bold text-orange-600 dark:text-orange-500 uppercase tracking-wider mb-2 block">{item.category || 'General'}</span>
+                    <h4 class="text-lg font-bold text-gray-900 dark:text-white leading-tight mb-2 group-hover:text-orange-600 transition-colors line-clamp-2">{item.title}</h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{item.createdAt ? new Date(Number(item.createdAt)).toLocaleDateString() : ''}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         <!-- Comments Section -->
         <div class="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
@@ -211,7 +259,7 @@ const articleJson = JSON.stringify(articleData);
       <!-- Custom Label input -->
       <div class="mb-5">
         <label class="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2" data-i18n="bookmark.customLabel">Label Kustom</label>
-        <input type="text" id="desktop-custom-label-input" placeholder="Misal: Inspirasi Desain..." class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-150 dark:border-gray-800 rounded-xl px-4 py-2.5 text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500 transition-all">
+        <input type="text" id="desktop-custom-label-input" placeholder="Misal: Inspirasi Desain..." class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2.5 text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500 transition-all">
       </div>
 
       <div class="flex gap-3">
@@ -288,6 +336,7 @@ const articleJson = JSON.stringify(articleData);
 
       // Desktop save button interaction with Label Selection Modal
       const desktopSaveBtn = document.getElementById('desktop-save-btn');
+      const desktopLikeBtn = document.getElementById('desktop-like-btn');
       const desktopBookmarkModal = document.getElementById('desktop-bookmark-modal');
       const desktopBookmarkModalContainer = document.getElementById('desktop-bookmark-modal-container');
       const desktopCloseBookmarkModalBtn = document.getElementById('desktop-close-close-bookmark-modal') || document.getElementById('desktop-close-bookmark-modal');
@@ -445,6 +494,30 @@ const articleJson = JSON.stringify(articleData);
             });
           } catch (e) {
             console.error('Failed to log bookmark interaction:', e);
+          }
+        });
+      }
+
+      if (desktopLikeBtn) {
+        desktopLikeBtn.addEventListener('click', async () => {
+          const articleId = desktopLikeBtn.getAttribute('data-article-id');
+          try {
+            // Note: in a real app, you would have a backend endpoint for liking articles
+            // For now we just show a toast and log interaction locally or via a mock API
+            if (window.toast) {
+              const currentLang = localStorage.getItem('language') || 'en';
+              window.toast(currentLang === 'id' ? "Disukai" : "Liked");
+            }
+            desktopLikeBtn.classList.add('text-orange-600', 'dark:text-orange-500');
+            desktopLikeBtn.classList.remove('text-gray-600', 'dark:text-gray-300');
+            
+            fetch('/api/interactions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ articleId, interactionType: 'like' })
+            }).catch(() => {});
+          } catch (e) {
+            console.error('Failed to like article', e);
           }
         });
       }

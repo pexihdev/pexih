@@ -198,6 +198,65 @@ const currentPath = Astro.url.pathname;
 						wrapper.scrollTo({ top: 0, behavior: 'smooth' });
 					});
 				}
+
+				// Bookmark logic
+				const updateBookmarkIcons = () => {
+					try {
+						const bookmarks = JSON.parse(localStorage.getItem('pexih-bookmarks') || '[]');
+						const savedIds = new Set(bookmarks.map((b) => b.id));
+						document.querySelectorAll('.bookmark-btn').forEach(btn => {
+							const id = btn.getAttribute('data-bookmark-id');
+							const icon = btn.querySelector('.bookmark-icon');
+							if (id && icon) {
+								if (savedIds.has(id)) {
+									icon.setAttribute('fill', 'currentColor');
+									btn.classList.add('!text-orange-600', 'dark:!text-orange-500');
+								} else {
+									icon.setAttribute('fill', 'none');
+									btn.classList.remove('!text-orange-600', 'dark:!text-orange-500');
+								}
+							}
+						});
+					} catch(e) {}
+				};
+
+				updateBookmarkIcons();
+
+				// Event delegation for dynamically added bookmark buttons
+				document.addEventListener('click', (e) => {
+					const btn = e.target.closest('.bookmark-btn');
+					if (!btn) return;
+					
+					e.preventDefault();
+					e.stopPropagation();
+					try {
+						const id = btn.getAttribute('data-bookmark-id');
+						if (!id) return;
+						let bookmarks = JSON.parse(localStorage.getItem('pexih-bookmarks') || '[]');
+						const index = bookmarks.findIndex((b) => b.id === id);
+						
+						if (index > -1) {
+							bookmarks.splice(index, 1);
+							if (window.toast) window.toast('Bookmark removed');
+						} else {
+							bookmarks.push({
+								id,
+								title: btn.getAttribute('data-bookmark-title'),
+								category: btn.getAttribute('data-bookmark-category'),
+								img: btn.getAttribute('data-bookmark-img'),
+								author: { name: btn.getAttribute('data-bookmark-author') },
+								readTime: btn.getAttribute('data-bookmark-readtime') || '5 min read',
+								label: 'Read Later',
+								savedAt: Date.now()
+							});
+							if (window.toast) window.toast('Article saved');
+						}
+						localStorage.setItem('pexih-bookmarks', JSON.stringify(bookmarks));
+						updateBookmarkIcons();
+					} catch(err) {
+						console.error('Bookmark error:', err);
+					}
+				});
 			});
 		</script>
 	</div>

@@ -55,7 +55,7 @@ const cleanMarkdown = (text: string) => {
     </div>
     <div class="flex items-center gap-3">
       <div class="relative">
-        <input type="text" id="desktop-explore-search" placeholder="Search topics..." class="w-64 pl-9 pr-4 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white" autocomplete="off" />
+        <input type="text" id="desktop-explore-search" data-i18n="header.search" placeholder="Search topics..." class="w-64 pl-9 pr-4 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white" autocomplete="off" />
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         <div id="search-suggestions-dropdown" class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg shadow-xl z-[100] max-h-64 overflow-y-auto hidden divide-y divide-gray-50 dark:divide-gray-750"></div>
       </div>
@@ -123,6 +123,15 @@ const cleanMarkdown = (text: string) => {
                 <p class="text-xs text-gray-600 dark:text-gray-300 line-clamp-3">{featuredPost.content ? cleanMarkdown(featuredPost.content) : "Read this highly insightful article from our community."}</p>
                 <p class="text-[10px] text-gray-400 dark:text-gray-500">{featuredPost.author?.name || 'Author'} • {featuredPost.readTime || '5 min read'}</p>
               </div>
+              <button aria-label="Save Article" class="bookmark-btn absolute right-4 top-4 p-2.5 bg-white/10 dark:bg-black/20 hover:bg-white/20 dark:hover:bg-black/40 backdrop-blur-sm rounded-full text-white hover:text-orange-400 transition-colors z-10"
+                data-bookmark-id={featuredPost.id} 
+                data-bookmark-title={featuredPost.title} 
+                data-bookmark-category={featuredPost.category || 'Featured'} 
+                data-bookmark-img={featuredPost.img || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format,compress&fit=crop&w=800&q=80"} 
+                data-bookmark-author={featuredPost.author?.name || 'Author'}
+                onclick="event.preventDefault(); event.stopPropagation();">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bookmark-icon"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              </button>
             </a>
           </div>
 
@@ -150,6 +159,15 @@ const cleanMarkdown = (text: string) => {
                     <h4 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">{item.title}</h4>
                     <p class="text-[10px] text-gray-500 dark:text-gray-400">{item.author?.name || 'Author'} • {item.readTime || '5 min read'}</p>
                   </div>
+                  <button aria-label="Save Article" class="bookmark-btn absolute right-3 top-3 p-2 bg-white/10 dark:bg-black/20 hover:bg-white/20 dark:hover:bg-black/40 backdrop-blur-sm rounded-full text-white hover:text-orange-400 transition-colors z-10"
+                    data-bookmark-id={item.id} 
+                    data-bookmark-title={item.title} 
+                    data-bookmark-category={item.category || 'Trending'} 
+                    data-bookmark-img={item.img || "https://images.unsplash.com/photo-" + (1550000000000 + index * 3) + "?auto=format,compress&fit=crop&w=400&q=80"} 
+                    data-bookmark-author={item.author?.name || 'Author'}
+                    onclick="event.preventDefault(); event.stopPropagation();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bookmark-icon"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                  </button>
                 </a>
               ))}
             </div>
@@ -177,7 +195,7 @@ const cleanMarkdown = (text: string) => {
               <div class="w-16 h-2 bg-gray-200 dark:bg-gray-800 rounded"></div>
               <div class="w-full h-3 bg-gray-200 dark:bg-gray-800 rounded"></div>
               <div class="w-3/4 h-3 bg-gray-200 dark:bg-gray-800 rounded"></div>
-              <div class="w-1/2 h-2 bg-gray-150 dark:bg-gray-850 rounded"></div>
+              <div class="w-1/2 h-2 bg-gray-100 dark:bg-gray-800 rounded"></div>
             </div>
           </div>
           <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden animate-pulse">
@@ -205,159 +223,205 @@ const cleanMarkdown = (text: string) => {
 </DesktopLayout>
 
 <script>
-  // Handle client-side category filtering and skeleton transition
+  // Handle client-side category filtering and real-time search
   document.addEventListener('astro:page-load', () => {
     const categoryBtns = document.querySelectorAll('.max-w-7xl button');
     const skeleton = document.querySelector('.explore-skeleton');
     const content = document.querySelector('.explore-actual-content');
     const emptyState = document.querySelector('.explore-empty-state');
     const searchInput = document.getElementById('desktop-explore-search') as HTMLInputElement;
+    const sentinel = document.getElementById('desktop-explore-sentinel');
+    const backendUrl = sentinel?.getAttribute('data-backend-url') || '';
+    
+    // Desktop layout specific elements
+    const featuredContainer = content?.querySelector('.lg\\:col-span-1');
+    const feedContainer = content?.querySelector('.lg\\:col-span-2 .grid');
+    const feedTitle = content?.querySelector('.lg\\:col-span-2 h3');
 
-    function triggerStaggeredAnimation(container: HTMLElement | null) {
-      if (!container) return;
-      const items = container.querySelectorAll('.animate-fade-in');
-      items.forEach((item: any, index: number) => {
-        item.style.animation = 'none';
-        void item.offsetWidth; // Force reflow
-        item.style.animation = '';
-        item.style.animationDelay = `${index * 75}ms`;
+    // Remove old items
+    function clearList() {
+      if (!feedContainer) return;
+      feedContainer.innerHTML = '';
+    }
+
+    function renderArticlesDesktop(articles: any[]) {
+      if (!feedContainer) return;
+      clearList();
+      
+      if (articles.length === 0) {
+        if (content) content.classList.add('hidden');
+        if (emptyState) emptyState.classList.remove('hidden');
+        if (sentinel) sentinel.classList.add('hidden');
+        return;
+      }
+
+      if (content) content.classList.remove('hidden');
+      if (emptyState) emptyState.classList.add('hidden');
+
+      articles.forEach((item, index) => {
+        const articleHtml = `
+          <a href="/desktop/article/${item.id}" class="block group bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden hover:border-orange-500 transition-all duration-200 hover:-translate-y-1 hover:shadow-md animate-fade-in" style="animation-delay: ${index * 50}ms">
+            <div class="aspect-[16/9] pexih-placeholder bg-gray-100 dark:bg-gray-800 overflow-hidden">
+              <img 
+                src="${item.img || `https://images.unsplash.com/photo-${1550000000000 + index * 3}?auto=format,compress&fit=crop&w=400&q=80`}" 
+                alt="Thumbnail" 
+                width="400" height="225"
+                class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 aspect-[16/9] opacity-0"
+                onload="this.classList.remove('opacity-0')"
+                loading="lazy" referrerpolicy="no-referrer"
+              />
+            </div>
+            <div class="p-4 space-y-2">
+              <span class="text-[9px] text-orange-600 dark:text-orange-500 font-bold uppercase tracking-wider">${item.category || 'Article'}</span>
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white line-clamp-2 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">${item.title}</h4>
+              <p class="text-[10px] text-gray-500 dark:text-gray-400">${item.author?.name || 'Author'} • ${item.readTime || '5 min read'}</p>
+            </div>
+          </a>
+        `;
+        feedContainer.insertAdjacentHTML('beforeend', articleHtml);
       });
     }
 
-    // Trigger initially
-    triggerStaggeredAnimation(content as HTMLElement);
+    let isFiltering = false;
+    let currentCategory = 'All Topics';
+
+    async function performFilter(query: string, category: string) {
+      if (skeleton && content && emptyState) {
+        content.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        skeleton.classList.remove('hidden');
+        if (sentinel) sentinel.classList.add('hidden');
+      }
+
+      try {
+        let url = `${backendUrl}/api/articles?limit=100`; 
+        const cacheKey = 'pexih_all_articles_cache';
+        let allData = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+        
+        if (!allData) {
+          const res = await fetch(url);
+          if (res.ok) {
+            allData = await res.json();
+            sessionStorage.setItem(cacheKey, JSON.stringify(allData));
+          } else {
+            allData = [];
+          }
+        }
+
+        let filtered = allData;
+        
+        if (category !== 'All Topics') {
+          filtered = filtered.filter((a: any) => a.category?.toLowerCase() === category.toLowerCase());
+        }
+        
+        if (query && query.length >= 2) {
+          const q = query.toLowerCase();
+          filtered = filtered.filter((a: any) => 
+            a.title?.toLowerCase().includes(q) || 
+            a.category?.toLowerCase().includes(q) || 
+            a.author?.name?.toLowerCase().includes(q)
+          );
+        }
+
+        if (skeleton) skeleton.classList.add('hidden');
+        
+        isFiltering = (category !== 'All Topics' || (query && query.length >= 2));
+        
+        if (featuredContainer) {
+          if (isFiltering) {
+            featuredContainer.classList.add('hidden');
+            // Expand the grid to full width when featured is hidden
+            const mainGrid = content?.querySelector('.grid.grid-cols-1.lg\\:grid-cols-3');
+            if (mainGrid) {
+              mainGrid.classList.remove('lg:grid-cols-3');
+              mainGrid.classList.add('lg:grid-cols-1');
+            }
+          } else {
+            featuredContainer.classList.remove('hidden');
+            const mainGrid = content?.querySelector('.grid.grid-cols-1');
+            if (mainGrid) {
+              mainGrid.classList.remove('lg:grid-cols-1');
+              mainGrid.classList.add('lg:grid-cols-3');
+            }
+          }
+        }
+
+        if (feedTitle) {
+          if (query && query.length >= 2) {
+            feedTitle.textContent = `Search Results for "${query}"`;
+          } else if (category !== 'All Topics') {
+            feedTitle.textContent = `${category} Articles`;
+          } else {
+            feedTitle.textContent = 'Trending Now';
+          }
+        }
+
+        if (isFiltering) {
+          // In filtering mode, feedContainer will show grid of 3 cols or 4 instead of 2.
+          // Wait, feedContainer is inside lg:col-span-2. When featured is hidden, it becomes lg:col-span-1.
+          // We can adjust the grid inside feedContainer to have more columns when full width
+          feedContainer?.classList.remove('md:grid-cols-2');
+          feedContainer?.classList.add('md:grid-cols-3', 'lg:grid-cols-4');
+          renderArticlesDesktop(filtered);
+        } else {
+          feedContainer?.classList.remove('md:grid-cols-3', 'lg:grid-cols-4');
+          feedContainer?.classList.add('md:grid-cols-2');
+          // Reset to default
+          renderArticlesDesktop(filtered.slice(1, 11)); // skipping 1st as it's featured
+          if (sentinel && hasMore) sentinel.classList.remove('hidden');
+        }
+
+      } catch (err) {
+        console.error(err);
+        if (skeleton) skeleton.classList.add('hidden');
+      }
+    }
     
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        // Update active state
         categoryBtns.forEach(b => {
           b.className = 'px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out';
         });
         const target = e.target as HTMLElement;
         target.className = 'px-5 py-2 rounded-full bg-orange-600 text-white text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ease-out';
         
-        // Show skeleton
-        if (content && skeleton && emptyState) {
-          content.classList.add('hidden');
-          emptyState.classList.add('hidden');
-          skeleton.classList.remove('hidden');
-          
-          // Simulate network request
-          setTimeout(() => {
-            skeleton.classList.add('hidden');
-            
-            // Just for demonstration, if "Lifestyle" is clicked, show empty state
-            if (target.textContent?.trim() === 'Lifestyle') {
-              emptyState.classList.remove('hidden');
-            } else {
-              content.classList.remove('hidden');
-              triggerStaggeredAnimation(content as HTMLElement);
-            }
-          }, 450);
-        }
+        currentCategory = target.textContent?.trim() || 'All Topics';
+        performFilter(searchInput ? searchInput.value.trim() : '', currentCategory);
       });
     });
 
     const suggestionsDropdown = document.getElementById('search-suggestions-dropdown');
 
-    if (searchInput && suggestionsDropdown) {
+    if (searchInput) {
       let debounceTimeout: any = null;
 
       // Click away closes suggestions
       document.addEventListener('click', (e) => {
-        if (!searchInput.contains(e.target as Node) && !suggestionsDropdown.contains(e.target as Node)) {
+        if (suggestionsDropdown && !searchInput.contains(e.target as Node) && !suggestionsDropdown.contains(e.target as Node)) {
           suggestionsDropdown.classList.add('hidden');
-        }
-      });
-
-      searchInput.addEventListener('focus', () => {
-        if (searchInput.value.trim().length >= 2) {
-          suggestionsDropdown.classList.remove('hidden');
         }
       });
 
       searchInput.addEventListener('input', () => {
-        const query = searchInput.value.trim();
         clearTimeout(debounceTimeout);
+        // Hide dropdown entirely as we now filter inline
+        if (suggestionsDropdown) suggestionsDropdown.classList.add('hidden');
 
-        if (query.length < 2) {
-          suggestionsDropdown.innerHTML = '';
-          suggestionsDropdown.classList.add('hidden');
-          return;
-        }
-
-        // Show elegant searching indicator
-        suggestionsDropdown.classList.remove('hidden');
-        suggestionsDropdown.innerHTML = `
-          <div class="p-3.5 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center flex items-center justify-center gap-1.5">
-            <svg class="animate-spin h-3.5 w-3.5 text-orange-600" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Mencari...
-          </div>
-        `;
-
-        debounceTimeout = setTimeout(async () => {
-          try {
-            const cacheKey = `pexih_search_desktop_${query.toLowerCase()}`;
-            const cachedData = sessionStorage.getItem(cacheKey);
-            let data;
-            
-            if (cachedData) {
-              data = JSON.parse(cachedData);
-            } else {
-              const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-              if (!res.ok) throw new Error('Search failed');
-              data = await res.json();
-              sessionStorage.setItem(cacheKey, JSON.stringify(data));
-            }
-
-            if (data.length === 0) {
-              suggestionsDropdown.innerHTML = `
-                <div class="p-3.5 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">
-                  Tidak ada hasil
-                </div>
-              `;
-              return;
-            }
-
-            suggestionsDropdown.innerHTML = '';
-            data.forEach((item: any) => {
-              const suggestionEl = document.createElement('a');
-              suggestionEl.href = `/desktop/article/${item.id}`;
-              suggestionEl.className = 'flex items-center gap-2.5 p-2.5 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer text-left w-full block';
-              suggestionEl.innerHTML = `
-                <img src="${item.img}" class="w-10 h-10 object-cover rounded-md shrink-0 border border-gray-100 dark:border-gray-800" referrerpolicy="no-referrer" />
-                <div class="min-w-0 flex-1">
-                  <p class="text-[11px] font-bold text-gray-900 dark:text-white truncate leading-tight">${item.title}</p>
-                  <p class="text-[8px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-wider mt-0.5">${item.category}</p>
-                </div>
-              `;
-              suggestionsDropdown.appendChild(suggestionEl);
-            });
-          } catch (err) {
-            console.error('Search error:', err);
-            suggestionsDropdown.innerHTML = `
-              <div class="p-3.5 text-[10px] font-bold text-red-500 uppercase tracking-wider text-center">
-                Gagal memuat hasil
-              </div>
-            `;
-          }
-        }, 300);
+        debounceTimeout = setTimeout(() => {
+          performFilter(searchInput.value.trim(), currentCategory);
+        }, 400);
       });
     }
 
     // Infinite Scrolling Logic
-    const sentinel = document.getElementById('desktop-explore-sentinel');
-    const articlesContainer = document.querySelector('.explore-actual-content > .grid');
     let currentPage = 1;
     let isLoading = false;
     let hasMore = true;
     
-    if (sentinel && articlesContainer) {
+    // For infinite scroll we append to feedContainer if not filtering
+    if (sentinel && feedContainer) {
       const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !isLoading && hasMore) {
+        if (entries[0].isIntersecting && !isLoading && hasMore && !isFiltering) {
           loadMoreArticles();
         }
       }, { rootMargin: '150px' });
@@ -366,7 +430,7 @@ const cleanMarkdown = (text: string) => {
       
       async function loadMoreArticles() {
         isLoading = true;
-        sentinel.classList.remove('opacity-0');
+        sentinel?.classList.remove('opacity-0');
         
         try {
           currentPage++;
@@ -377,7 +441,6 @@ const cleanMarkdown = (text: string) => {
           if (cachedData) {
             newArticles = JSON.parse(cachedData);
           } else {
-            const backendUrl = sentinel.getAttribute('data-backend-url') || '';
             const res = await fetch(`${backendUrl}/api/articles?page=${currentPage}&limit=9`); 
             if (!res.ok) throw new Error('Failed');
             newArticles = await res.json();
@@ -386,7 +449,7 @@ const cleanMarkdown = (text: string) => {
           
           if (newArticles.length === 0) {
             hasMore = false;
-            sentinel.classList.add('hidden');
+            if (sentinel) sentinel.classList.add('hidden');
             return;
           }
           
@@ -396,14 +459,11 @@ const cleanMarkdown = (text: string) => {
                 <div class="aspect-[16/9] pexih-placeholder bg-gray-100 dark:bg-gray-800 overflow-hidden">
                   <img 
                     src="${item.img || `https://images.unsplash.com/photo-${1550000000000 + Math.floor(Math.random() * 100)}?auto=format,compress&fit=crop&w=400&q=80`}" 
-                    alt="Thumbnail for ${item.title}" 
-                    width="400"
-                    height="225"
+                    alt="Thumbnail" 
+                    width="400" height="225"
                     class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 aspect-[16/9] opacity-0"
                     onload="this.classList.remove('opacity-0')"
-                    loading="lazy"
-                    decoding="async"
-                    referrerpolicy="no-referrer"
+                    loading="lazy" referrerpolicy="no-referrer"
                   />
                 </div>
                 <div class="p-4 space-y-2">
@@ -413,13 +473,13 @@ const cleanMarkdown = (text: string) => {
                 </div>
               </a>
             `;
-            articlesContainer.insertAdjacentHTML('beforeend', articleHtml);
+            feedContainer.insertAdjacentHTML('beforeend', articleHtml);
           });
         } catch (e) {
-          console.error("Failed to load more articles", e);
+          console.error("Failed to load more", e);
         } finally {
           isLoading = false;
-          sentinel.classList.add('opacity-0');
+          if (sentinel && hasMore) sentinel.classList.add('opacity-0');
         }
       }
     }

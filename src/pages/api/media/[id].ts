@@ -6,12 +6,14 @@ const backendUrl =
 export const DELETE: APIRoute = async ({ params }) => {
   try {
     const { id } = params;
-    if (!id)
-      return new Response(JSON.stringify({ error: "ID required" }), {
+    if (!id) {
+      return new Response(JSON.stringify({ error: "Media ID is required" }), {
         status: 400,
+        headers: { "Content-Type": "application/json" },
       });
+    }
 
-    const res = await fetch(`${backendUrl}/api/users/${id}`, {
+    const res = await fetch(`${backendUrl}/api/media/${id}`, {
       method: "DELETE",
     });
 

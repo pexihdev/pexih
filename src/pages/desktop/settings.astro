@@ -21,7 +21,7 @@ import DesktopLayout from '../../layouts/DesktopLayout.astro';
             P
           </div>
           <div>
-            <button class="bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-bold transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 mb-2">
+            <button class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-bold transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 mb-2">
               Change Avatar
             </button>
             <p class="text-xs text-gray-500 dark:text-gray-400">JPG, GIF or PNG. 1MB max.</p>
@@ -64,23 +64,21 @@ import DesktopLayout from '../../layouts/DesktopLayout.astro';
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Choose your preferred language for the interface.</p>
           </div>
           <div class="w-1/2 flex justify-end">
-            <select id="user-language-select-desktop" class="w-full max-w-xs px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white">
-              <option value="en">🇺🇸 English</option>
-              <option value="id">🇮🇩 Bahasa Indonesia</option>
-              <option value="es">🇪🇸 Español</option>
-              <option value="fr">🇫🇷 Français</option>
-              <option value="de">🇩🇪 Deutsch</option>
-              <option value="zh-CN">🇨🇳 中文 (Simplified)</option>
-              <option value="ja">🇯🇵 日本語 (Japanese)</option>
-              <option value="ru">🇷🇺 Русский</option>
-              <option value="ar">🇸🇦 العربية (Arabic)</option>
-              <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
-              <option value="bn">🇧🇩 বাংলা (Bengali)</option>
-              <option value="pt">🇵🇹 Português</option>
-              <option value="ur">🇵🇰 اردو (Urdu)</option>
-              <option value="ko">🇰🇷 한국어 (Korean)</option>
-              <option value="it">🇮🇹 Italiano (Italian)</option>
-            </select>
+            <div class="relative w-full max-w-xs" id="desktop-lang-dropdown-wrapper">
+              <button id="desktop-lang-trigger" class="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-sm font-bold transition-colors dark:text-white cursor-pointer active:scale-98">
+                <div class="flex items-center gap-3">
+                  <span id="desktop-active-flag" class="text-xl">🇺🇸</span>
+                  <span id="desktop-active-name">English</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 transition-transform duration-200" id="desktop-chevron"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              
+              <div id="desktop-lang-menu" class="absolute right-0 mt-2 w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl py-2 z-50 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top max-h-[300px] overflow-y-auto scrollbar-none">
+                <div id="desktop-lang-list" class="flex flex-col p-1 gap-1">
+                  <!-- Generated via JS -->
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -97,12 +95,12 @@ import DesktopLayout from '../../layouts/DesktopLayout.astro';
         
         <div class="p-6 flex items-center justify-between">
           <div>
-            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Dark Mode (Coming Soon)</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Toggle between light and dark themes.</p>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white" data-i18n="settings.dark_mode">Dark Mode</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Force dark theme on all pages.</p>
           </div>
-          <label class="relative inline-flex items-center cursor-not-allowed opacity-50">
-            <input aria-label="Dark Mode" type="checkbox" value="" class="sr-only peer" disabled>
-            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5"></div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input aria-label="Dark Mode" type="checkbox" id="desktop-theme-toggle" class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
           </label>
         </div>
       </div>
@@ -136,33 +134,147 @@ import DesktopLayout from '../../layouts/DesktopLayout.astro';
   </div>
 
   <script>
-    document.addEventListener('astro:page-load', () => {
-      const select = document.getElementById('user-language-select-desktop') as HTMLSelectElement;
-      if (select) {
-        const currentLang = localStorage.getItem('language') || 'en';
-        select.value = currentLang;
+    // Top 15 Languages
+    const languages = [
+      { code: 'en', name: 'English', flag: '🇺🇸' },
+      { code: 'zh-CN', name: '中文 (Simplified)', flag: '🇨🇳' },
+      { code: 'hi', name: 'हिन्दी (Hindi)', flag: '🇮🇳' },
+      { code: 'es', name: 'Español', flag: '🇪🇸' },
+      { code: 'fr', name: 'Français', flag: '🇫🇷' },
+      { code: 'ar', name: 'العربية (Arabic)', flag: '🇸🇦' },
+      { code: 'bn', name: 'বাংলা (Bengali)', flag: '🇧🇩' },
+      { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+      { code: 'pt', name: 'Português', flag: '🇵🇹' },
+      { code: 'ur', name: 'اردو (Urdu)', flag: '🇵🇰' },
+      { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+      { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+      { code: 'ja', name: '日本語 (Japanese)', flag: '🇯🇵' },
+      { code: 'ko', name: '한국어 (Korean)', flag: '🇰🇷' },
+      { code: 'it', name: 'Italiano (Italian)', flag: '🇮🇹' }
+    ];
 
-        select.addEventListener('change', (e) => {
-          const newLang = (e.target as HTMLSelectElement).value;
-          localStorage.setItem('language', newLang);
-          window.toast('Language updated');
-          
-          function setCookie(name: string, value: string) {
-					  const host = location.hostname;
-            document.cookie = name + '=' + value + '; path=/; max-age=31536000; SameSite=Lax';
-            document.cookie = name + '=' + value + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
-            document.cookie = name + '=' + value + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
-          }
-          if (newLang !== 'en') {
-            setCookie('googtrans', '/en/' + newLang);
+    document.addEventListener('astro:page-load', () => {
+      // Theme Toggle Logic
+      const themeToggle = document.getElementById('desktop-theme-toggle') as HTMLInputElement;
+      if (themeToggle) {
+        // Check current theme
+        const isDark = document.documentElement.classList.contains('dark') || localStorage.getItem('theme') === 'dark';
+        themeToggle.checked = isDark;
+        
+        themeToggle.addEventListener('change', (e) => {
+          const isChecked = (e.target as HTMLInputElement).checked;
+          const metaThemeColor = document.getElementById('theme-color-meta');
+          if (isChecked) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            if (metaThemeColor) metaThemeColor.setAttribute('content', '#111827');
+            if (window.toast) window.toast('Dark mode enabled');
           } else {
-            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + location.hostname + '; path=/;';
-            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + location.hostname + '; path=/;';
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            if (metaThemeColor) metaThemeColor.setAttribute('content', '#ffffff');
+            if (window.toast) window.toast('Light mode enabled');
           }
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+        });
+      }
+
+      // Language Switcher Logic
+      const wrapper = document.getElementById('desktop-lang-dropdown-wrapper');
+      const trigger = document.getElementById('desktop-lang-trigger');
+      const menu = document.getElementById('desktop-lang-menu');
+      const list = document.getElementById('desktop-lang-list');
+      const activeFlag = document.getElementById('desktop-active-flag');
+      const activeName = document.getElementById('desktop-active-name');
+      const chevron = document.getElementById('desktop-chevron');
+
+      if (wrapper && trigger && menu && list && activeFlag && activeName && chevron) {
+        const currentLang = localStorage.getItem('language') || 'en';
+        const currentLangObj = languages.find(l => l.code === currentLang) || languages[0];
+
+        // Set initial trigger state
+        activeFlag.textContent = currentLangObj.flag;
+        activeName.textContent = currentLangObj.name;
+
+        // Render custom items
+        list.innerHTML = languages.map(lang => `
+          <button data-code="${lang.code}" data-flag="${lang.flag}" data-name="${lang.name}" class="desktop-lang-option w-full flex items-center justify-between px-4 py-2.5 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-950/20 text-left transition-colors cursor-pointer ${lang.code === currentLang ? 'bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-bold' : 'text-gray-700 dark:text-gray-300'}">
+            <div class="flex items-center gap-3">
+              <span class="text-xl select-none leading-none">${lang.flag}</span>
+              <span class="text-sm font-medium leading-none">${lang.name}</span>
+            </div>
+            ${lang.code === currentLang ? `
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600 dark:text-orange-400"><polyline points="20 6 9 17 4 12"/></svg>
+            ` : ''}
+          </button>
+        `).join('');
+
+        const toggleDropdown = () => {
+          const isClosed = menu.classList.contains('pointer-events-none');
+          if (isClosed) {
+            menu.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+            menu.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+            chevron.classList.add('rotate-180');
+          } else {
+            menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+            chevron.classList.remove('rotate-180');
+          }
+        };
+
+        trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleDropdown();
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!wrapper.contains(e.target as Node)) {
+            menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+            chevron.classList.remove('rotate-180');
+          }
+        });
+
+        // Handle item select clicks
+        const optionBtns = list.querySelectorAll('.desktop-lang-option');
+        optionBtns.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const targetBtn = e.currentTarget as HTMLButtonElement;
+            const code = targetBtn.getAttribute('data-code') || 'en';
+            const flag = targetBtn.getAttribute('data-flag') || '🇺🇸';
+            const name = targetBtn.getAttribute('data-name') || 'English';
+
+            localStorage.setItem('language', code);
+            activeFlag.textContent = flag;
+            activeName.textContent = name;
+
+            function setCookie(name: string, value: string) {
+              const host = location.hostname;
+              document.cookie = name + '=' + value + '; path=/; max-age=31536000; SameSite=Lax';
+              document.cookie = name + '=' + value + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
+              document.cookie = name + '=' + value + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
+            }
+
+            if (code !== 'en') {
+              setCookie('googtrans', '/en/' + code);
+            } else {
+              document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+              document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + location.hostname + '; path=/;';
+              document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + location.hostname + '; path=/;';
+            }
+
+            if (window.toast) {
+              window.toast('Language changed');
+            }
+
+            // Close menu
+            menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+            chevron.classList.remove('rotate-180');
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 150);
+          });
         });
       }
     });

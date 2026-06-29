@@ -87,6 +87,15 @@ const draftCount = allArticles.filter(a => a.status === 'draft').length;
                     {article.status}
                   </span>
                   <div class="flex gap-2">
+                    {isDraft && (
+                      <button 
+                        class="text-gray-400 hover:text-green-600 dark:hover:text-green-500 publish-btn p-1" 
+                        data-id={article.id}
+                        aria-label="Publish"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                      </button>
+                    )}
                     <a href={`/admin/editor?id=${article.id}`} class="text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 p-1" aria-label="Edit">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                     </a>
@@ -184,6 +193,36 @@ const draftCount = allArticles.filter(a => a.status === 'draft').length;
               if (window.toast) {
                 window.toast('Error occurred while deleting');
               }
+            }
+          }
+        });
+      });
+      // 3. Publish functionality
+      const publishButtons = document.querySelectorAll('.publish-btn');
+      publishButtons.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const button = e.currentTarget as HTMLButtonElement;
+          const articleId = button.getAttribute('data-id');
+          if (!articleId) return;
+
+          if (confirm('Publish this article?')) {
+            try {
+              const res = await fetch(`/api/articles?id=${articleId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'published' })
+              });
+              const data = await res.json();
+              
+              if (data.success) {
+                if (window.toast) window.toast('Article published successfully');
+                setTimeout(() => window.location.reload(), 500);
+              } else {
+                if (window.toast) window.toast(data.error || 'Failed to publish');
+              }
+            } catch (err) {
+              console.error('Error publishing:', err);
+              if (window.toast) window.toast('Error occurred while publishing');
             }
           }
         });

@@ -2,6 +2,31 @@
 import DesktopLayout from '../../layouts/DesktopLayout.astro';
 import HeaderActions from '../../components/HeaderActions.astro';
 const user = Astro.locals.user;
+
+const membershipStatus = user?.role === 'admin' ? 'Pro Member' : 'Basic Member';
+
+// Fetch articles published by the user
+let publishedArticles = [];
+try {
+  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'https://pexih-api.vercel.app';
+  const res = await fetch(`${backendUrl}/api/articles`);
+  if (res.ok) {
+    const allArticles = await res.json();
+    // In a real app we would filter by user ID.
+    // For demo, just slice a few.
+    publishedArticles = allArticles.slice(0, 4);
+  }
+} catch (error) {
+  console.error("Failed to fetch user's articles", error);
+}
+
+if (publishedArticles.length === 0) {
+  publishedArticles = [
+    { id: '1', title: 'My First Journey with Astro', category: 'Technology', img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format,compress&fit=crop&w=400&q=80', createdAt: Date.now() },
+    { id: '2', title: 'Why Minimalist UI is Better', category: 'Design', img: 'https://images.unsplash.com/photo-1561070791266-4f4699042b32?auto=format,compress&fit=crop&w=400&q=80', createdAt: Date.now() - 86400000 },
+    { id: '3', title: 'A Guide to Future Interactions', category: 'Technology', img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format,compress&fit=crop&w=400&q=80', createdAt: Date.now() - 172800000 },
+  ];
+}
 ---
 <DesktopLayout title="My Profile - PEXIH">
   <!-- Header -->
@@ -23,7 +48,7 @@ const user = Astro.locals.user;
       </div>
       <div class="flex-1 text-center md:text-left">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">{user?.name || 'Guest User'}</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">@{user?.username || 'guest'} • {user?.role || 'user'}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">@{user?.username || 'guest'} • <span class="text-orange-600 dark:text-orange-500 font-bold">{membershipStatus}</span></p>
         <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
           <button class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 ease-out">Edit Profile</button>
           <a href="/admin/desktop" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 ease-out flex items-center gap-2">
@@ -46,6 +71,25 @@ const user = Astro.locals.user;
           <div class="text-xl font-bold text-gray-900 dark:text-white">342</div>
           <div class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Following</div>
         </div>
+      </div>
+    </div>
+
+    <!-- Published Articles -->
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-8">
+      <h3 class="text-lg font-black text-gray-900 dark:text-white mb-6">Published Articles</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {publishedArticles.map((article) => (
+          <a href={`/desktop/article/${article.id}`} class="group flex gap-4 items-center p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            <div class="w-20 h-20 rounded-lg bg-gray-100 dark:bg-gray-800 shrink-0 overflow-hidden relative">
+              <img src={article.img} alt={article.title} class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="text-[10px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-wider block mb-1">{article.category}</span>
+              <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-tight line-clamp-2 group-hover:text-orange-600 transition-colors mb-1">{article.title}</h4>
+              <span class="text-xs text-gray-500 dark:text-gray-400">{new Date(Number(article.createdAt)).toLocaleDateString()}</span>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
 

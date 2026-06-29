@@ -5,7 +5,7 @@ import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
 <AdminDesktopLayout title="Analytics Dashboard">
   <div class="p-8 max-w-7xl mx-auto space-y-6">
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-150 dark:border-gray-800 pb-5">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-5">
       <div>
         <h1 class="text-xl font-bold text-gray-900 dark:text-white">
           <span translate="no" class="notranslate">PE<span class="text-orange-600">X</span>IH</span> Analytics
@@ -133,32 +133,54 @@ import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
   
   <!-- Chart Rendering scripts -->
   <script is:inline>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Data Mock for Charts
-      const trendData = [
-        { day: 'Sen', articleA: 1200, articleB: 950, articleC: 600 },
-        { day: 'Sel', articleA: 1550, articleB: 1100, articleC: 800 },
-        { day: 'Rab', articleA: 1400, articleB: 1450, articleC: 750 },
-        { day: 'Kam', articleA: 1800, articleB: 1300, articleC: 900 },
-        { day: 'Jum', articleA: 2100, articleB: 1600, articleC: 1150 },
-        { day: 'Sab', articleA: 2600, articleB: 2050, articleC: 1400 },
-        { day: 'Min', articleA: 2450, articleB: 1850, articleC: 1200 }
-      ];
+    document.addEventListener('DOMContentLoaded', async () => {
+      let trendData = [];
+      let categoryData = [];
+      let retentionData = [];
+      let titles = { articleA: 'Loading...', articleB: 'Loading...', articleC: 'Loading...' };
 
-      const categoryData = [
-        { label: 'Teknologi', value: 45, color: '#FF6B00' },
-        { label: 'Gaya Hidup', value: 25, color: '#FFA366' },
-        { label: 'Desain', value: 15, color: '#FFC299' },
-        { label: 'Fotografi', value: 10, color: '#D1D5DB' },
-        { label: 'Budaya', value: 5, color: '#9CA3AF' }
-      ];
+      async function loadDataAndRender() {
+        try {
+          const timeSelect = document.getElementById('time-range-select');
+          const days = timeSelect ? timeSelect.value : '7';
+          
+          const res = await fetch(`/api/analytics?days=${days}`);
+          const data = await res.json();
+          
+          if (data.trendData) trendData = data.trendData;
+          if (data.categoryData) categoryData = data.categoryData;
+          if (data.retentionData) retentionData = data.retentionData;
+          if (data.titles) titles = data.titles;
+          
+          if (data.stats) {
+            const statsContainers = document.querySelectorAll('.grid-cols-1.sm\\:grid-cols-2 .text-xl.font-black');
+            if (statsContainers.length >= 4) {
+              statsContainers[0].textContent = data.stats.views;
+              statsContainers[1].textContent = data.stats.readers;
+              statsContainers[2].textContent = data.stats.duration;
+              statsContainers[3].textContent = data.stats.bounce;
+            }
+          }
+          
+          const legendTitles = document.querySelector('.bg-white.dark\\:bg-gray-900').querySelectorAll('.flex.items-center.gap-1\\.5 span.text-gray-700');
+          if (legendTitles && legendTitles.length >= 3) {
+            legendTitles[0].textContent = titles.articleA;
+            legendTitles[1].textContent = titles.articleB;
+            legendTitles[2].textContent = titles.articleC;
+          }
 
-      const retentionData = [
-        { week: 'Minggu 1', newUsers: 12000, returningUsers: 4500 },
-        { week: 'Minggu 2', newUsers: 14500, returningUsers: 6200 },
-        { week: 'Minggu 3', newUsers: 13200, returningUsers: 7100 },
-        { week: 'Minggu 4', newUsers: 16800, returningUsers: 9500 }
-      ];
+          renderAllCharts();
+        } catch (e) {
+          console.error('Failed to load analytics:', e);
+        }
+      }
+
+      const timeSelect = document.getElementById('time-range-select');
+      if (timeSelect) {
+        timeSelect.addEventListener('change', () => {
+          loadDataAndRender();
+        });
+      }
 
       // === 1. TREND CHART (D3 LINE CHART) ===
       function renderTrendChart() {
@@ -433,14 +455,16 @@ import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
       }
 
       // Initial execution
-      renderAllCharts();
+      loadDataAndRender();
 
       // Debounce and Resize Handling conforming to design principles
       let resizeTimer;
       const observer = new ResizeObserver(() => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
-          renderAllCharts();
+          if (trendData && trendData.length > 0) {
+            renderAllCharts();
+          }
         }, 150);
       });
 

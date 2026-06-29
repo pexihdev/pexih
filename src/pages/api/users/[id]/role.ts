@@ -3,21 +3,22 @@ import type { APIRoute } from "astro";
 const backendUrl =
   import.meta.env.PUBLIC_BACKEND_URL || "https://pexih-api.vercel.app";
 
-export const DELETE: APIRoute = async ({ params }) => {
+export const PUT: APIRoute = async ({ request, params }) => {
   try {
     const { id } = params;
-    if (!id)
-      return new Response(JSON.stringify({ error: "ID required" }), {
-        status: 400,
-      });
+    const body = await request.json();
 
-    const res = await fetch(`${backendUrl}/api/users/${id}`, {
-      method: "DELETE",
+    const response = await fetch(`${backendUrl}/api/users/${id}/role`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
-    const data = await res.json();
+    const data = await response.json();
     return new Response(JSON.stringify(data), {
-      status: res.status,
+      status: response.status,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error: any) {

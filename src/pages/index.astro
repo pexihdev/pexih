@@ -166,7 +166,7 @@ if (topicCategories.length === 0) {
               <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
               <div class="space-y-1.5 flex-1">
                 <div class="w-24 h-2.5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
-                <div class="w-16 h-2 bg-gray-150 dark:bg-gray-850 rounded animate-pulse"></div>
+                <div class="w-16 h-2 bg-gray-100 dark:bg-gray-800 rounded animate-pulse"></div>
               </div>
             </div>
             <div class="w-full aspect-[4/3] bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
@@ -222,6 +222,14 @@ if (topicCategories.length === 0) {
                 </button>
                 <button aria-label="Share" class="text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors ml-auto">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                </button>
+                <button aria-label="Bookmark" class="bookmark-btn text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors ml-2" 
+                  data-bookmark-id={post.id} 
+                  data-bookmark-title={post.title} 
+                  data-bookmark-category={post.category || 'General'} 
+                  data-bookmark-img={post.img || `https://images.unsplash.com/photo-${1550000000000 + index * 5}?auto=format,compress&fit=crop&w=600&q=80`} 
+                  data-bookmark-author={post.author?.name || 'Author Name'}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bookmark-icon"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
                 </button>
               </div>
               
@@ -495,6 +503,14 @@ if (topicCategories.length === 0) {
                     </button>
                     <button aria-label="Share" class="text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors ml-auto">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                    </button>
+                    <button aria-label="Bookmark" class="bookmark-btn text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors ml-2" 
+                      data-bookmark-id="\${post.id}" 
+                      data-bookmark-title="\${post.title.replace(/"/g, '&quot;')}" 
+                      data-bookmark-category="\${post.category || 'General'}" 
+                      data-bookmark-img="${post.img || 'https://images.unsplash.com/photo-' + (1550000000000 + Math.floor(Math.random() * 100)) + '?auto=format,compress&fit=crop&w=600&q=80'}" 
+                      data-bookmark-author="\${post.author?.name || 'Author Name'}">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bookmark-icon"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
                     </button>
                   </div>
                   

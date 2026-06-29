@@ -120,11 +120,41 @@ import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
           </div>
         </div>
       </div>
+      
+      <!-- Danger Zone -->
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-red-100 dark:border-red-900/30 shadow-sm p-6 mt-8">
+        <h2 class="text-base font-bold text-red-600 dark:text-red-500 mb-4">Danger Zone</h2>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-bold text-gray-900 dark:text-white">Sign Out Admin</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">End your current session and return to the login page.</p>
+          </div>
+          <button id="admin-desktop-logout-btn" class="px-4 py-2 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg text-sm font-bold transition-all active:scale-95 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            Sign Out
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     document.addEventListener('astro:page-load', () => {
+      const logoutBtn = document.getElementById('admin-desktop-logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          try {
+            const res = await fetch('/api/auth/logout', { method: 'POST' });
+            if (res.ok) {
+              window.location.href = '/admin/desktop/login';
+            }
+          } catch (e) {
+            console.error(e);
+            window.toast('Logout failed');
+          }
+        });
+      }
+
       const select = document.getElementById('admin-language-select-desktop') as HTMLSelectElement;
       if (select) {
         const currentLang = localStorage.getItem('admin_language') || 'en';

@@ -6,53 +6,164 @@ import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
     <div class="w-full bg-white dark:bg-gray-900" style="height: env(safe-area-inset-top);"></div>
     <div class="bg-white dark:bg-gray-900 pt-3 pb-2 px-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between h-[53px]">
       <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">Analytics</h1>
-      <select aria-label="Time period" class="bg-gray-800 border border-gray-700 text-white px-2 py-1 rounded text-[10px] font-bold focus:outline-none">
-        <option>7 Days</option>
-        <option>30 Days</option>
+      <select id="mobile-time-select" aria-label="Time period" class="bg-gray-800 border border-gray-700 text-white px-2 py-1 rounded text-[10px] font-bold focus:outline-none">
+        <option value="7">7 Days</option>
+        <option value="30">30 Days</option>
       </select>
     </div>
   </div>
 
   <div class="shrink-0" style="height: calc(53px + env(safe-area-inset-top));"></div>
   <div class="p-4 space-y-4">
+    <!-- Stats summary -->
+    <div class="grid grid-cols-2 gap-3">
+      <div class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-3 shadow-sm">
+        <p class="text-[9px] font-bold text-gray-400 uppercase">Views</p>
+        <p id="stat-views" class="text-sm font-black text-gray-900 dark:text-white mt-1">-</p>
+      </div>
+      <div class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-3 shadow-sm">
+        <p class="text-[9px] font-bold text-gray-400 uppercase">Readers</p>
+        <p id="stat-readers" class="text-sm font-black text-gray-900 dark:text-white mt-1">-</p>
+      </div>
+    </div>
+
     <!-- Chart -->
     <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
-      <h2 class="text-[12px] font-bold text-gray-900 dark:text-white mb-4">Traffic Overview</h2>
-      
-      <div class="h-32 flex items-end justify-between gap-1 border-b border-l border-gray-100 dark:border-gray-800 pb-1 pl-1">
-        {[40, 60, 45, 80, 55, 90, 75].map((h) => (
-          <div class="w-full bg-orange-600 rounded-t-sm" style={`height: ${h}%`}></div>
-        ))}
-      </div>
-      <div class="flex justify-between mt-1 text-[8px] text-gray-400 dark:text-gray-500 font-medium">
-        <span>Mon</span>
-        <span>Tue</span>
-        <span>Wed</span>
-        <span>Thu</span>
-        <span>Fri</span>
-        <span>Sat</span>
-        <span>Sun</span>
+      <h2 class="text-[12px] font-bold text-gray-900 dark:text-white mb-2">Traffic Trend</h2>
+      <div id="mobile-trend-chart-container" class="w-full h-32 relative overflow-hidden">
+        <svg id="mobile-trend-chart" class="w-full h-full overflow-visible"></svg>
       </div>
     </div>
     
     <!-- Top Pages -->
     <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
-      <h2 class="text-[12px] font-bold text-gray-900 dark:text-white mb-3">Top Pages</h2>
-      <div class="space-y-3">
-        {[
-          { path: '/explore/tech', views: '12.4k' },
-          { path: '/post/future-of-web', views: '8.2k' },
-          { path: '/profile/johndoe', views: '3.1k' }
-        ].map((item, i) => (
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500">{i + 1}</span>
-              <span class="text-[11px] text-gray-700 dark:text-gray-300 font-medium truncate max-w-[150px]">{item.path}</span>
-            </div>
-            <span class="text-[11px] font-bold text-gray-900 dark:text-white">{item.views}</span>
-          </div>
-        ))}
+      <h2 class="text-[12px] font-bold text-gray-900 dark:text-white mb-3">Top Trending Articles</h2>
+      <div id="top-articles-list" class="space-y-3">
+        <!-- Rendered dynamically -->
+        <p class="text-[10px] text-gray-400">Loading...</p>
       </div>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7" is:inline></script>
+  
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      let trendData = [];
+      let titles = {};
+
+      async function loadData() {
+        try {
+          const select = document.getElementById('mobile-time-select');
+          const days = select ? select.value : '7';
+          const res = await fetch(`/api/analytics?days=${days}`);
+          const data = await res.json();
+          
+          if (data.trendData) trendData = data.trendData;
+          if (data.titles) titles = data.titles;
+          
+          if (data.stats) {
+            document.getElementById('stat-views').textContent = data.stats.views;
+            document.getElementById('stat-readers').textContent = data.stats.readers;
+          }
+
+          // Top articles
+          const list = document.getElementById('top-articles-list');
+          if (list && data.titles) {
+            list.innerHTML = Object.values(data.titles).map((t, i) => `
+              <div class="flex items-start gap-2">
+                <span class="text-[10px] font-bold text-orange-500 mt-0.5">${i + 1}</span>
+                <span class="text-[11px] text-gray-700 dark:text-gray-300 font-medium line-clamp-2">${t}</span>
+              </div>
+            `).join('');
+          }
+
+          renderChart();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function renderChart() {
+        const container = document.getElementById('mobile-trend-chart-container');
+        const svg = d3.select('#mobile-trend-chart');
+        if (!container || svg.empty() || trendData.length === 0) return;
+
+        svg.html('');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        const margin = { top: 10, right: 10, bottom: 20, left: 30 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+
+        const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const xScale = d3.scalePoint()
+          .domain(trendData.map(d => d.day))
+          .range([0, chartWidth]);
+
+        const yScale = d3.scaleLinear()
+          .domain([0, d3.max(trendData, d => Math.max(d.articleA, d.articleB, d.articleC)) * 1.1])
+          .range([chartHeight, 0]);
+
+        // Axes
+        g.append('g')
+          .attr('transform', `translate(0,${chartHeight})`)
+          .call(d3.axisBottom(xScale).tickSize(0).tickPadding(5))
+          .call(g => g.select('.domain').attr('stroke', '#E5E7EB'))
+          .call(g => g.selectAll('text').attr('fill', '#9CA3AF').style('font-size', '8px'));
+
+        g.append('g')
+          .call(d3.axisLeft(yScale).ticks(3).tickSize(-chartWidth).tickPadding(5))
+          .call(g => g.select('.domain').remove())
+          .call(g => g.selectAll('.tick line').attr('stroke', '#F3F4F6').attr('stroke-dasharray', '2,2'))
+          .call(g => g.selectAll('text').attr('fill', '#9CA3AF').style('font-size', '8px').tickFormat(d3.format('~s')));
+
+        // Combined line representing total views of top 3 for simplicity on mobile, or just plot article A
+        const line = d3.line()
+          .x(d => xScale(d.day))
+          .y(d => yScale(d.articleA + d.articleB + d.articleC))
+          .curve(d3.curveMonotoneX);
+
+        // We'll just plot the sum as the main traffic trend
+        yScale.domain([0, d3.max(trendData, d => d.articleA + d.articleB + d.articleC) * 1.1]);
+
+        g.append('path')
+          .datum(trendData)
+          .attr('fill', 'none')
+          .attr('stroke', '#FF6B00')
+          .attr('stroke-width', 2)
+          .attr('d', line);
+          
+        // Gradient fill
+        const area = d3.area()
+          .x(d => xScale(d.day))
+          .y0(chartHeight)
+          .y1(d => yScale(d.articleA + d.articleB + d.articleC))
+          .curve(d3.curveMonotoneX);
+          
+        // Define gradient
+        const defs = svg.append('defs');
+        const gradient = defs.append('linearGradient')
+          .attr('id', 'area-gradient')
+          .attr('x1', '0%').attr('y1', '0%')
+          .attr('x2', '0%').attr('y2', '100%');
+        gradient.append('stop').attr('offset', '0%').attr('stop-color', '#FF6B00').attr('stop-opacity', 0.3);
+        gradient.append('stop').attr('offset', '100%').attr('stop-color', '#FF6B00').attr('stop-opacity', 0.0);
+        
+        g.append('path')
+          .datum(trendData)
+          .attr('fill', 'url(#area-gradient)')
+          .attr('d', area);
+      }
+
+      loadData();
+
+      const select = document.getElementById('mobile-time-select');
+      if (select) {
+        select.addEventListener('change', loadData);
+      }
+    });
+  </script>
 </AdminMobileLayout>

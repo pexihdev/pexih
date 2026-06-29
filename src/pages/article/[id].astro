@@ -73,6 +73,24 @@ const articleData = {
 };
 
 const articleJson = JSON.stringify(articleData);
+
+let relatedArticles = [];
+try {
+  const relatedRes = await fetch(`${backendUrl}/api/articles?category=${article.category}`);
+  if (relatedRes.ok) {
+    const allRelated = await relatedRes.json();
+    relatedArticles = allRelated.filter(a => String(a.id) !== String(article.id)).slice(0, 3);
+  }
+} catch (error) {
+  console.error('Failed to fetch related articles', error);
+}
+
+if (relatedArticles.length === 0) {
+  relatedArticles = [
+    { id: '2', title: 'The Next Big Thing in Web Development', img: `https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format,compress&fit=crop&w=400&q=80`, category: 'Technology', createdAt: Date.now() },
+    { id: '3', title: 'Why Design Matters More Than Ever', img: `https://images.unsplash.com/photo-1561070791266-4f4699042b32?auto=format,compress&fit=crop&w=400&q=80`, category: 'Design', createdAt: Date.now() - 86400000 },
+  ];
+}
 ---
 
 <MobileLayout 
@@ -100,17 +118,12 @@ const articleJson = JSON.stringify(articleData);
         Article
       </div>
       <div class="flex items-center gap-1">
-        <button aria-label="Bookmark" id="bookmark-btn" data-article-id={article.id} data-article-json={articleJson} class="text-gray-600 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95 ease-out">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
-        </button>
-        <button aria-label="Share" id="share-btn" class="text-gray-600 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 active:scale-95 ease-out">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
-        </button>
+        <div class="w-8 h-8"></div>
       </div>
     </div>
   </div>
 
-  <div class="pb-16 bg-white dark:bg-gray-900 min-h-screen animate-fade-in">
+  <div class="pb-24 bg-white dark:bg-gray-900 min-h-screen animate-fade-in">
     <div class="shrink-0" style="height: calc(53px + env(safe-area-inset-top));"></div>
     <div class="aspect-[16/9] w-full relative bg-gray-100 dark:bg-gray-800">
       <img 
@@ -150,13 +163,10 @@ const articleJson = JSON.stringify(articleData);
           <p class="text-[12px] font-bold text-gray-900 dark:text-white">{article.author?.name || 'Author Name'}</p>
           <p class="text-[10px] text-gray-500 dark:text-gray-400">{article.author?.role || 'Contributor'}</p>
         </div>
-        <button id="like-btn" data-article-id={article.id} class="bg-orange-600 text-white px-4 py-1.5 rounded-full text-[10px] font-bold hover:bg-orange-700 transition-colors active:scale-95">
-          Like
-        </button>
       </div>
 
       <!-- Typography & Reading Control Panel -->
-      <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-850/50 rounded-xl p-2.5 mb-5 border border-gray-100 dark:border-gray-800/80">
+      <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-800/50 rounded-xl p-2.5 mb-5 border border-gray-100 dark:border-gray-800/80">
         <div class="flex items-center gap-1.5">
           <span class="text-[8px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-1" data-i18n="article.font">Font</span>
           <button id="font-sans-btn" class="px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer" data-i18n="article.sans">Sans</button>
@@ -174,6 +184,30 @@ const articleJson = JSON.stringify(articleData);
       <!-- Render Markdown Content -->
       <div id="article-content" class="prose prose-sm max-w-none text-[12px] text-gray-700 dark:text-gray-300 leading-relaxed dark:prose-invert transition-all duration-150" set:html={htmlContent}>
       </div>
+
+      <!-- Related Articles -->
+      {relatedArticles && relatedArticles.length > 0 && (
+        <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+          <h3 class="text-[14px] font-black text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            Related Articles
+          </h3>
+          <div class="space-y-4">
+            {relatedArticles.map((item) => (
+              <a href={`/article/${item.id}`} class="flex items-center gap-3 group">
+                <div class="w-20 h-20 rounded-xl bg-gray-100 dark:bg-gray-800 shrink-0 overflow-hidden relative">
+                  <img src={item.img || `https://images.unsplash.com/photo-1550000000000?auto=format,compress&fit=crop&w=400&q=80`} alt={item.title} class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[9px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-wider mb-1">{item.category || 'General'}</p>
+                  <h4 class="text-[12px] font-bold text-gray-900 dark:text-white leading-tight line-clamp-2 mb-1 group-hover:text-orange-600 transition-colors">{item.title}</h4>
+                  <p class="text-[9px] text-gray-500 dark:text-gray-400">{item.createdAt ? new Date(Number(item.createdAt)).toLocaleDateString() : ''}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       <!-- Comments Section -->
       <div class="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800">
@@ -251,6 +285,28 @@ const articleJson = JSON.stringify(articleData);
           <button id="save-bookmark-btn" class="flex-1 py-2 bg-orange-600 text-white text-[11px] font-bold rounded-xl hover:bg-orange-700 active:scale-95 transition-all" data-i18n="bookmark.save">Simpan</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Sticky Bottom Interaction Bar -->
+  <div class="fixed bottom-0 w-full max-w-[400px] z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 pb-[env(safe-area-inset-bottom)]">
+    <div class="flex items-center justify-around h-[52px] px-2">
+      <button id="like-btn" data-article-id={article.id} class="flex flex-col items-center justify-center w-12 h-12 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+        <span class="text-[8px] font-medium" data-i18n="article.like">Like</span>
+      </button>
+      <button id="bookmark-btn" data-article-id={article.id} data-article-json={articleJson} class="flex flex-col items-center justify-center w-12 h-12 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        <span class="text-[8px] font-medium" data-i18n="article.bookmark">Save</span>
+      </button>
+      <a href="#comments-section" class="flex flex-col items-center justify-center w-12 h-12 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="text-[8px] font-medium" data-i18n="article.comment">Comment</span>
+      </a>
+      <button id="share-btn" class="flex flex-col items-center justify-center w-12 h-12 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-0.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+        <span class="text-[8px] font-medium" data-i18n="article.share">Share</span>
+      </button>
     </div>
   </div>
 
@@ -344,12 +400,11 @@ const articleJson = JSON.stringify(articleData);
         likeBtn.addEventListener('click', async () => {
           const articleId = likeBtn.getAttribute('data-article-id');
           if (window.toast) {
-            window.toast("Article saved to likes");
+            window.toast("Disukai");
           }
-          likeBtn.textContent = 'Liked';
-          likeBtn.classList.replace('bg-orange-600', 'bg-gray-200');
-          likeBtn.classList.replace('text-white', 'text-gray-600');
-          likeBtn.classList.replace('hover:bg-orange-700', 'hover:bg-gray-300');
+          
+          likeBtn.classList.add('text-orange-600', 'dark:text-orange-500');
+          likeBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
 
           if (articleId) {
             try {
@@ -397,11 +452,11 @@ const articleJson = JSON.stringify(articleData);
         const isSaved = bookmarks.some(b => b.id === articleId);
 
         if (isSaved) {
-          bookmarkBtn.classList.remove('text-gray-600', 'dark:text-gray-300');
+          bookmarkBtn.classList.remove('text-gray-500', 'dark:text-gray-400');
           bookmarkBtn.classList.add('text-orange-600', 'dark:text-orange-500');
         } else {
           bookmarkBtn.classList.remove('text-orange-600', 'dark:text-orange-500');
-          bookmarkBtn.classList.add('text-gray-600', 'dark:text-gray-300');
+          bookmarkBtn.classList.add('text-gray-500', 'dark:text-gray-400');
         }
       };
 

@@ -54,6 +54,7 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
       </div>
     </div>
     <div class="flex items-center gap-3">
+      <span id="auto-save-indicator" class="text-xs text-gray-400 font-medium opacity-0 transition-opacity mr-2">Tersimpan</span>
       <button 
         id="save-btn"
         class="bg-orange-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors hover:bg-orange-700 flex items-center gap-2"
@@ -202,7 +203,7 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
               Media
             </button>
           </div>
-          <div class="rounded-xl overflow-hidden border border-gray-150 dark:border-gray-850 bg-gray-50 dark:bg-gray-900">
+          <div class="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
             <img 
               id="thumbnail-preview"
               src={initialImgValue} 
@@ -374,7 +375,7 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
           <!-- Dropzone area -->
           <div 
             id="media-dropzone" 
-            class="border-2 border-dashed border-gray-250 dark:border-gray-750 hover:border-orange-500 dark:hover:border-orange-500 rounded-2xl p-10 text-center cursor-pointer transition-all bg-gray-50 dark:bg-gray-850/30 flex flex-col items-center justify-center gap-3 group"
+            class="border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-orange-500 dark:hover:border-orange-500 rounded-2xl p-10 text-center cursor-pointer transition-all bg-gray-50 dark:bg-gray-800/30 flex flex-col items-center justify-center gap-3 group"
           >
             <input type="file" id="media-file-input" class="hidden" accept="image/*" />
             <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-950/40 flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform duration-300">
@@ -416,21 +417,45 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
   <script is:inline>
     document.addEventListener('DOMContentLoaded', () => {
       let quillInstance = null;
+      window.mediaLibraryTarget = 'thumbnail'; // 'thumbnail' | 'quill'
+      window.currentQuillSelectionIndex = 0;
 
       if (typeof Quill !== 'undefined') {
         quillInstance = new Quill('#editor-container', {
           theme: 'snow',
           modules: {
-            toolbar: [
-              [{ 'header': [1, 2, 3, false] }],
-              ['bold', 'italic', 'underline', 'strike'],
-              ['blockquote', 'code-block'],
-              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-              [{ 'script': 'sub'}, { 'script': 'super' }],
-              [{ 'indent': '-1'}, { 'indent': '+1' }],
-              ['link', 'image', 'video'],
-              ['clean']
-            ]
+            toolbar: {
+              container: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                ['link', 'image', 'video'],
+                ['clean']
+              ],
+              handlers: {
+                image: function() {
+                  window.mediaLibraryTarget = 'quill';
+                  const range = this.quill.getSelection();
+                  window.currentQuillSelectionIndex = range ? range.index : 0;
+                  
+                  // Open media library modal
+                  const mediaModal = document.getElementById('media-library-modal');
+                  const mediaModalContent = mediaModal ? mediaModal.firstElementChild : null;
+                  if (mediaModal) {
+                    mediaModal.classList.remove('opacity-0', 'pointer-events-none');
+                    mediaModal.classList.add('opacity-100');
+                    if (mediaModalContent) {
+                      mediaModalContent.classList.remove('scale-95');
+                      mediaModalContent.classList.add('scale-100');
+                    }
+                    if (typeof triggerUnsplashSearch === 'function') triggerUnsplashSearch('');
+                  }
+                }
+              }
+            }
           }
         });
       }
@@ -707,7 +732,7 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
       
       loadDrafts();
 
-      // 2. Set up Auto-Save Interval (every 12 seconds)
+      // 2. Set up Auto-Save Interval (every 10 seconds)
       setInterval(() => {
         const title = document.getElementById('title-input').value.trim();
         const category = document.getElementById('category-select').value;
@@ -735,6 +760,12 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
           updatedAt: Date.now()
         };
 
+        const indicator = document.getElementById('auto-save-indicator');
+        if (indicator) {
+          indicator.textContent = 'Menyimpan...';
+          indicator.classList.remove('opacity-0');
+        }
+
         localStorage.setItem(draftKey, JSON.stringify(draftData));
         
         // Auto-save to cloud
@@ -743,11 +774,24 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(draftData)
-          }).catch(err => console.error('Cloud auto-save error:', err));
+          }).then(() => {
+            if (indicator) {
+              indicator.textContent = 'Draf tersimpan';
+              setTimeout(() => {
+                indicator.classList.add('opacity-0');
+              }, 2500);
+            }
+          }).catch(err => {
+            console.error('Cloud auto-save error:', err);
+            if (indicator) {
+              indicator.textContent = 'Disimpan lokal';
+              setTimeout(() => {
+                indicator.classList.add('opacity-0');
+              }, 2500);
+            }
+          });
         } catch (err) {}
-        
-        console.log('Draft auto-saved to localStorage and cloud.');
-      }, 12000);
+      }, 10000);
 
       const saveBtn = document.getElementById('save-btn');
       const saveText = document.getElementById('save-text');
@@ -888,6 +932,7 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
       // Close / Open modal
       if (openMediaBtn && mediaModal && closeMediaBtn) {
         openMediaBtn.addEventListener('click', () => {
+          window.mediaLibraryTarget = 'thumbnail';
           mediaModal.classList.remove('opacity-0', 'pointer-events-none');
           mediaModal.classList.add('opacity-100');
           if (mediaModalContent) {
@@ -895,7 +940,7 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
             mediaModalContent.classList.add('scale-100');
           }
           // Load default curated images immediately
-          triggerUnsplashSearch('');
+          if (typeof triggerUnsplashSearch === 'function') triggerUnsplashSearch('');
         });
 
         closeMediaBtn.addEventListener('click', () => {
@@ -972,10 +1017,16 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
             imageBtns.forEach(btn => {
               btn.addEventListener('click', () => {
                 const targetUrl = btn.getAttribute('data-url');
-                if (targetUrl && imgInput && thumbnailPreview) {
-                  imgInput.value = targetUrl;
-                  thumbnailPreview.src = targetUrl;
-                  if (window.toast) window.toast('Thumbnail updated');
+                if (targetUrl) {
+                  if (window.mediaLibraryTarget === 'quill' && typeof quillInstance !== 'undefined' && quillInstance) {
+                    quillInstance.insertEmbed(window.currentQuillSelectionIndex || 0, 'image', targetUrl);
+                    quillInstance.setSelection((window.currentQuillSelectionIndex || 0) + 1);
+                    if (window.toast) window.toast('Gambar disisipkan');
+                  } else if (imgInput && thumbnailPreview) {
+                    imgInput.value = targetUrl;
+                    thumbnailPreview.src = targetUrl;
+                    if (window.toast) window.toast('Thumbnail diperbarui');
+                  }
                   closeMediaLibraryModal();
                 }
               });
@@ -1092,10 +1143,23 @@ const initialImgValue = article ? article.img : 'https://images.unsplash.com/pho
             if (uploadSpinner) uploadSpinner.classList.add('hidden');
 
             if (res.ok && data.success && data.url) {
-              if (imgInput && thumbnailPreview) {
+              if (window.mediaLibraryTarget === 'quill' && typeof quillInstance !== 'undefined' && quillInstance) {
+                quillInstance.insertEmbed(window.currentQuillSelectionIndex || 0, 'image', data.url);
+                quillInstance.setSelection((window.currentQuillSelectionIndex || 0) + 1);
+                if (window.toast) window.toast('Gambar disisipkan');
+                
+                // Reset dropzone
+                selectedFile = null;
+                if (uploadPreviewContainer && mediaDropzone && mediaFileInput) {
+                  uploadPreviewContainer.classList.add('hidden');
+                  mediaDropzone.classList.remove('hidden');
+                  mediaFileInput.value = '';
+                }
+                closeMediaLibraryModal();
+              } else if (imgInput && thumbnailPreview) {
                 imgInput.value = data.url;
                 thumbnailPreview.src = data.url;
-                if (window.toast) window.toast('Uploaded successfully!');
+                if (window.toast) window.toast('Thumbnail diperbarui!');
                 
                 // Reset dropzone
                 selectedFile = null;

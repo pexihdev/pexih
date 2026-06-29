@@ -67,7 +67,7 @@ const trendingPosts = exploreArticles.slice(1);
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         </button>
         <div class="relative flex-1">
-          <input type="text" id="mobile-explore-search" placeholder="Cari artikel, kategori..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-250 dark:border-gray-700 text-[11px] font-medium focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white" autocomplete="off" />
+          <input type="text" id="mobile-explore-search" data-i18n="header.search" placeholder="Cari artikel, kategori..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-[11px] font-medium focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white" autocomplete="off" />
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </div>
         
@@ -153,6 +153,15 @@ const trendingPosts = exploreArticles.slice(1);
                     <h4 class="text-[12px] font-bold text-gray-900 dark:text-white leading-tight mt-0.5 mb-1 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors line-clamp-2">{item.title}</h4>
                     <p class="text-[9px] text-gray-500 dark:text-gray-400">{item.createdAt ? new Date(Number(item.createdAt)).toLocaleDateString() : 'Recent'} • {item.readTime || '5 min read'}</p>
                   </div>
+                  <button aria-label="Bookmark" class="bookmark-btn absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-orange-600 dark:text-gray-500 dark:hover:text-orange-500 transition-colors z-10"
+                    data-bookmark-id={item.id} 
+                    data-bookmark-title={item.title} 
+                    data-bookmark-category={item.category || 'General'} 
+                    data-bookmark-img={item.img || `https://images.unsplash.com/photo-${1550000000000 + index}?auto=format,compress&fit=crop&w=200&q=80`} 
+                    data-bookmark-author={item.author?.name || 'Author Name'}
+                    onclick="event.preventDefault(); event.stopPropagation();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bookmark-icon"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                  </button>
                 </a>
               ))}
             </div>
@@ -193,73 +202,167 @@ const trendingPosts = exploreArticles.slice(1);
 </MobileLayout>
 
 <script>
-  // Handle client-side category filtering and skeleton transition
+  // Handle client-side category filtering and real-time search
   document.addEventListener('astro:page-load', () => {
     const categoryBtns = document.querySelectorAll('.scrollbar-hide button');
     const skeleton = document.querySelector('.skeleton-container');
     const content = document.querySelector('.actual-content-container');
     const searchEmptyState = document.querySelector('.search-empty-state');
+    const listPostsWrapper = document.querySelector('.list-posts-wrapper');
+    const sentinel = document.getElementById('mobile-explore-sentinel');
+    const backendUrl = sentinel?.getAttribute('data-backend-url') || '';
+    
+    // Hide Featured Post when searching/filtering
+    const featuredPostEl = content?.querySelector('a.block.rounded-xl');
+    const listTitle = listPostsWrapper?.querySelector('h3');
 
-    function triggerStaggeredAnimation(container: HTMLElement | null) {
-      if (!container) return;
-      const items = container.querySelectorAll('.animate-fade-in');
-      items.forEach((item: any, index: number) => {
-        item.style.animation = 'none';
-        void item.offsetWidth; // Force reflow
-        item.style.animation = '';
-        item.style.animationDelay = `${index * 75}ms`;
+    // Remove old items
+    function clearList() {
+      if (!listPostsWrapper) return;
+      const items = listPostsWrapper.querySelectorAll('.article-item');
+      items.forEach(item => item.remove());
+    }
+
+    function renderArticlesMobile(articles: any[], isSearch = false) {
+      if (!listPostsWrapper) return;
+      clearList();
+      
+      if (articles.length === 0) {
+        if (content) content.classList.add('hidden');
+        if (searchEmptyState) searchEmptyState.classList.remove('hidden');
+        if (sentinel) sentinel.classList.add('hidden');
+        return;
+      }
+
+      if (content) content.classList.remove('hidden');
+      if (searchEmptyState) searchEmptyState.classList.add('hidden');
+
+      articles.forEach((item, index) => {
+        const articleHtml = `
+          <a href="/article/${item.id}" class="flex gap-3 items-center group article-item animate-fade-in" style="animation-delay: ${index * 50}ms">
+            <div class="w-20 h-20 rounded-lg overflow-hidden pexih-placeholder bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
+              <img 
+                src="${item.img || `https://images.unsplash.com/photo-${1550000000000 + index}?auto=format,compress&fit=crop&w=200&q=80`}" 
+                alt="Thumbnail" 
+                width="80" height="80"
+                class="w-full h-full object-cover aspect-square transition-opacity duration-300 opacity-0" 
+                onload="this.classList.remove('opacity-0')"
+                loading="lazy" referrerpolicy="no-referrer" 
+              />
+            </div>
+            <div class="flex-1 min-w-0">
+              <span class="text-[9px] text-orange-600 dark:text-orange-500 font-bold uppercase tracking-wider">${item.category || 'Article'}</span>
+              <h4 class="text-[12px] font-bold text-gray-900 dark:text-white leading-tight mt-0.5 mb-1 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors line-clamp-2">${item.title}</h4>
+              <p class="text-[9px] text-gray-500 dark:text-gray-400">${item.author?.name || 'Author'} • ${item.readTime || '5 min read'}</p>
+            </div>
+          </a>
+        `;
+        listPostsWrapper.insertAdjacentHTML('beforeend', articleHtml);
       });
     }
 
-    // Trigger initially
-    triggerStaggeredAnimation(content as HTMLElement);
-    
+    let isFiltering = false;
+    let currentCategory = 'All Topics';
+
+    async function performFilter(query: string, category: string) {
+      if (skeleton && content && searchEmptyState) {
+        content.classList.add('hidden');
+        searchEmptyState.classList.add('hidden');
+        skeleton.classList.remove('hidden');
+        if (sentinel) sentinel.classList.add('hidden');
+      }
+
+      try {
+        let url = `${backendUrl}/api/articles?limit=100`; // Fetch all and filter locally for simplicity and speed
+        const cacheKey = 'pexih_all_articles_cache';
+        let allData = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+        
+        if (!allData) {
+          const res = await fetch(url);
+          if (res.ok) {
+            allData = await res.json();
+            sessionStorage.setItem(cacheKey, JSON.stringify(allData));
+          } else {
+            allData = [];
+          }
+        }
+
+        let filtered = allData;
+        
+        if (category !== 'All Topics') {
+          filtered = filtered.filter((a: any) => a.category?.toLowerCase() === category.toLowerCase());
+        }
+        
+        if (query && query.length >= 2) {
+          const q = query.toLowerCase();
+          filtered = filtered.filter((a: any) => 
+            a.title?.toLowerCase().includes(q) || 
+            a.category?.toLowerCase().includes(q) || 
+            a.author?.name?.toLowerCase().includes(q)
+          );
+        }
+
+        if (skeleton) skeleton.classList.add('hidden');
+        
+        // UI updates
+        isFiltering = (category !== 'All Topics' || (query && query.length >= 2));
+        
+        if (featuredPostEl) {
+          if (isFiltering) featuredPostEl.classList.add('hidden');
+          else featuredPostEl.classList.remove('hidden');
+        }
+
+        if (listTitle) {
+          if (query && query.length >= 2) {
+            listTitle.textContent = `Search Results for "${query}"`;
+          } else if (category !== 'All Topics') {
+            listTitle.textContent = `${category} Articles`;
+          } else {
+            listTitle.textContent = 'Trending Now';
+          }
+        }
+
+        if (isFiltering) {
+          renderArticlesMobile(filtered, true);
+        } else {
+          // Reset to default 4 trending
+          renderArticlesMobile(filtered.slice(1, 5), false); // skipping 1st as it's featured
+          if (sentinel && hasMore) sentinel.classList.remove('hidden');
+        }
+
+      } catch (err) {
+        console.error(err);
+        if (skeleton) skeleton.classList.add('hidden');
+      }
+    }
+
+    // Category click
     categoryBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        // Update active state
         categoryBtns.forEach(b => {
           b.className = 'px-4 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700';
         });
         const target = e.target as HTMLElement;
         target.className = 'px-4 py-1.5 rounded-full bg-orange-600 text-white text-[10px] font-bold whitespace-nowrap';
         
-        // Show skeleton
-        if (content && skeleton && searchEmptyState) {
-          content.classList.add('hidden');
-          searchEmptyState.classList.add('hidden');
-          skeleton.classList.remove('hidden');
-          
-          // Simulate network request
-          setTimeout(() => {
-            skeleton.classList.add('hidden');
-            
-            // Just for demonstration, if "Lifestyle" is clicked, show empty state
-            if (target.textContent === 'Lifestyle') {
-              searchEmptyState.classList.remove('hidden');
-            } else {
-              content.classList.remove('hidden');
-              triggerStaggeredAnimation(content as HTMLElement);
-            }
-          }, 600);
-        }
+        currentCategory = target.textContent?.trim() || 'All Topics';
+        const searchInput = document.getElementById('mobile-explore-search') as HTMLInputElement;
+        performFilter(searchInput ? searchInput.value.trim() : '', currentCategory);
       });
     });
 
-    // Mobile Dynamic Search suggestions integration
+    // Real-time Mobile Search integration
     const toggleSearchBtn = document.getElementById('toggle-search-btn');
     const closeSearchBtn = document.getElementById('close-search-btn');
     const headerStandardView = document.getElementById('header-standard-view');
     const headerSearchView = document.getElementById('header-search-view');
     const mobileSearchInput = document.getElementById('mobile-explore-search') as HTMLInputElement;
-    const mobileSuggestionsDropdown = document.getElementById('mobile-search-suggestions-dropdown');
 
     if (toggleSearchBtn && closeSearchBtn && headerStandardView && headerSearchView) {
       toggleSearchBtn.addEventListener('click', () => {
         headerStandardView.classList.add('hidden');
         headerSearchView.classList.remove('hidden');
-        if (mobileSearchInput) {
-          mobileSearchInput.focus();
-        }
+        if (mobileSearchInput) mobileSearchInput.focus();
       });
 
       closeSearchBtn.addEventListener('click', () => {
@@ -267,111 +370,29 @@ const trendingPosts = exploreArticles.slice(1);
         headerStandardView.classList.remove('hidden');
         if (mobileSearchInput) {
           mobileSearchInput.value = '';
-        }
-        if (mobileSuggestionsDropdown) {
-          mobileSuggestionsDropdown.classList.add('hidden');
-          mobileSuggestionsDropdown.innerHTML = '';
+          performFilter('', currentCategory);
         }
       });
     }
 
-    if (mobileSearchInput && mobileSuggestionsDropdown) {
+    if (mobileSearchInput) {
       let debounceTimeout: any = null;
-
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!mobileSearchInput.contains(e.target as Node) && !mobileSuggestionsDropdown.contains(e.target as Node)) {
-          mobileSuggestionsDropdown.classList.add('hidden');
-        }
-      });
-
-      mobileSearchInput.addEventListener('focus', () => {
-        if (mobileSearchInput.value.trim().length >= 2) {
-          mobileSuggestionsDropdown.classList.remove('hidden');
-        }
-      });
-
       mobileSearchInput.addEventListener('input', () => {
-        const query = mobileSearchInput.value.trim();
         clearTimeout(debounceTimeout);
-
-        if (query.length < 2) {
-          mobileSuggestionsDropdown.innerHTML = '';
-          mobileSuggestionsDropdown.classList.add('hidden');
-          return;
-        }
-
-        mobileSuggestionsDropdown.classList.remove('hidden');
-        mobileSuggestionsDropdown.innerHTML = `
-          <div class="p-3 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center flex items-center justify-center gap-1.5">
-            <svg class="animate-spin h-3 w-3 text-orange-600" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Mencari...
-          </div>
-        `;
-
-        debounceTimeout = setTimeout(async () => {
-          try {
-            const cacheKey = `pexih_search_${query.toLowerCase()}`;
-            const cachedData = sessionStorage.getItem(cacheKey);
-            let data;
-            
-            if (cachedData) {
-              data = JSON.parse(cachedData);
-            } else {
-              const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-              if (!res.ok) throw new Error('Search failed');
-              data = await res.json();
-              sessionStorage.setItem(cacheKey, JSON.stringify(data));
-            }
-
-            if (data.length === 0) {
-              mobileSuggestionsDropdown.innerHTML = `
-                <div class="p-3 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">
-                  Tidak ada hasil
-                </div>
-              `;
-              return;
-            }
-
-            mobileSuggestionsDropdown.innerHTML = '';
-            data.forEach((item: any) => {
-              const suggestionEl = document.createElement('a');
-              suggestionEl.href = `/article/${item.id}`;
-              suggestionEl.className = 'flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer text-left w-full block';
-              suggestionEl.innerHTML = `
-                <img src="${item.img}" class="w-8 h-8 object-cover rounded-md shrink-0 border border-gray-100 dark:border-gray-800" referrerpolicy="no-referrer" />
-                <div class="min-w-0 flex-1">
-                  <p class="text-[10px] font-bold text-gray-900 dark:text-white truncate leading-tight">${item.title}</p>
-                  <p class="text-[8px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-wider mt-0.5">${item.category}</p>
-                </div>
-              `;
-              mobileSuggestionsDropdown.appendChild(suggestionEl);
-            });
-          } catch (err) {
-            console.error('Search error:', err);
-            mobileSuggestionsDropdown.innerHTML = `
-              <div class="p-3 text-[9px] font-bold text-red-500 uppercase tracking-wider text-center">
-                Gagal memuat hasil
-              </div>
-            `;
-          }
-        }, 300);
+        debounceTimeout = setTimeout(() => {
+          performFilter(mobileSearchInput.value.trim(), currentCategory);
+        }, 400);
       });
     }
 
     // Infinite Scrolling Logic
-    const sentinel = document.getElementById('mobile-explore-sentinel');
-    const articlesContainer = document.querySelector('.list-posts-wrapper');
     let currentPage = 1;
     let isLoading = false;
     let hasMore = true;
     
-    if (sentinel && articlesContainer) {
+    if (sentinel && listPostsWrapper) {
       const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !isLoading && hasMore) {
+        if (entries[0].isIntersecting && !isLoading && hasMore && !isFiltering) {
           loadMoreArticles();
         }
       }, { rootMargin: '100px' });
@@ -380,7 +401,7 @@ const trendingPosts = exploreArticles.slice(1);
       
       async function loadMoreArticles() {
         isLoading = true;
-        sentinel.classList.remove('opacity-0');
+        sentinel?.classList.remove('opacity-0');
         
         try {
           currentPage++;
@@ -391,7 +412,6 @@ const trendingPosts = exploreArticles.slice(1);
           if (cachedData) {
             newArticles = JSON.parse(cachedData);
           } else {
-            const backendUrl = sentinel.getAttribute('data-backend-url') || '';
             const res = await fetch(`${backendUrl}/api/articles?page=${currentPage}&limit=5`); 
             if (!res.ok) throw new Error('Failed');
             newArticles = await res.json();
@@ -400,7 +420,7 @@ const trendingPosts = exploreArticles.slice(1);
           
           if (newArticles.length === 0) {
             hasMore = false;
-            sentinel.classList.add('hidden');
+            if (sentinel) sentinel.classList.add('hidden');
             return;
           }
           
@@ -410,14 +430,11 @@ const trendingPosts = exploreArticles.slice(1);
                 <div class="w-20 h-20 rounded-lg overflow-hidden pexih-placeholder bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
                   <img 
                     src="${item.img || `https://images.unsplash.com/photo-${1550000000000 + index}?auto=format,compress&fit=crop&w=200&q=80`}" 
-                    alt="Thumbnail for ${item.title}" 
-                    width="80"
-                    height="80"
+                    alt="Thumbnail" 
+                    width="80" height="80"
                     class="w-full h-full object-cover aspect-square transition-opacity duration-300 opacity-0" 
                     onload="this.classList.remove('opacity-0')"
-                    loading="lazy" 
-                    decoding="async"
-                    referrerpolicy="no-referrer" 
+                    loading="lazy" referrerpolicy="no-referrer" 
                   />
                 </div>
                 <div class="flex-1 min-w-0">
@@ -427,13 +444,13 @@ const trendingPosts = exploreArticles.slice(1);
                 </div>
               </a>
             `;
-            articlesContainer.insertAdjacentHTML('beforeend', articleHtml);
+            listPostsWrapper.insertAdjacentHTML('beforeend', articleHtml);
           });
         } catch (e) {
-          console.error("Failed to load more articles", e);
+          console.error("Failed to load more", e);
         } finally {
           isLoading = false;
-          sentinel.classList.add('opacity-0');
+          if (sentinel && hasMore) sentinel.classList.add('opacity-0');
         }
       }
     }
