@@ -1,5 +1,6 @@
 ---
 import MobileLayout from '../layouts/MobileLayout.astro';
+import HeaderActions from '../components/HeaderActions.astro';
 import EmptyState from '../components/EmptyState.astro';
 import ArticleSkeleton from '../components/ArticleSkeleton.astro';
 
@@ -8,12 +9,13 @@ const savedPosts = [1, 2, 3, 4]; // Change to [] to see empty state
 <MobileLayout title="Saved Posts">
   <div class="fixed top-0 w-full max-w-[400px] z-50">
     <div class="w-full bg-white dark:bg-gray-900" style="height: env(safe-area-inset-top);"></div>
-    <div class="bg-white dark:bg-gray-900 pt-3 pb-2 px-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+    <div class="bg-white dark:bg-gray-900 pt-3 pb-2 px-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between h-[53px]">
       <h1 class="text-[16px] font-bold text-gray-900 dark:text-white" data-i18n="nav.bookmark">Saved</h1>
+      <HeaderActions />
     </div>
   </div>
 
-  <div class="" style="height: calc(60px + env(safe-area-inset-top));"></div>
+  <div class="shrink-0" style="height: calc(53px + env(safe-area-inset-top));"></div>
   <div class="p-4 space-y-4">
     <!-- Search Bar -->
     <div class="relative w-full">
