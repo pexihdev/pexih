@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import multer from 'multer';
 import { db } from './db';
 import { redisService } from './redis';
-import { articles, categories, comments, bookmarks, articleLikes, users, newsletterSubscribers, supportMessages, notifications, userSettings, media } from './database/schema';
+import { articles, categories, comments, bookmarks, articleLikes, users, newsletterSubscribers, supportMessages, notifications, userSettings, media, articleRevisions } from './database/schema';
 import { eq, and, or, isNull, lte, desc } from 'drizzle-orm';
 import sanitizeHtml from 'sanitize-html';
 import bcrypt from 'bcryptjs';
@@ -930,6 +930,8 @@ app.post('/api/media/upload', upload.single('file'), async (req, res) => {
 
 // Default status endpoint
 app.get('/api/status', (req, res) => {
+  res.json({ status: 'ok', timestamp: Date.now() });
+});
 
 // Start server only if not in Vercel serverless environment
 if (!process.env.VERCEL) {

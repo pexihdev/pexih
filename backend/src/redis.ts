@@ -143,6 +143,7 @@ export const redisService = {
     }
   },
 
+  async delPattern(pattern: string): Promise<void> {
     if (!redis) {
       const cleanPattern = pattern.replace('*', '');
       for (const k of Array.from(fallbackStore.keys())) {
