@@ -1,0 +1,32 @@
+<div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 pointer-events-none items-center"></div>
+
+<script>
+  window.toast = (message: string) => {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = '!py-1.5 !px-2.5 font-bold !text-[9px] text-center rounded-full !bg-orange-600 !text-white shadow-md transform transition-all duration-300 opacity-0 -translate-y-2 pointer-events-auto';
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    // Trigger reflow
+    void toast.offsetWidth;
+
+    // Fade in and slide down
+    toast.classList.remove('opacity-0', '-translate-y-2');
+    toast.classList.add('opacity-100', 'translate-y-0');
+
+    setTimeout(() => {
+      // Fade out and slide up
+      toast.classList.remove('opacity-100', 'translate-y-0');
+      toast.classList.add('opacity-0', '-translate-y-2');
+      
+      // Remove element after transition
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3000);
+  };
+</script>

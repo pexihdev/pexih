@@ -1,0 +1,140 @@
+---
+import Layout from './Layout.astro';
+import BottomNav from '../components/BottomNav.astro';
+
+interface Props {
+	title?: string;
+	showBottomNav?: boolean;
+	description?: string;
+	image?: string;
+	type?: string;
+	url?: string;
+	publishedTime?: string;
+	author?: string;
+	schema?: object;
+}
+
+const { title, showBottomNav = true, ...seoProps } = Astro.props;
+---
+
+<Layout title={title} {...seoProps}>
+	<main class={`fixed inset-0 w-full max-w-[400px] mx-auto flex flex-col bg-white dark:bg-gray-900 shadow-sm font-sans overflow-y-auto overflow-x-hidden overscroll-y-none relative ${showBottomNav ? 'pb-[52px]' : ''}`} id="mobile-main-wrapper">
+		<!-- PTR Indicator -->
+		<div id="ptr-indicator" class="absolute left-0 w-full flex items-center justify-center z-40 opacity-0 pointer-events-none" style="top: calc(52px + max(env(safe-area-inset-top), 16px)); transform: translateY(-20px);">
+			<div class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center border border-gray-100 dark:border-gray-700">
+				<svg id="ptr-spinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+			</div>
+		</div>
+
+		<div id="mobile-content-wrapper" class="flex-1 flex flex-col relative w-full">
+			<slot />
+		</div>
+		{showBottomNav && <BottomNav />}
+		
+		<!-- Scroll To Top FAB -->
+		<button 
+			id="scroll-to-top-fab"
+			aria-label="Scroll to top" 
+			class="fixed bottom-[70px] right-4 w-10 h-10 bg-orange-600 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 z-40 hover:bg-orange-700 active:scale-95"
+			style="transform: translateY(20px);"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+		</button>
+	</main>
+
+	<script is:inline>
+		document.addEventListener('astro:page-load', () => {
+			const wrapper = document.getElementById('mobile-main-wrapper');
+			const fab = document.getElementById('scroll-to-top-fab');
+			
+			if (wrapper && fab) {
+				wrapper.addEventListener('scroll', () => {
+					if (wrapper.scrollTop > 300) {
+						fab.classList.remove('opacity-0', 'pointer-events-none');
+						fab.style.transform = 'translateY(0)';
+					} else {
+						fab.classList.add('opacity-0', 'pointer-events-none');
+						fab.style.transform = 'translateY(20px)';
+					}
+				});
+
+				fab.addEventListener('click', () => {
+					wrapper.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			}
+
+			// Pull to Refresh Logic (Only Home & Explore)
+			const path = window.location.pathname.replace(/\/$/, '') || '/';
+			if (['/', '/explore'].includes(path) && wrapper) {
+				const contentWrapper = document.getElementById('mobile-content-wrapper');
+				const ptrIndicator = document.getElementById('ptr-indicator');
+				const ptrSpinner = document.getElementById('ptr-spinner');
+				
+				let startY = 0;
+				let currentY = 0;
+				let isPulling = false;
+				let isRefreshing = false;
+				const maxPull = 80;
+				const threshold = 50;
+				
+				wrapper.addEventListener('touchstart', (e) => {
+					if (wrapper.scrollTop <= 0 && !isRefreshing) {
+						startY = e.touches[0].clientY;
+						isPulling = true;
+						contentWrapper.style.transition = 'none';
+						ptrIndicator.style.transition = 'none';
+					}
+				}, { passive: true });
+
+				wrapper.addEventListener('touchmove', (e) => {
+					if (!isPulling || isRefreshing) return;
+					currentY = e.touches[0].clientY;
+					const dy = currentY - startY;
+					
+					if (dy > 0 && wrapper.scrollTop <= 0) {
+						const pullDistance = Math.min(dy * 0.4, maxPull);
+						contentWrapper.style.transform = `translateY(${pullDistance}px)`;
+						ptrIndicator.style.opacity = Math.min(pullDistance / threshold, 1).toString();
+						ptrIndicator.style.transform = `translateY(${pullDistance - 30}px)`;
+						ptrSpinner.style.transform = `rotate(${pullDistance * 4}deg)`;
+					}
+				}, { passive: true });
+
+				wrapper.addEventListener('touchend', () => {
+					if (!isPulling || isRefreshing) return;
+					isPulling = false;
+					
+					const dy = currentY - startY;
+					const pullDistance = Math.min(dy * 0.4, maxPull);
+					
+					contentWrapper.style.transition = 'transform 0.3s ease-out';
+					ptrIndicator.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+					
+					if (pullDistance > threshold) {
+						isRefreshing = true;
+						contentWrapper.style.transform = `translateY(${threshold}px)`;
+						ptrIndicator.style.transform = `translateY(${threshold - 30}px)`;
+						ptrSpinner.classList.add('animate-spin');
+						
+						// Clear session cache for fresh data
+						Object.keys(sessionStorage).forEach(key => {
+							if (path === '/' && key.startsWith('pexih_feed_page_')) {
+								sessionStorage.removeItem(key);
+							} else if (path === '/explore' && key.startsWith('pexih_explore_page_')) {
+								sessionStorage.removeItem(key);
+							}
+						});
+						
+						setTimeout(() => {
+							window.location.reload();
+						}, 600);
+					} else {
+						contentWrapper.style.transform = '';
+						ptrIndicator.style.transform = 'translateY(-20px)';
+						ptrIndicator.style.opacity = '0';
+					}
+				});
+			}
+		});
+	</script>
+</Layout>

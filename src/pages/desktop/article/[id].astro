@@ -1,0 +1,444 @@
+---
+import DesktopLayout from '../../../layouts/DesktopLayout.astro';
+import { marked } from 'marked';
+
+const { id } = Astro.params;
+
+let article = null;
+let htmlContent = '';
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+
+if (id) {
+  try {
+    const res = await fetch(`${backendUrl}/api/articles/${id}`);
+    if (res.ok) {
+      article = await res.json();
+      
+      // Increment view asynchronously
+      fetch(`${backendUrl}/api/articles/${article.id}/view`, { method: 'POST' }).catch(() => {});
+      
+      if (article && article.authorId) {
+        // Option to fetch author from API if needed, for now use generic since API may not have users endpoint
+        // article.author = await fetch(...).json()
+      }
+      
+      if (article && article.content) {
+        htmlContent = await marked.parse(article.content);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch article', error);
+  }
+}
+
+// Fallback to dummy data if article not found
+if (!article) {
+  article = {
+    id: id || '1',
+    title: `Building the Future of Knowledge Sharing ${id || '1'}`,
+    content: "This is a **fallback** article content. Astro and Node.js are shaping the way we build and deliver content.",
+    category: "Technology",
+    createdAt: Date.now(),
+    img: `https://images.unsplash.com/photo-${1550000000000 + Number(id || 1) * 5}?auto=format,compress&fit=crop&w=1200&q=80`,
+    author: { name: 'Author Name', role: 'Senior Technical Writer' }
+  };
+  htmlContent = await marked.parse(article.content);
+}
+
+const plainTextDesc = article.metaDescription || (article.content.replace(/[#_*~`>\[\]\(\)]/g, '').replace(/\n/g, ' ').substring(0, 150).trim() + '...');
+---
+
+<DesktopLayout title={article.title} description={plainTextDesc} keywords={article.metaKeywords}>
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-5 h-[52px] flex items-center gap-3 sticky top-0 z-50">
+    <!-- Reading Progress Bar -->
+    <div class="absolute bottom-0 left-0 h-[2px] bg-orange-600 w-0 transition-all duration-150 z-10" id="desktop-reading-progress"></div>
+    
+    <button aria-label="Back" onclick="history.back()" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">Article Details</h1>
+    <div class="ml-auto flex items-center gap-2">
+      <button id="desktop-save-btn" data-article-id={article.id} class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        Save
+      </button>
+      <button class="flex items-center gap-1.5 bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors" onclick="window.toast('Link copied')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+        Share
+      </button>
+    </div>
+  </div>
+
+  <div class="px-8 pb-8 pt-0 max-w-4xl mx-auto w-full animate-fade-in">
+    <div class="bg-white dark:bg-gray-900 rounded-b-xl border-x border-b border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+      {article.img && (
+        <div class="aspect-[21/9] bg-gray-100 dark:bg-gray-800 relative">
+          <img 
+            src={article.img} 
+            alt={article.title} 
+            width="1200"
+            height="514"
+            class="w-full h-full object-cover aspect-[21/9]" 
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            referrerpolicy="no-referrer"
+          />
+        </div>
+      )}
+      
+      <div class="p-8 md:p-12">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">{article.category || 'Technology'}</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400">{article.createdAt ? new Date(Number(article.createdAt)).toLocaleDateString() : 'Just now'}</span>
+        </div>
+
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white leading-tight mb-8">{article.title}</h1>
+
+        <div class="flex items-center justify-between py-6 border-y border-gray-100 dark:border-gray-800 mb-8">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900/30 overflow-hidden flex items-center justify-center text-orange-600 dark:text-orange-500 font-bold text-lg">
+              {article.author?.name ? article.author.name.charAt(0).toUpperCase() : 'A'}
+            </div>
+            <div>
+              <p class="text-lg font-bold text-gray-900 dark:text-white">{article.author?.name || 'Author Name'}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{article.author?.role || 'Contributor'}</p>
+            </div>
+          </div>
+          <button class="bg-gray-900 dark:bg-gray-700 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-black dark:hover:bg-gray-600 transition-colors" onclick="window.toast('Following author!')">
+            Follow
+          </button>
+        </div>
+
+        <!-- Typography & Reading Control Panel -->
+        <div class="flex items-center justify-between bg-gray-50 dark:bg-gray-800/40 rounded-2xl p-4 mb-8 border border-gray-100 dark:border-gray-800/80">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-2">Tipe Font / Typeface</span>
+            <button id="desktop-font-sans-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer">Sans-serif</button>
+            <button id="desktop-font-serif-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer">Serif</button>
+          </div>
+          <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mr-2">Ukuran / Font Size</span>
+            <button id="desktop-font-dec-btn" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-black text-gray-700 dark:text-gray-300 shadow-sm hover:text-orange-600 dark:hover:text-orange-400 active:scale-90 transition-all cursor-pointer">A-</button>
+            <span id="desktop-font-size-badge" class="text-xs font-bold text-gray-500 dark:text-gray-400 w-12 text-center select-none">100%</span>
+            <button id="desktop-font-inc-btn" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-black text-gray-700 dark:text-gray-300 shadow-sm hover:text-orange-600 dark:hover:text-orange-400 active:scale-90 transition-all cursor-pointer">A+</button>
+          </div>
+        </div>
+
+        <div id="desktop-article-content" class="text-[14px] md:text-base text-gray-700 dark:text-gray-300 space-y-6 prose dark:prose-invert max-w-none transition-all duration-150" set:html={htmlContent}>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
+          <h3 class="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Comments
+          </h3>
+          
+          <form id="desktop-comment-form" class="mb-8 bg-white dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+            <input type="hidden" id="desktop-comment-parent-id" value="">
+            <div id="desktop-reply-indicator" class="hidden mb-3 flex items-center justify-between bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-sm px-3 py-2 rounded-lg">
+              <span>Replying to someone</span>
+              <button type="button" id="desktop-cancel-reply" class="text-orange-600 dark:text-orange-400 font-bold hover:underline">Cancel</button>
+            </div>
+            <textarea id="desktop-comment-input" rows="3" placeholder="Write a comment..." class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500 resize-none mb-3" required></textarea>
+            <div class="flex justify-end">
+              <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold py-2 px-6 rounded-lg transition-all shadow-sm active:scale-95">Post Comment</button>
+            </div>
+          </form>
+
+          <div id="desktop-comments-container" class="space-y-6" data-article-id={id} data-backend-url={backendUrl}>
+            <div class="text-sm text-gray-500 text-center py-8">Loading comments...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const articleContent = document.getElementById('desktop-article-content');
+      const fontSansBtn = document.getElementById('desktop-font-sans-btn');
+      const fontSerifBtn = document.getElementById('desktop-font-serif-btn');
+      const fontDecBtn = document.getElementById('desktop-font-dec-btn');
+      const fontIncBtn = document.getElementById('desktop-font-inc-btn');
+      const fontSizeBadge = document.getElementById('desktop-font-size-badge');
+
+      if (articleContent && fontSansBtn && fontSerifBtn && fontDecBtn && fontIncBtn && fontSizeBadge) {
+        // Load default/saved preferences
+        let savedSize = parseInt(localStorage.getItem('pexih-reader-font-size') || '100', 10);
+        let savedFamily = localStorage.getItem('pexih-reader-font-family') || 'sans';
+
+        const applyPreferences = () => {
+          // Font family
+          if (savedFamily === 'serif') {
+            articleContent.classList.remove('font-sans');
+            articleContent.classList.add('font-serif');
+            fontSerifBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-orange-600 text-white cursor-pointer active:scale-95 transition-all";
+            fontSansBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer active:scale-95 transition-all";
+          } else {
+            articleContent.classList.remove('font-serif');
+            articleContent.classList.add('font-sans');
+            fontSansBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-orange-600 text-white cursor-pointer active:scale-95 transition-all";
+            fontSerifBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer active:scale-95 transition-all";
+          }
+
+          // Font size
+          articleContent.style.fontSize = `${savedSize}%`;
+          fontSizeBadge.textContent = `${savedSize}%`;
+
+          // Persist
+          localStorage.setItem('pexih-reader-font-size', savedSize.toString());
+          localStorage.setItem('pexih-reader-font-family', savedFamily);
+        };
+
+        fontSansBtn.addEventListener('click', () => {
+          savedFamily = 'sans';
+          applyPreferences();
+        });
+
+        fontSerifBtn.addEventListener('click', () => {
+          savedFamily = 'serif';
+          applyPreferences();
+        });
+
+        fontDecBtn.addEventListener('click', () => {
+          if (savedSize > 80) {
+            savedSize -= 10;
+            applyPreferences();
+          }
+        });
+
+        fontIncBtn.addEventListener('click', () => {
+          if (savedSize < 180) {
+            savedSize += 10;
+            applyPreferences();
+          }
+        });
+
+        // Initial apply
+        applyPreferences();
+      }
+
+      // Desktop save button interaction
+      const desktopSaveBtn = document.getElementById('desktop-save-btn');
+      if (desktopSaveBtn) {
+        desktopSaveBtn.addEventListener('click', async () => {
+          const articleId = desktopSaveBtn.getAttribute('data-article-id');
+          if (window.toast) {
+            window.toast("Article saved");
+          }
+          desktopSaveBtn.classList.replace('text-gray-600', 'text-orange-600');
+          desktopSaveBtn.classList.replace('dark:text-gray-300', 'dark:text-orange-500');
+
+          if (articleId) {
+            try {
+              await fetch('/api/interactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ articleId, interactionType: 'bookmark' })
+              });
+            } catch (e) {
+              console.error('Failed to log bookmark interaction:', e);
+            }
+          }
+        });
+      }
+
+      // Reading Progress Bar
+      const progressBar = document.getElementById('desktop-reading-progress');
+      const wrapper = document.getElementById('desktop-main-wrapper');
+      
+      const updateProgress = () => {
+        const scrollEl = wrapper || document.documentElement;
+        
+        const scrollTop = scrollEl.scrollTop || window.scrollY;
+        const scrollHeight = scrollEl.scrollHeight;
+        const clientHeight = scrollEl.clientHeight || window.innerHeight;
+        
+        if (scrollHeight <= clientHeight) {
+          if (progressBar) progressBar.style.width = '100%';
+          return;
+        }
+
+        const scrolled = (scrollTop / (scrollHeight - clientHeight)) * 100;
+        if (progressBar) {
+          progressBar.style.width = scrolled + '%';
+        }
+      };
+
+      if (wrapper) {
+        wrapper.addEventListener('scroll', updateProgress);
+      } else {
+        window.addEventListener('scroll', updateProgress);
+      }
+      // Run once on load
+      updateProgress();
+
+      // COMMENTS SYSTEM
+      const commentsContainer = document.getElementById('desktop-comments-container');
+      const commentForm = document.getElementById('desktop-comment-form');
+      const commentInput = document.getElementById('desktop-comment-input');
+      const commentParentId = document.getElementById('desktop-comment-parent-id');
+      const replyIndicator = document.getElementById('desktop-reply-indicator');
+      const cancelReplyBtn = document.getElementById('desktop-cancel-reply');
+
+      if (commentsContainer) {
+        const articleId = commentsContainer.getAttribute('data-article-id');
+        const backendUrl = commentsContainer.getAttribute('data-backend-url') || '';
+
+        const renderComments = (comments) => {
+          if (!comments || comments.length === 0) {
+            commentsContainer.innerHTML = '<div class="text-sm text-gray-500 text-center py-8">No comments yet. Be the first to share your thoughts!</div>';
+            return;
+          }
+
+          const commentMap = {};
+          const rootComments = [];
+
+          comments.forEach(c => {
+            c.children = [];
+            commentMap[c.id] = c;
+          });
+
+          comments.forEach(c => {
+            if (c.parentId && commentMap[c.parentId]) {
+              commentMap[c.parentId].children.push(c);
+            } else {
+              rootComments.push(c);
+            }
+          });
+
+          const createCommentHTML = (c, isReply = false) => {
+            const timeAgo = new Date(Number(c.createdAt)).toLocaleDateString();
+            let childrenHTML = '';
+            if (c.children && c.children.length > 0) {
+              childrenHTML = `<div class="ml-6 mt-4 pl-4 border-l-2 border-gray-100 dark:border-gray-800 space-y-4">
+                ${c.children.map(child => createCommentHTML(child, true)).join('')}
+              </div>`;
+            }
+
+            return `
+              <div class="comment-item" id="comment-${c.id}">
+                <div class="flex gap-3">
+                  <img src="${c.avatar}" alt="${c.author}" class="w-10 h-10 rounded-full bg-gray-100 shrink-0 border border-gray-200 dark:border-gray-800" />
+                  <div class="flex-1">
+                    <div class="bg-white dark:bg-gray-800/60 rounded-2xl rounded-tl-none p-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-gray-900 dark:text-white text-sm">${c.author}</span>
+                        <span class="text-xs text-gray-500">${timeAgo}</span>
+                      </div>
+                      <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">${c.content}</p>
+                    </div>
+                    <div class="flex items-center gap-4 mt-2 ml-2">
+                      <button class="like-comment-btn flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-orange-600 transition-colors" data-id="${c.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                        <span class="likes-count">${c.likes || 0}</span>
+                      </button>
+                      <button class="reply-comment-btn text-xs font-bold text-gray-500 hover:text-orange-600 transition-colors" data-id="${c.id}" data-author="${c.author}">Reply</button>
+                    </div>
+                    ${childrenHTML}
+                  </div>
+                </div>
+              </div>
+            `;
+          };
+
+          commentsContainer.innerHTML = rootComments.map(c => createCommentHTML(c)).join('');
+
+          document.querySelectorAll('.reply-comment-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const id = e.currentTarget.getAttribute('data-id');
+              const author = e.currentTarget.getAttribute('data-author');
+              commentParentId.value = id;
+              replyIndicator.classList.remove('hidden');
+              replyIndicator.querySelector('span').textContent = `Replying to ${author}`;
+              commentInput.focus();
+              commentForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+          });
+
+          document.querySelectorAll('.like-comment-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+              const id = e.currentTarget.getAttribute('data-id');
+              try {
+                const res = await fetch(`${backendUrl}/api/comments/${id}/like`, { method: 'POST' });
+                if (res.ok) {
+                  const data = await res.json();
+                  e.currentTarget.querySelector('.likes-count').textContent = data.likes;
+                  e.currentTarget.classList.add('text-orange-600');
+                  if (window.toast) window.toast("Liked");
+                }
+              } catch (err) {
+                console.error('Failed to like comment', err);
+              }
+            });
+          });
+        };
+
+        const loadComments = async () => {
+          try {
+            const res = await fetch(`${backendUrl}/api/comments/${articleId}`);
+            if (res.ok) {
+              const data = await res.json();
+              renderComments(data);
+            }
+          } catch (err) {
+            commentsContainer.innerHTML = '<div class="text-sm text-gray-500 text-center py-8">Failed to load comments</div>';
+          }
+        };
+
+        loadComments();
+
+        if (cancelReplyBtn) {
+          cancelReplyBtn.addEventListener('click', () => {
+            commentParentId.value = '';
+            replyIndicator.classList.add('hidden');
+          });
+        }
+
+        if (commentForm) {
+          commentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = commentInput.value.trim();
+            if (!content) return;
+
+            const submitBtn = commentForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Posting...';
+            submitBtn.disabled = true;
+
+            try {
+              const res = await fetch(`${backendUrl}/api/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  articleId,
+                  author: 'Guest User',
+                  content,
+                  parentId: commentParentId.value || null
+                })
+              });
+              
+              if (res.ok) {
+                commentInput.value = '';
+                commentParentId.value = '';
+                replyIndicator.classList.add('hidden');
+                if (window.toast) window.toast("Comment posted!");
+                loadComments();
+              } else {
+                if (window.toast) window.toast("Failed to post comment");
+              }
+            } catch (err) {
+              if (window.toast) window.toast("Error posting comment");
+            } finally {
+              submitBtn.textContent = originalText;
+              submitBtn.disabled = false;
+            }
+          });
+        }
+      }
+    });
+  </script>
+</DesktopLayout>

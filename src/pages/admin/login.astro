@@ -1,0 +1,85 @@
+---
+import AdminMobileLayout from '../../layouts/AdminMobileLayout.astro';
+import { getUserFromCookies } from '../../lib/auth';
+
+// Redirect if already logged in (Admin check should ideally be here)
+const user = await getUserFromCookies(Astro.cookies);
+if (user) {
+  return Astro.redirect('/admin');
+}
+---
+<AdminMobileLayout title="Admin Login" showBottomNav={false}>
+  <div class="fixed top-0 w-full max-w-[400px] z-50">
+    <div class="w-full h-[max(env(safe-area-inset-top),16px)] bg-gray-900"></div>
+    <div class="bg-gray-900 text-white h-[52px] px-5 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded bg-orange-600 flex items-center justify-center font-bold text-[10px]">A</div>
+        <h1 class="text-[16px] font-bold">PE<span class="text-orange-600">X</span>IH Admin</h1>
+      </div>
+    </div>
+  </div>
+  
+  <div class="flex-1 flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 min-h-[100dvh]" style="padding-top: calc(52px + max(env(safe-area-inset-top), 16px));">
+    <div class="w-full max-w-sm space-y-8">
+      <div class="text-center">
+        <h1 class="text-[24px] font-black text-gray-900 dark:text-white mb-2">Admin Login</h1>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400">Secure access to the control panel.</p>
+      </div>
+      
+      <form id="admin-login-form" class="space-y-4 mt-8">
+        <div>
+          <label for="email" class="block text-[11px] font-bold text-gray-900 dark:text-gray-300 mb-1.5">Email</label>
+          <input type="email" id="email" name="email" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-600 focus:bg-white dark:focus:bg-gray-900 transition-colors dark:text-white" placeholder="admin@example.com">
+        </div>
+        
+        <div>
+          <label for="password" class="block text-[11px] font-bold text-gray-900 dark:text-gray-300 mb-1.5">Password</label>
+          <input type="password" id="password" name="password" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-600 focus:bg-white dark:focus:bg-gray-900 transition-colors dark:text-white" placeholder="••••••••">
+        </div>
+        
+        <button type="submit" id="login-btn" class="w-full py-3.5 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-[12px] font-bold transition-all active:scale-95 shadow-sm mt-4 flex justify-center items-center">
+          Sign In as Admin
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const form = document.getElementById('admin-login-form') as HTMLFormElement;
+      const btn = document.getElementById('login-btn') as HTMLButtonElement;
+      
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = (document.getElementById('email') as HTMLInputElement).value;
+          const password = (document.getElementById('password') as HTMLInputElement).value;
+          
+          btn.disabled = true;
+          btn.textContent = 'Authenticating...';
+          
+          try {
+            const res = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password, isAdminLogin: true })
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok) {
+              window.location.href = '/admin';
+            } else {
+              window.toast(data.error || 'Failed to login');
+            }
+          } catch (err) {
+            window.toast('Network error. Please try again.');
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Sign In as Admin';
+          }
+        });
+      }
+    });
+  </script>
+</AdminMobileLayout>

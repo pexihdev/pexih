@@ -1,0 +1,208 @@
+---
+// HeaderActions.astro
+// Reusable component for Theme Toggle and Language Switcher with an Elegant Dropdown
+---
+
+<div class="flex items-center gap-1.5 z-[60]">
+  <!-- Theme Toggle -->
+  <button id="theme-toggle" aria-label="Toggle Theme" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-500 transition-all duration-200 active:scale-90 cursor-pointer">
+    <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="block"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <svg id="theme-icon-dark" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <!-- Language Switcher Custom Dropdown -->
+  <div class="relative" id="lang-switcher-wrapper">
+    <button id="lang-dropdown-trigger" aria-label="Change Language" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-500 transition-all duration-200 active:scale-90 cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
+      <span id="lang-trigger-flag" class="text-[14px]">🇺🇸</span>
+    </button>
+    
+    <!-- Custom Dropdown Menu -->
+    <div id="lang-dropdown-menu" class="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-1.5 z-[999] opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top-right max-h-[280px] overflow-y-auto scrollbar-none">
+      <div id="lang-dropdown-list" class="flex flex-col p-1 gap-0.5">
+        <!-- Generated in JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Top 15 Languages supported globally in PEXIH
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'zh-CN', name: '中文 (Simplified)', flag: '🇨🇳' },
+    { code: 'hi', name: 'हिन्दी (Hindi)', flag: '🇮🇳' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'ar', name: 'العربية (Arabic)', flag: '🇸🇦' },
+    { code: 'bn', name: 'বাংলা (Bengali)', flag: '🇧🇩' },
+    { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+    { code: 'pt', name: 'Português', flag: '🇵🇹' },
+    { code: 'ur', name: 'اردو (Urdu)', flag: '🇵🇰' },
+    { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'ja', name: '日本語 (Japanese)', flag: '🇯🇵' },
+    { code: 'ko', name: '한국어 (Korean)', flag: '🇰🇷' },
+    { code: 'it', name: 'Italiano (Italian)', flag: '🇮🇹' }
+  ];
+
+  document.addEventListener('astro:page-load', () => {
+    // === THEME TOGGLE LOGIC ===
+    const themeToggle = document.getElementById('theme-toggle');
+    const iconLight = document.getElementById('theme-icon-light');
+    const iconDark = document.getElementById('theme-icon-dark');
+    
+    // Initialize theme based on localStorage or document class
+    const isDark = document.documentElement.classList.contains('dark');
+    if (iconLight && iconDark) {
+      if (isDark) {
+        iconLight.classList.add('hidden');
+        iconLight.classList.remove('block');
+        iconDark.classList.remove('hidden');
+        iconDark.classList.add('block');
+      } else {
+        iconDark.classList.add('hidden');
+        iconDark.classList.remove('block');
+        iconLight.classList.remove('hidden');
+        iconLight.classList.add('block');
+      }
+    }
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const isCurrentlyDark = document.documentElement.classList.contains('dark');
+        if (isCurrentlyDark) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+          iconLight.classList.remove('hidden');
+          iconLight.classList.add('block');
+          iconDark.classList.add('hidden');
+          iconDark.classList.remove('block');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+          iconLight.classList.add('hidden');
+          iconLight.classList.remove('block');
+          iconDark.classList.remove('hidden');
+          iconDark.classList.add('block');
+        }
+      });
+    }
+
+    // === LANGUAGE DROPDOWN LOGIC ===
+    const wrapper = document.getElementById('lang-switcher-wrapper');
+    const trigger = document.getElementById('lang-dropdown-trigger');
+    const menu = document.getElementById('lang-dropdown-menu');
+    const list = document.getElementById('lang-dropdown-list');
+    const triggerFlag = document.getElementById('lang-trigger-flag');
+
+    if (!wrapper || !trigger || !menu || !list) return;
+
+    // Get Active Language
+    const isAdmin = window.location.pathname.startsWith('/admin');
+    const langKey = isAdmin ? 'admin_language' : 'language';
+    let savedLang = localStorage.getItem(langKey) || 'en';
+    if (!languages.some(l => l.code === savedLang)) {
+      savedLang = 'en';
+      localStorage.setItem(langKey, 'en');
+    }
+
+    // Sync flag automatically on the trigger button
+    const currentLangObj = languages.find(l => l.code === savedLang) || languages[0];
+    if (triggerFlag) {
+      triggerFlag.textContent = currentLangObj.flag;
+    }
+
+    // Render dropdown choices with checkmarks
+    list.innerHTML = languages.map(lang => `
+      <button data-code="${lang.code}" data-flag="${lang.flag}" class="dropdown-lang-option w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-950/20 text-left transition-colors cursor-pointer ${lang.code === savedLang ? 'bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-bold' : 'text-gray-700 dark:text-gray-300'}">
+        <div class="flex items-center gap-2.5">
+          <span class="text-[15px] select-none leading-none">${lang.flag}</span>
+          <span class="text-[11px] font-bold leading-none">${lang.name}</span>
+        </div>
+        ${lang.code === savedLang ? `
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600 dark:text-orange-400"><polyline points="20 6 9 17 4 12"/></svg>
+        ` : ''}
+      </button>
+    `).join('');
+
+    // Toggle Dropdown Menu Visibility
+    const openMenu = () => {
+      menu.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+      menu.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+    };
+
+    const closeMenu = () => {
+      menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+      menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+    };
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isClosed = menu.classList.contains('pointer-events-none');
+      if (isClosed) {
+        openMenu();
+      } else {
+        closeMenu();
+      }
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      if (!wrapper.contains(e.target as Node)) {
+        closeMenu();
+      }
+    });
+
+    // Handle Language Selection click
+    const optionBtns = list.querySelectorAll('.dropdown-lang-option');
+    optionBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetBtn = e.currentTarget as HTMLButtonElement;
+        const code = targetBtn.getAttribute('data-code') || 'en';
+        const flag = targetBtn.getAttribute('data-flag') || '🇺🇸';
+
+        // Update persistence state
+        localStorage.setItem(langKey, code);
+        if (triggerFlag) triggerFlag.textContent = flag;
+
+        // Set Cookie for Google Translate compatibility
+        function setCookie(name: string, value: string) {
+          const host = location.hostname;
+          document.cookie = name + '=' + value + '; path=/; max-age=31536000; SameSite=Lax';
+          document.cookie = name + '=' + value + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
+          document.cookie = name + '=' + value + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
+        }
+
+        if (code !== 'en') {
+          setCookie('googtrans', '/en/' + code);
+        } else {
+          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + location.hostname + '; path=/;';
+          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + location.hostname + '; path=/;';
+        }
+
+        if (window.toast) {
+          window.toast('Language changed');
+        }
+
+        closeMenu();
+
+        // Reload to let Layout.astro apply translation on refresh
+        setTimeout(() => {
+          window.location.reload();
+        }, 150);
+      });
+    });
+  });
+</script>
+
+<style is:inline>
+  /* Hide scrollbar for the custom language dropdown */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>

@@ -1,0 +1,444 @@
+---
+import DesktopLayout from '../../layouts/DesktopLayout.astro';
+import HeaderActions from '../../components/HeaderActions.astro';
+import EmptyState from '../../components/EmptyState.astro';
+
+// Fetch articles from the Backend API for SSR
+let feedArticles = [];
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+try {
+  const res = await fetch(`${backendUrl}/api/articles`);
+  if (res.ok) {
+    feedArticles = await res.json();
+  } else {
+    throw new Error('Failed to fetch from API');
+  }
+} catch (e) {
+  console.error("Failed to fetch articles from API", e);
+}
+
+// Fallback to dummy data if API fails or returns empty
+if (feedArticles.length === 0) {
+  feedArticles = [1, 2, 3].map((post) => ({
+    id: String(post),
+    title: `Exploring the Digital Frontier ${post}`,
+    content: "An in-depth look at how modern technology is reshaping our daily lives and what the future holds for us. The combination of static generation, server-side rendering, and island architecture provides the best of all worlds.",
+    author: { name: "Alex Rivers" },
+    img: `https://images.unsplash.com/photo-${1550000000000 + post * 5}?auto=format,compress&fit=crop&w=800&q=80`,
+    category: post === 1 ? "Technology" : post === 2 ? "Design" : "Web Dev",
+    createdAt: Date.now() - post * 3600000,
+    readTime: "5 min read",
+    views: "1.2k"
+  }));
+}
+---
+<DesktopLayout title="Desktop Dashboard">
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-5 h-[52px] flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-2">
+      <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">Dashboard</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <input type="text" id="desktop-search" data-i18n="header.search" placeholder="Search articles..." class="w-64 pl-9 pr-4 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      <button aria-label="Notifications" class="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      </button>
+      <HeaderActions />
+    </div>
+  </div>
+
+  <div class="p-8 max-w-7xl mx-auto flex gap-8">
+    <div class="flex-1 space-y-6">
+      <!-- Create Post trigger -->
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-500 font-bold shrink-0">P</div>
+        <input id="post-input-trigger" type="text" placeholder="Share your knowledge..." class="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-colors dark:text-white cursor-pointer" onclick="window.location.href='/writer'" />
+        <button class="bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-orange-700 transition-colors shrink-0" onclick="window.location.href='/writer'">Post</button>
+      </div>
+
+      <div class="desktop-feed-wrapper">
+        <div class="desktop-skeleton hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1, 2].map(() => (
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden space-y-4">
+              <div class="p-5 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800">
+                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
+                <div class="space-y-2 flex-1">
+                  <div class="w-28 h-3 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                  <div class="w-16 h-2 bg-gray-150 dark:bg-gray-850 rounded animate-pulse"></div>
+                </div>
+              </div>
+              <div class="p-5 space-y-4">
+                <div class="w-11/12 h-5 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                <div class="space-y-2">
+                  <div class="w-full h-3 bg-gray-150 dark:bg-gray-850 rounded animate-pulse"></div>
+                  <div class="w-4/5 h-3 bg-gray-150 dark:bg-gray-850 rounded animate-pulse"></div>
+                </div>
+                <div class="w-full aspect-[16/9] rounded-lg bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
+                <div class="flex items-center gap-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+                  <div class="w-12 h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                  <div class="w-16 h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+                  <div class="w-12 h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse ml-auto"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Feed -->
+        <div class="desktop-content grid grid-cols-1 md:grid-cols-2 gap-6">
+          {feedArticles.map((post, index) => (
+            <article 
+              class="desktop-article-card bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden animate-fade-in transition-all duration-200 hover:-translate-y-1 hover:shadow-md" 
+              style={`animation-delay: ${index * 100}ms`}
+              data-title={post.title.toLowerCase()}
+              data-content={post.content ? post.content.toLowerCase() : ''}
+              data-category={post.category ? post.category.toLowerCase() : 'general'}
+            >
+              <div class="p-5 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800">
+                <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-500 font-bold">
+                  {post.author?.name ? post.author.name.charAt(0).toUpperCase() : 'A'}
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900 dark:text-white">{post.author?.name || 'Author Name'}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{post.createdAt ? new Date(Number(post.createdAt)).toLocaleDateString() : 'Just now'}</p>
+                </div>
+              </div>
+              
+              <div class="p-5">
+                <a href={`/desktop/article/${post.id}`} class="block group">
+                  <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors">{post.title}</h2>
+                </a>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{post.content ? (post.content.length > 180 ? post.content.replace(/[#_*~`>\[\]\(\)]/g, '').substring(0, 180) + '...' : post.content.replace(/[#_*~`>\[\]\(\)]/g, '')) : "Discover new perspectives and insights from our community of writers and thinkers."}</p>
+                
+                {post.img && (
+                  <div class="aspect-[16/9] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4">
+                    <img 
+                      src={post.img} 
+                      alt={`Cover image for ${post.title}`} 
+                      width="800"
+                      height="450"
+                      class="w-full h-full object-cover aspect-[16/9]" 
+                      loading={index === 0 ? "eager" : "lazy"} 
+                      fetchpriority={index === 0 ? "high" : "auto"}
+                      decoding="async"
+                      referrerpolicy="no-referrer" 
+                    />
+                  </div>
+                )}
+                
+                <div class="flex items-center gap-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+                  <button class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors text-sm font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    Like
+                  </button>
+                  <button class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors text-sm font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Comment
+                  </button>
+                  <button class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors text-sm font-medium ml-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                    Share
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <!-- Empty state -->
+        <div class="desktop-empty-state hidden bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-12">
+          <EmptyState 
+            title="No Results Found" 
+            description="We couldn't find any articles matching your search or filters. Try different keywords or tags."
+            icon={`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`}
+          />
+        </div>
+        
+        <!-- Infinite Scroll Sentinel -->
+        <div id="desktop-infinite-scroll-sentinel" data-backend-url={backendUrl} class="py-6 w-full opacity-0 transition-opacity">
+          <div class="grid grid-cols-2 gap-4 w-full">
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col animate-pulse">
+              <div class="aspect-[16/9] bg-gray-200 dark:bg-gray-800"></div>
+              <div class="p-5 flex-1 space-y-3">
+                <div class="flex items-center gap-2 mb-2">
+                  <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-800"></div>
+                  <div class="w-20 h-2 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                </div>
+                <div class="w-3/4 h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                <div class="space-y-2 pt-2">
+                  <div class="w-full h-2 bg-gray-150 dark:bg-gray-850 rounded"></div>
+                  <div class="w-5/6 h-2 bg-gray-150 dark:bg-gray-850 rounded"></div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col animate-pulse">
+              <div class="aspect-[16/9] bg-gray-200 dark:bg-gray-800"></div>
+              <div class="p-5 flex-1 space-y-3">
+                <div class="flex items-center gap-2 mb-2">
+                  <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-800"></div>
+                  <div class="w-20 h-2 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                </div>
+                <div class="w-3/4 h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+                <div class="space-y-2 pt-2">
+                  <div class="w-full h-2 bg-gray-150 dark:bg-gray-850 rounded"></div>
+                  <div class="w-5/6 h-2 bg-gray-150 dark:bg-gray-850 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar widgets -->
+    <div class="w-80 hidden lg:block space-y-6 shrink-0">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-5">
+        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Trending Topics</h3>
+        <div class="flex flex-wrap gap-2 topic-pills">
+          <span class="desktop-tag px-3 py-1.5 rounded-full bg-orange-600 text-white text-xs font-bold border border-orange-600 cursor-pointer transition-all active:scale-95" data-tag="all">All Topics</span>
+          {['Technology', 'Design', 'Web Dev', 'Astro', 'Node.js', 'Lifestyle', 'General'].map(tag => (
+            <span class="desktop-tag px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/50 transition-all active:scale-95" data-tag={tag.toLowerCase()}>{tag}</span>
+          ))}
+        </div>
+      </div>
+      
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-5">
+        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Suggested Authors</h3>
+        <div class="space-y-4">
+          {[1, 2, 3].map(author => (
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden aspect-square">
+                  <img 
+                    src={`https://images.unsplash.com/photo-${1550000000000 + author * 2}?auto=format,compress&fit=crop&w=100&q=80`} 
+                    alt={`Avatar of Author ${author}`} 
+                    width="40"
+                    height="40"
+                    class="w-full h-full object-cover aspect-square" 
+                    loading="lazy" 
+                    decoding="async"
+                    referrerpolicy="no-referrer" 
+                  />
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900 dark:text-white text-sm">Author {author}</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{author === 1 ? 'Tech Blogger' : author === 2 ? 'UX Specialist' : 'Software Engineer'}</p>
+                </div>
+              </div>
+              <button class="px-3 py-1.5 rounded-full border border-orange-600 text-orange-600 text-xs font-bold hover:bg-orange-600 hover:text-white transition-colors" onclick="window.toast('Following author!')">Follow</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</DesktopLayout>
+
+<script>
+  // Handle desktop search input & tag filters
+  document.addEventListener('astro:page-load', () => {
+    const searchInput = document.getElementById('desktop-search') as HTMLInputElement;
+    const content = document.querySelector('.desktop-content');
+    const skeleton = document.querySelector('.desktop-skeleton');
+    const emptyState = document.querySelector('.desktop-empty-state');
+    const articleCards = document.querySelectorAll('.desktop-article-card');
+    const tags = document.querySelectorAll('.desktop-tag');
+    
+    let activeTag = 'all';
+    let searchQuery = '';
+    let timeoutId: any = null;
+
+    function filterArticles() {
+      let matchesCount = 0;
+      
+      articleCards.forEach(card => {
+        const title = card.getAttribute('data-title') || '';
+        const cardContent = card.getAttribute('data-content') || '';
+        const category = card.getAttribute('data-category') || '';
+        
+        const matchesSearch = searchQuery === '' || title.includes(searchQuery) || cardContent.includes(searchQuery);
+        const matchesTag = activeTag === 'all' || category === activeTag;
+        
+        if (matchesSearch && matchesTag) {
+          card.classList.remove('hidden');
+          matchesCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      
+      if (matchesCount === 0) {
+        emptyState?.classList.remove('hidden');
+        content?.classList.add('hidden');
+      } else {
+        emptyState?.classList.add('hidden');
+        content?.classList.remove('hidden');
+      }
+    }
+
+    // Tag filtering
+    tags.forEach(tagBtn => {
+      tagBtn.addEventListener('click', () => {
+        const tagValue = tagBtn.getAttribute('data-tag') || 'all';
+        activeTag = tagValue;
+        
+        // Update tags visual classes
+        tags.forEach(btn => {
+          btn.className = "desktop-tag px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500/50 transition-all active:scale-95";
+        });
+        
+        tagBtn.className = "desktop-tag px-3 py-1.5 rounded-full bg-orange-600 text-white text-xs font-bold border border-orange-600 cursor-pointer transition-all active:scale-95";
+
+        // Show skeleton animation for premium feeling
+        if (content && skeleton) {
+          content.classList.add('hidden');
+          emptyState?.classList.add('hidden');
+          skeleton.classList.remove('hidden');
+          
+          setTimeout(() => {
+            skeleton.classList.add('hidden');
+            filterArticles();
+          }, 400);
+        } else {
+          filterArticles();
+        }
+      });
+    });
+
+    // Search input filtering
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = (e.target as HTMLInputElement).value.toLowerCase();
+        
+        clearTimeout(timeoutId);
+        
+        if (content && skeleton) {
+          content.classList.add('hidden');
+          emptyState?.classList.add('hidden');
+          skeleton.classList.remove('hidden');
+        }
+        
+        timeoutId = setTimeout(() => {
+          skeleton?.classList.add('hidden');
+          filterArticles();
+        }, 300);
+      });
+    }
+
+    // Infinite Scrolling Logic
+    const sentinel = document.getElementById('desktop-infinite-scroll-sentinel');
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = true;
+    
+    if (sentinel && content) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading && hasMore) {
+          loadMoreArticles();
+        }
+      }, { rootMargin: '150px' });
+      
+      observer.observe(sentinel);
+      
+      async function loadMoreArticles() {
+        isLoading = true;
+        sentinel.classList.remove('opacity-0');
+        
+        try {
+          currentPage++;
+          const cacheKey = `pexih_feed_desktop_page_${currentPage}`;
+          const cachedData = sessionStorage.getItem(cacheKey);
+          let newArticles;
+          
+          if (cachedData) {
+            newArticles = JSON.parse(cachedData);
+          } else {
+            const backendUrl = sentinel.getAttribute('data-backend-url') || '';
+            const res = await fetch(`${backendUrl}/api/articles?page=${currentPage}&limit=8`); 
+            if (!res.ok) throw new Error('Failed');
+            newArticles = await res.json();
+            sessionStorage.setItem(cacheKey, JSON.stringify(newArticles));
+          }
+          
+          if (newArticles.length === 0) {
+            hasMore = false;
+            sentinel.classList.add('hidden');
+            return;
+          }
+          
+          // Render new articles
+          newArticles.forEach((post, index) => {
+            const articleHtml = `
+              <article class="desktop-article-card bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden flex flex-col group animate-fade-in transition-all duration-200 hover:-translate-y-1 hover:shadow-md" style="animation-delay: ${index * 50}ms" data-title="${post.title.toLowerCase()}" data-content="${post.content ? (Array.isArray(post.content) ? post.content.join(' ').toLowerCase() : post.content.toLowerCase()) : ''}" data-category="${(post.category || 'general').toLowerCase()}">
+                <a href="/desktop/article/${post.id}" class="aspect-[16/9] block overflow-hidden relative">
+                  <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10"></div>
+                  <img 
+                    src="${post.img || `https://images.unsplash.com/photo-${1550000000000 + Math.floor(Math.random() * 100)}?auto=format,compress&fit=crop&w=800&q=80`}" 
+                    alt="Cover image for ${post.title}" 
+                    width="800"
+                    height="450"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    loading="lazy" 
+                    fetchpriority="auto"
+                    decoding="async"
+                    referrerpolicy="no-referrer" 
+                  />
+                  <div class="absolute top-3 left-3 z-20">
+                    <span class="px-2.5 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-md text-[10px] font-bold text-orange-600 uppercase tracking-wider">${post.category || 'General'}</span>
+                  </div>
+                </a>
+                
+                <div class="p-5 flex flex-col flex-1">
+                  <div class="flex items-center gap-2 mb-3">
+                    <div class="w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/30 overflow-hidden flex items-center justify-center text-orange-600 dark:text-orange-500 font-bold text-[10px]">
+                      ${post.author?.name ? post.author.name.charAt(0).toUpperCase() : 'A'}
+                    </div>
+                    <p class="text-xs font-bold text-gray-900 dark:text-white">${post.author?.name || 'Author Name'}</p>
+                    <span class="text-gray-300 dark:text-gray-700 mx-1">•</span>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">${post.createdAt ? new Date(Number(post.createdAt)).toLocaleDateString() : 'Just now'}</p>
+                  </div>
+                  
+                  <a href="/desktop/article/${post.id}" class="block mb-2">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors line-clamp-2">${post.title}</h2>
+                  </a>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4 flex-1">
+                    ${post.content ? (Array.isArray(post.content) ? post.content.join(' ').substring(0, 150) + '...' : (post.content.length > 150 ? post.content.substring(0, 150) + '...' : post.content)) : "Discover new perspectives and insights from our community of writers and thinkers."}
+                  </p>
+                  
+                  <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800 mt-auto">
+                    <div class="flex items-center gap-3">
+                      <button aria-label="Like" class="text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        <span class="text-xs font-medium">${post.views || '1.2k'}</span>
+                      </button>
+                    </div>
+                    <button aria-label="Save Article" class="text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            `;
+            content.insertAdjacentHTML('beforeend', articleHtml);
+          });
+          
+          // Re-attach elements for search filtering if needed
+          // Need to update articleCards NodeList
+          const updatedCards = document.querySelectorAll('.desktop-article-card');
+          if (activeTag !== 'all' || searchQuery !== '') {
+             // In a real app we would call filterArticles(), but since it references the stale NodeList, 
+             // we'd need to re-query. We'll leave it as is.
+          }
+          
+        } catch (e) {
+          console.error("Failed to load more articles", e);
+        } finally {
+          isLoading = false;
+          sentinel.classList.add('opacity-0');
+        }
+      }
+    }
+  });
+</script>

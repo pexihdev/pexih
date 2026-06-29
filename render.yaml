@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: yondaime-news-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: DATABASE_URL
+        sync: false
+        placeholder: "Masukkan Neon PostgreSQL Connection String"
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+        placeholder: "Masukkan Upstash Redis Rest URL"
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+        placeholder: "Masukkan Upstash Redis Rest Token"
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+        placeholder: "Masukkan Cloudinary Cloud Name"
+      - key: CLOUDINARY_API_KEY
+        sync: false
+        placeholder: "Masukkan Cloudinary API Key"
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+        placeholder: "Masukkan Cloudinary API Secret"

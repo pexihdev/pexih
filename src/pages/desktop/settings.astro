@@ -1,0 +1,170 @@
+---
+import DesktopLayout from '../../layouts/DesktopLayout.astro';
+---
+<DesktopLayout title="Settings">
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-8 py-5 sticky top-0 z-50">
+    <h1 class="text-xl font-bold text-gray-900 dark:text-white">Settings</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your account preferences and platform configuration.</p>
+  </div>
+
+  <div class="p-8 max-w-3xl">
+    <!-- Profile Section -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden mb-6">
+      <div class="border-b border-gray-100 dark:border-gray-800 p-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Profile Information</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Update your personal details and public profile.</p>
+      </div>
+      
+      <div class="p-6 space-y-6">
+        <div class="flex items-center gap-6">
+          <div class="w-20 h-20 rounded-full bg-orange-100 dark:bg-orange-950/30 flex items-center justify-center text-orange-600 dark:text-orange-500 text-2xl font-bold">
+            P
+          </div>
+          <div>
+            <button class="bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-bold transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 mb-2">
+              Change Avatar
+            </button>
+            <p class="text-xs text-gray-500 dark:text-gray-400">JPG, GIF or PNG. 1MB max.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">First Name</label>
+            <input type="text" value="PEXIH" class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
+            <input type="text" value="User" class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white" />
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+            <input type="email" value="user@pexih.com" class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white" />
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-gray-50 dark:bg-gray-800/40 px-6 py-4 flex justify-end gap-3 border-t border-gray-100 dark:border-gray-800">
+        <button class="px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">Cancel</button>
+        <button class="bg-orange-600 text-white px-6 py-2 rounded-lg text-sm font-bold transition-colors hover:bg-orange-700">Save Changes</button>
+      </div>
+    </section>
+
+    <!-- Preferences Section -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden mb-6">
+      <div class="border-b border-gray-100 dark:border-gray-800 p-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Preferences</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Customize your platform experience.</p>
+      </div>
+      
+      <div class="divide-y divide-gray-100 dark:divide-gray-800">
+        <div class="p-6 flex items-center justify-between">
+          <div class="w-1/2">
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Language</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Choose your preferred language for the interface.</p>
+          </div>
+          <div class="w-1/2 flex justify-end">
+            <select id="user-language-select-desktop" class="w-full max-w-xs px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white">
+              <option value="en">🇺🇸 English</option>
+              <option value="id">🇮🇩 Bahasa Indonesia</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="zh-CN">🇨🇳 中文 (Simplified)</option>
+              <option value="ja">🇯🇵 日本語 (Japanese)</option>
+              <option value="ru">🇷🇺 Русский</option>
+              <option value="ar">🇸🇦 العربية (Arabic)</option>
+              <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+              <option value="bn">🇧🇩 বাংলা (Bengali)</option>
+              <option value="pt">🇵🇹 Português</option>
+              <option value="ur">🇵🇰 اردو (Urdu)</option>
+              <option value="ko">🇰🇷 한국어 (Korean)</option>
+              <option value="it">🇮🇹 Italiano (Italian)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="p-6 flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Email Notifications</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Receive weekly reports and digest.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input aria-label="Email Notifications" type="checkbox" value="" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+          </label>
+        </div>
+        
+        <div class="p-6 flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Dark Mode (Coming Soon)</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Toggle between light and dark themes.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-not-allowed opacity-50">
+            <input aria-label="Dark Mode" type="checkbox" value="" class="sr-only peer" disabled>
+            <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5"></div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Legal Section -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden mt-6">
+      <div class="border-b border-gray-100 dark:border-gray-800 p-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Legal & Policies</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Review our terms and privacy policy.</p>
+      </div>
+      
+      <div class="divide-y divide-gray-100 dark:divide-gray-800">
+        <a href="/desktop/terms" class="p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Terms & Conditions</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Rules and guidelines for using our platform.</p>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+        
+        <a href="/desktop/privacy" class="p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 dark:text-white">Privacy Policy</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">How we collect, use, and protect your data.</p>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const select = document.getElementById('user-language-select-desktop') as HTMLSelectElement;
+      if (select) {
+        const currentLang = localStorage.getItem('language') || 'en';
+        select.value = currentLang;
+
+        select.addEventListener('change', (e) => {
+          const newLang = (e.target as HTMLSelectElement).value;
+          localStorage.setItem('language', newLang);
+          window.toast('Language updated');
+          
+          function setCookie(name: string, value: string) {
+					  const host = location.hostname;
+            document.cookie = name + '=' + value + '; path=/; max-age=31536000; SameSite=Lax';
+            document.cookie = name + '=' + value + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
+            document.cookie = name + '=' + value + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
+          }
+          if (newLang !== 'en') {
+            setCookie('googtrans', '/en/' + newLang);
+          } else {
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + location.hostname + '; path=/;';
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + location.hostname + '; path=/;';
+          }
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        });
+      }
+    });
+  </script>
+</DesktopLayout>

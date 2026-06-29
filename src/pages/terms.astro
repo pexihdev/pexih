@@ -1,0 +1,49 @@
+---
+import MobileLayout from '../layouts/MobileLayout.astro';
+---
+<MobileLayout title="Terms and Conditions">
+  <div class="bg-white dark:bg-gray-900 h-[52px] px-5 fixed top-0 w-full max-w-[400px] z-50 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+    <button aria-label="Back" onclick="history.back()" class="text-gray-900 dark:text-white w-8 h-8 flex items-center justify-start hover:text-orange-600 dark:hover:text-orange-500 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <h1 class="text-[16px] font-bold text-gray-900 dark:text-white absolute left-1/2 -translate-x-1/2 w-[60%] text-center truncate">Terms & Conditions</h1>
+  </div>
+
+  <div class="p-5 pb-24 bg-white dark:bg-gray-900 min-h-screen text-gray-800 dark:text-gray-300" style="padding-top: calc(60px + max(env(safe-area-inset-top), 16px));">
+    <div class="prose prose-sm dark:prose-invert max-w-none">
+      <h2 class="text-[14px] font-bold text-gray-900 dark:text-white mb-2">1. Introduction</h2>
+      <p class="text-[10px] mb-4 leading-relaxed text-gray-600 dark:text-gray-400">
+        Welcome to PEXIH. By accessing our application, you agree to be bound by these Terms and Conditions and agree that you are responsible for the agreement with any applicable local laws.
+      </p>
+
+      <h2 class="text-[14px] font-bold text-gray-900 dark:text-white mb-2">2. Use License</h2>
+      <p class="text-[10px] mb-4 leading-relaxed text-gray-600 dark:text-gray-400">
+        Permission is granted to temporarily download one copy of the materials (information or software) on PEXIH's website for personal, non-commercial transitory viewing only.
+      </p>
+
+      <h2 class="text-[14px] font-bold text-gray-900 dark:text-white mb-2">3. Content Contributions</h2>
+      <p class="text-[10px] mb-4 leading-relaxed text-gray-600 dark:text-gray-400">
+        Users may post articles and comments. By posting content, you grant PEXIH a non-exclusive, royalty-free license to use, reproduce, and distribute your content in connection with the application.
+      </p>
+
+      <h2 class="text-[14px] font-bold text-gray-900 dark:text-white mb-2">4. Disclaimer</h2>
+      <p class="text-[10px] mb-4 leading-relaxed text-gray-600 dark:text-gray-400">
+        The materials on PEXIH's application are provided on an 'as is' basis. PEXIH makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability.
+      </p>
+
+      <h2 class="text-[14px] font-bold text-gray-900 dark:text-white mb-2">5. Limitations</h2>
+      <p class="text-[10px] mb-4 leading-relaxed text-gray-600 dark:text-gray-400">
+        In no event shall PEXIH or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on PEXIH's application.
+      </p>
+
+      <h2 class="text-[14px] font-bold text-gray-900 dark:text-white mb-2">6. Revisions and Errata</h2>
+      <p class="text-[10px] mb-4 leading-relaxed text-gray-600 dark:text-gray-400">
+        The materials appearing on PEXIH's application could include technical, typographical, or photographic errors. PEXIH does not warrant that any of the materials on its application are accurate, complete, or current.
+      </p>
+
+      <p class="text-[9px] mt-8 text-gray-500 dark:text-gray-500 italic">
+        Last updated: June 2026
+      </p>
+    </div>
+  </div>
+</MobileLayout>

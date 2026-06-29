@@ -1,0 +1,17 @@
+node_modules/
+.next/
+coverage/
+.DS_Store
+*.log
+*.tsbuildinfo
+.env*
+!.env.example
+.vercel/
+out/
+
+# Temporary and backup files generated during runs
+backup-d1.sql
+backup-postgres.json
+temp_results.txt
+analysis.txt
+deploy_log.txt

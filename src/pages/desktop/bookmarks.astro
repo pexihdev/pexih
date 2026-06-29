@@ -1,0 +1,174 @@
+---
+import DesktopLayout from '../../layouts/DesktopLayout.astro';
+import HeaderActions from '../../components/HeaderActions.astro';
+import EmptyState from '../../components/EmptyState.astro';
+
+const savedPosts = [1, 2, 3, 4];
+---
+<DesktopLayout title="Saved Articles - PEXIH">
+  <!-- Header -->
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-8 py-5 flex items-center justify-between sticky top-0 z-50">
+    <div>
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white" data-i18n="nav.bookmark">Saved</h1>
+      <p class="text-sm text-gray-500 mt-1">Manage and read the articles you have saved for later.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <input type="text" id="desktop-bookmarks-search" placeholder="Search saved posts..." class="w-64 pl-9 pr-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      <HeaderActions />
+    </div>
+  </div>
+
+  <div class="p-8 max-w-7xl mx-auto space-y-8">
+    <!-- Categories Filter Bar -->
+    <div class="flex gap-2 pb-2 overflow-x-auto scrollbar-hide border-b border-gray-100 dark:border-gray-800">
+      <button class="px-5 py-2 rounded-full bg-orange-600 text-white text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ease-out">All Collections</button>
+      <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out">Reading List</button>
+      <button class="px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out">Inspirations</button>
+    </div>
+
+    <!-- Content Area -->
+    <div class="bookmarks-content-wrapper">
+      <!-- Skeleton Container -->
+      <div class="bookmarks-skeleton hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[1, 2, 3, 4].map(() => (
+          <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 flex gap-4 animate-pulse">
+            <div class="w-24 h-24 rounded-lg bg-gray-200 dark:bg-gray-800 shrink-0"></div>
+            <div class="flex-1 space-y-3 py-1">
+              <div class="w-3/4 h-4 bg-gray-200 dark:bg-gray-800 rounded"></div>
+              <div class="w-1/2 h-3 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Real Content (2-Column Grid for Desktop) -->
+      <div class="bookmarks-actual-content">
+        {savedPosts.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {savedPosts.map((item) => (
+              <div class="flex gap-4 items-center group bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-orange-500 transition-all duration-300 relative">
+                <a href={`/desktop/article/${item}`} class="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
+                  <img 
+                    src={`https://images.unsplash.com/photo-${1550000000000 + item * 20}?auto=format,compress&fit=crop&w=300&q=80`} 
+                    alt={`Thumbnail for saved post ${item}`} 
+                    width="96"
+                    height="96"
+                    class="w-full h-full object-cover aspect-square group-hover:scale-105 transition-transform duration-300" 
+                    loading="lazy" 
+                    decoding="async"
+                    referrerpolicy="no-referrer" 
+                  />
+                </a>
+                <div class="flex-1 min-w-0 pr-6">
+                  <span class="text-[9px] text-orange-600 dark:text-orange-500 font-bold uppercase tracking-wider">Saved Post</span>
+                  <a href={`/desktop/article/${item}`} class="block group/link">
+                    <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug mt-1 mb-1.5 group-hover/link:text-orange-600 dark:group-hover/link:text-orange-500 transition-colors line-clamp-2">How to build intuitive mobile interfaces in 2026</h4>
+                  </a>
+                  <div class="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400">
+                    <span class="font-semibold text-gray-700 dark:text-gray-300">Jane Doe</span>
+                    <span>•</span>
+                    <span>10 min read</span>
+                  </div>
+                </div>
+                <button class="absolute top-4 right-4 p-2 text-gray-400 hover:text-orange-600 dark:text-gray-500 dark:hover:text-orange-500 transition-colors" aria-label="Remove from saved">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState 
+            title="No Bookmarks Yet" 
+            description="You haven't saved any articles. Explore and save your favorite posts to read them later."
+            icon={`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>`}
+          >
+            <a href="/desktop/explore" class="mt-4 px-6 py-2.5 bg-orange-600 text-white text-xs font-bold rounded-full hover:bg-orange-700 transition-colors inline-block">
+              Explore Articles
+            </a>
+          </EmptyState>
+        )}
+      </div>
+
+      <!-- Empty state for search/filter -->
+      <div class="bookmarks-empty-state hidden py-12">
+        <EmptyState 
+          title="No Results Found" 
+          description="We couldn't find any articles matching your search. Try different keywords or categories."
+          icon={`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`}
+        />
+      </div>
+    </div>
+  </div>
+</DesktopLayout>
+
+<script>
+  // Handle client-side category filtering and skeleton transition
+  document.addEventListener('astro:page-load', () => {
+    const categoryBtns = document.querySelectorAll('.max-w-7xl button');
+    const skeleton = document.querySelector('.bookmarks-skeleton');
+    const content = document.querySelector('.bookmarks-actual-content');
+    const emptyState = document.querySelector('.bookmarks-empty-state');
+    const searchInput = document.getElementById('desktop-bookmarks-search') as HTMLInputElement;
+    
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        // Update active state
+        categoryBtns.forEach(b => {
+          b.className = 'px-5 py-2 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 active:scale-95 ease-out';
+        });
+        const target = e.target as HTMLElement;
+        target.className = 'px-5 py-2 rounded-full bg-orange-600 text-white text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 ease-out';
+        
+        // Show skeleton
+        if (content && skeleton && emptyState) {
+          content.classList.add('hidden');
+          emptyState.classList.add('hidden');
+          skeleton.classList.remove('hidden');
+          
+          // Simulate network request
+          setTimeout(() => {
+            skeleton.classList.add('hidden');
+            
+            // Just for demonstration, if "Inspirations" is clicked, show empty state
+            if (target.textContent?.trim() === 'Inspirations') {
+              emptyState.classList.remove('hidden');
+            } else {
+              content.classList.remove('hidden');
+            }
+          }, 450);
+        }
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.bookmarks-actual-content > div > div');
+        let hasResults = false;
+
+        cards.forEach(card => {
+          const title = card.querySelector('h4')?.textContent?.toLowerCase() || '';
+          if (title.includes(query)) {
+            (card as HTMLElement).style.display = '';
+            hasResults = true;
+          } else {
+            (card as HTMLElement).style.display = 'none';
+          }
+        });
+
+        if (emptyState) {
+          if (!hasResults && query.length > 0) {
+            emptyState.classList.remove('hidden');
+            if (content) content.classList.add('hidden');
+          } else {
+            emptyState.classList.add('hidden');
+            if (content) content.classList.remove('hidden');
+          }
+        }
+      });
+    }
+  });
+</script>

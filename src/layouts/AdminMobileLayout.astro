@@ -1,0 +1,18 @@
+---
+import Layout from './Layout.astro';
+import AdminBottomNav from '../components/AdminBottomNav.astro';
+
+interface Props {
+	title?: string;
+	showBottomNav?: boolean;
+}
+
+const { title, showBottomNav = true } = Astro.props;
+---
+
+<Layout title={title}>
+	<main class={`fixed inset-0 w-full max-w-[400px] mx-auto flex flex-col bg-white dark:bg-gray-900 shadow-sm font-sans overflow-y-auto overflow-x-hidden relative ${showBottomNav ? 'pb-[52px]' : ''}`}>
+		<slot />
+		{showBottomNav && <AdminBottomNav />}
+	</main>
+</Layout>

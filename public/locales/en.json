@@ -1,0 +1,9 @@
+{
+  "nav.home": "Home",
+  "nav.explore": "Explore",
+  "nav.bookmark": "Saved",
+  "nav.profile": "Profile",
+  "header.goodMorning": "Good Morning",
+  "header.search": "Search articles...",
+  "article.readMore": "Read More"
+}

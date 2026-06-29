@@ -1,0 +1,399 @@
+---
+import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
+
+// Fetch initially for SSR speed
+let initialCategories = [];
+try {
+  const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+  const res = await fetch(`${backendUrl}/api/categories`);
+  if (res.ok) {
+    initialCategories = await res.json();
+  }
+} catch (e) {
+  console.error("Failed to fetch categories", e);
+}
+---
+<AdminDesktopLayout title="Manage Categories">
+  <!-- Sticky Top Header -->
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-5 h-[52px] flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-2">
+      <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">PE<span class="text-orange-600">X</span>IH Categories</h1>
+    </div>
+    
+    <div class="flex items-center gap-4">
+      <div class="relative">
+        <input type="text" id="desktop-category-search" placeholder="Search categories..." class="w-64 pl-9 pr-4 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+      
+      <button id="add-category-btn-desktop" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 cursor-pointer shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        Add Category
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Panel -->
+  <div class="p-8">
+    <!-- Category Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="desktop-categories-grid">
+      {initialCategories.map((cat) => (
+        <div data-id={cat.id} data-title={cat.title.toLowerCase()} class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm space-y-4 hover:shadow-md transition-all flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold uppercase shadow-sm" style={`background-color: ${cat.color || '#FF6B00'}`}>
+                  {cat.title.substring(0, 2)}
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-gray-900 dark:text-white">{cat.title}</h3>
+                  <span class="inline-block bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 text-[10px] px-2 py-0.5 rounded-full font-bold mt-0.5">{cat.count || '0'} articles</span>
+                </div>
+              </div>
+              
+              <!-- Color Indicator -->
+              <span class="w-3.5 h-3.5 rounded-full border border-gray-200 dark:border-gray-700 shadow-inner" style={`background-color: ${cat.color || '#FF6B00'}`}></span>
+            </div>
+            
+            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed min-h-[40px]">{cat.desc || 'No description provided.'}</p>
+          </div>
+          
+          <div class="pt-4 border-t border-gray-100 dark:border-gray-800/60 flex items-center justify-between text-xs">
+            <span class="text-[10px] font-mono text-gray-400 dark:text-gray-500">ID: {cat.id}</span>
+            <div class="flex items-center gap-2">
+              <button class="edit-cat-btn-desktop px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold transition-colors cursor-pointer" data-id={cat.id} data-title={cat.title} data-desc={cat.desc} data-color={cat.color} data-icon={cat.iconName} data-count={cat.count}>
+                Edit
+              </button>
+              <button class="delete-cat-btn-desktop px-2.5 py-1.5 rounded-lg bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40 font-bold transition-colors cursor-pointer" data-id={cat.id} data-title={cat.title}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    <div id="desktop-categories-empty" class="hidden text-center py-24 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm mt-4">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-300 dark:text-gray-700 mb-4"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+      <h3 class="text-base font-bold text-gray-900 dark:text-white">No Categories Available</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-sm mx-auto">Click the Add Category button above to populate the platform categories list.</p>
+    </div>
+  </div>
+
+  <!-- Add/Edit Category Modal (Desktop Center) -->
+  <div id="desktop-category-editor-modal" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-900 w-full max-w-[420px] rounded-xl shadow-2xl p-6 transform scale-95 opacity-0 transition-all duration-200" id="desktop-editor-modal-content">
+      <div class="flex items-center justify-between mb-5 pb-3 border-b border-gray-100 dark:border-gray-800">
+        <h3 id="desktop-editor-modal-title" class="text-base font-bold text-gray-900 dark:text-white">Add Category</h3>
+        <button id="desktop-editor-modal-close" class="text-gray-400 hover:text-gray-900 dark:hover:text-white p-1 rounded-lg transition-colors cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      
+      <form id="desktop-category-form" class="space-y-4">
+        <input type="hidden" id="desktop-form-cat-id" />
+        
+        <div>
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Category Title</label>
+          <input type="text" id="desktop-form-cat-title" required placeholder="e.g. Photography" class="w-full px-3.5 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors dark:text-white font-medium" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+          <textarea id="desktop-form-cat-desc" required placeholder="Describe what kind of articles are filed under this category..." rows="3" class="w-full px-3.5 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors dark:text-white resize-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Accent Color</label>
+            <div class="flex gap-2">
+              <input type="color" id="desktop-form-cat-color" value="#FF6B00" class="w-9 h-9 rounded border-0 p-0 cursor-pointer overflow-hidden shadow-sm" />
+              <input type="text" id="desktop-form-cat-color-text" value="#FF6B00" class="flex-1 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors dark:text-white uppercase font-bold" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Articles Count</label>
+            <input type="text" id="desktop-form-cat-count" placeholder="0" class="w-full px-3.5 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors dark:text-white" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Icon Identifier</label>
+          <input type="text" id="desktop-form-cat-icon" placeholder="Camera" class="w-full px-3.5 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors dark:text-white" />
+        </div>
+
+        <div class="pt-4 flex gap-3 border-t border-gray-100 dark:border-gray-800">
+          <button type="button" id="desktop-form-cancel" class="flex-1 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" class="flex-1 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold transition-colors cursor-pointer shadow-sm shadow-orange-600/10">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal (Desktop Center) -->
+  <div id="desktop-delete-confirm-modal" class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-900 w-full max-w-[360px] rounded-xl shadow-2xl p-6 transform scale-95 opacity-0 transition-all duration-200" id="desktop-delete-modal-content">
+      <div class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-500 mb-4 mx-auto shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </div>
+      <h3 class="text-base font-bold text-gray-900 dark:text-white text-center mb-2">Delete Category</h3>
+      <p id="desktop-delete-desc" class="text-xs text-gray-500 dark:text-gray-400 text-center mb-6 leading-relaxed">Are you sure you want to permanently delete this category? This action cannot be undone.</p>
+      
+      <div class="flex gap-3">
+        <button id="desktop-delete-modal-cancel" class="flex-1 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
+          Cancel
+        </button>
+        <button id="desktop-delete-modal-confirm" class="flex-1 py-2.5 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors cursor-pointer">
+          Yes, Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeDeleteIdDesktop = null;
+
+    document.addEventListener('astro:page-load', () => {
+      const searchInput = document.getElementById('desktop-category-search');
+      const categoriesGrid = document.getElementById('desktop-categories-grid');
+      const emptyState = document.getElementById('desktop-categories-empty');
+      
+      // Real-time search handler
+      if (searchInput && categoriesGrid) {
+        searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          const items = categoriesGrid.querySelectorAll('[data-id]');
+          let visibleCount = 0;
+          
+          items.forEach((item) => {
+            const title = item.getAttribute('data-title') || '';
+            if (title.includes(query)) {
+              item.classList.remove('hidden');
+              visibleCount++;
+            } else {
+              item.classList.add('hidden');
+            }
+          });
+          
+          if (visibleCount === 0) {
+            emptyState?.classList.remove('hidden');
+          } else {
+            emptyState?.classList.add('hidden');
+          }
+        });
+      }
+
+      // Modals setup
+      const editorModal = document.getElementById('desktop-category-editor-modal');
+      const editorModalContent = document.getElementById('desktop-editor-modal-content');
+      const editorTitle = document.getElementById('desktop-editor-modal-title');
+      const categoryForm = document.getElementById('desktop-category-form');
+      const addBtn = document.getElementById('add-category-btn-desktop');
+      
+      const formId = document.getElementById('desktop-form-cat-id');
+      const formTitle = document.getElementById('desktop-form-cat-title');
+      const formDesc = document.getElementById('desktop-form-cat-desc');
+      const formColor = document.getElementById('desktop-form-cat-color');
+      const formColorText = document.getElementById('desktop-form-cat-color-text');
+      const formCount = document.getElementById('desktop-form-cat-count');
+      const formIcon = document.getElementById('desktop-form-cat-icon');
+
+      const closeEditor = () => {
+        if (!editorModalContent || !editorModal) return;
+        editorModalContent.classList.remove('scale-100', 'opacity-100');
+        editorModalContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+          editorModal.classList.add('hidden');
+          editorModal.classList.remove('flex');
+          categoryForm?.reset();
+          formId.value = '';
+        }, 200);
+      };
+
+      const openEditor = (isEdit = false, data = {}) => {
+        if (!editorModalContent || !editorModal) return;
+        editorTitle.textContent = isEdit ? 'Edit Category' : 'Add Category';
+        
+        if (isEdit) {
+          formId.value = data.id || '';
+          formTitle.value = data.title || '';
+          formDesc.value = data.desc || '';
+          formColor.value = data.color || '#FF6B00';
+          formColorText.value = data.color || '#FF6B00';
+          formCount.value = data.count || '0';
+          formIcon.value = data.icon || 'Hash';
+        } else {
+          formId.value = '';
+          formTitle.value = '';
+          formDesc.value = '';
+          formColor.value = '#FF6B00';
+          formColorText.value = '#FF6B00';
+          formCount.value = '0';
+          formIcon.value = 'Hash';
+        }
+
+        editorModal.classList.remove('hidden');
+        editorModal.classList.add('flex');
+        void editorModal.offsetWidth;
+        editorModalContent.classList.remove('scale-95', 'opacity-0');
+        editorModalContent.classList.add('scale-100', 'opacity-100');
+      };
+
+      // Sync color picker with text input
+      if (formColor && formColorText) {
+        formColor.addEventListener('input', (e) => {
+          formColorText.value = e.target.value.toUpperCase();
+        });
+        formColorText.addEventListener('input', (e) => {
+          if (e.target.value.startsWith('#') && e.target.value.length === 7) {
+            formColor.value = e.target.value;
+          }
+        });
+      }
+
+      // Event Listeners for actions
+      if (addBtn) {
+        addBtn.addEventListener('click', () => openEditor(false));
+      }
+      
+      const closeEditorBtn = document.getElementById('desktop-editor-modal-close');
+      if (closeEditorBtn) closeEditorBtn.addEventListener('click', closeEditor);
+      const cancelFormBtn = document.getElementById('desktop-form-cancel');
+      if (cancelFormBtn) cancelFormBtn.addEventListener('click', closeEditor);
+
+      // Submit Form
+      if (categoryForm) {
+        categoryForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const payload = {
+            id: formId.value ? Number(formId.value) : undefined,
+            title: formTitle.value.trim(),
+            desc: formDesc.value.trim(),
+            color: formColorText.value.trim(),
+            count: formCount.value.trim() || '0',
+            iconName: formIcon.value.trim() || 'Hash'
+          };
+
+          try {
+            const method = payload.id ? 'PUT' : 'POST';
+            const url = payload.id ? `/api/categories?id=${payload.id}` : '/api/categories';
+            
+            const res = await fetch(url, {
+              method,
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error('Failed to save category');
+            
+            window.toast(payload.id ? 'Category updated' : 'Category added');
+            closeEditor();
+            
+            // Refresh screen to reflect DB state
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
+          } catch (err) {
+            window.toast('Error: ' + err.message);
+          }
+        });
+      }
+
+      // Delegate edit and delete clicks in grid
+      document.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        // Edit button
+        const editBtn = target.closest('.edit-cat-btn-desktop');
+        if (editBtn) {
+          const data = {
+            id: editBtn.getAttribute('data-id'),
+            title: editBtn.getAttribute('data-title'),
+            desc: editBtn.getAttribute('data-desc'),
+            color: editBtn.getAttribute('data-color'),
+            icon: editBtn.getAttribute('data-icon'),
+            count: editBtn.getAttribute('data-count')
+          };
+          openEditor(true, data);
+          return;
+        }
+
+        // Delete button
+        const deleteBtn = target.closest('.delete-cat-btn-desktop');
+        if (deleteBtn) {
+          activeDeleteIdDesktop = deleteBtn.getAttribute('data-id');
+          const title = deleteBtn.getAttribute('data-title');
+          
+          const delModal = document.getElementById('desktop-delete-confirm-modal');
+          const delContent = document.getElementById('desktop-delete-modal-content');
+          const delDesc = document.getElementById('desktop-delete-desc');
+          
+          if (delModal && delContent) {
+            delDesc.textContent = `Are you sure you want to permanently delete category "${title}"? This action cannot be undone.`;
+            delModal.classList.remove('hidden');
+            delModal.classList.add('flex');
+            void delModal.offsetWidth;
+            delContent.classList.remove('scale-95', 'opacity-0');
+            delContent.classList.add('scale-100', 'opacity-100');
+          }
+        }
+      });
+
+      // Cancel Delete
+      const cancelDelBtn = document.getElementById('desktop-delete-modal-cancel');
+      const delModal = document.getElementById('desktop-delete-confirm-modal');
+      const delContent = document.getElementById('desktop-delete-modal-content');
+
+      const closeDeleteModal = () => {
+        if (!delContent || !delModal) return;
+        delContent.classList.remove('scale-100', 'opacity-100');
+        delContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+          delModal.classList.add('hidden');
+          delModal.classList.remove('flex');
+          activeDeleteIdDesktop = null;
+        }, 200);
+      };
+
+      if (cancelDelBtn) cancelDelBtn.addEventListener('click', closeDeleteModal);
+
+      // Confirm Delete
+      const confirmDelBtn = document.getElementById('desktop-delete-modal-confirm');
+      if (confirmDelBtn) {
+        confirmDelBtn.addEventListener('click', async () => {
+          if (!activeDeleteIdDesktop) return;
+          try {
+            const res = await fetch(`/api/categories?id=${activeDeleteIdDesktop}`, {
+              method: 'DELETE'
+            });
+
+            if (!res.ok) throw new Error('Failed to delete category');
+            
+            window.toast('Category deleted');
+            closeDeleteModal();
+            
+            // Remove from list dynamically or reload
+            const card = document.querySelector(`[data-id="${activeDeleteIdDesktop}"]`);
+            if (card) {
+              card.remove();
+              // Check empty state
+              const grid = document.getElementById('desktop-categories-grid');
+              if (grid && grid.children.length === 0) {
+                document.getElementById('desktop-categories-empty')?.classList.remove('hidden');
+              }
+            } else {
+              window.location.reload();
+            }
+          } catch (err) {
+            window.toast('Error: ' + err.message);
+          }
+        });
+      }
+    });
+  </script>
+</AdminDesktopLayout>

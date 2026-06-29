@@ -1,0 +1,158 @@
+---
+import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
+---
+<AdminDesktopLayout title="Settings">
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-5 h-[52px] flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-2">
+      <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">Platform Settings</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
+        Cancel
+      </button>
+      <button class="bg-orange-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors hover:bg-orange-700">
+        Save Changes
+      </button>
+    </div>
+  </div>
+
+  <div class="p-8 max-w-4xl">
+    <div class="grid grid-cols-3 gap-8">
+      <!-- Settings Navigation -->
+      <div class="col-span-1">
+        <nav class="space-y-1 sticky top-32">
+          <button class="w-full flex items-center justify-between px-4 py-3 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 rounded-lg text-sm font-bold">
+            General
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <button class="w-full flex items-center justify-between px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors">
+            Security
+          </button>
+          <button class="w-full flex items-center justify-between px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors">
+            API Keys
+          </button>
+          <button class="w-full flex items-center justify-between px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors">
+            Notifications
+          </button>
+          <button class="w-full flex items-center justify-between px-4 py-3 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors">
+            Appearance
+          </button>
+        </nav>
+      </div>
+      
+      <!-- Settings Content -->
+      <div class="col-span-2 space-y-6">
+        <!-- Global SEO Metadata -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Global SEO Metadata</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Site Name</label>
+              <input type="text" value="PEXIH" class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Meta Description</label>
+              <textarea class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all resize-none min-h-[100px] dark:text-white">A modern publishing platform built with Astro and Node.js.</textarea>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-xl bg-orange-600 text-white flex items-center justify-center font-bold text-2xl">P</div>
+              <div>
+                <p class="text-sm font-bold text-gray-900 dark:text-white mb-1">Site Logo</p>
+                <button class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Upload New</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media URLs -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Social Media Links</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Twitter / X URL</label>
+              <input type="url" placeholder="https://twitter.com/..." class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Instagram URL</label>
+              <input type="url" placeholder="https://instagram.com/..." class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">LinkedIn URL</label>
+              <input type="url" placeholder="https://linkedin.com/in/..." class="w-full px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white" />
+            </div>
+          </div>
+        </div>
+
+        <!-- System Control -->
+        <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">System Control</h2>
+          
+          <div class="mb-6 pb-6 border-b border-gray-100 dark:border-gray-800">
+            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Admin Language</label>
+            <select id="admin-language-select-desktop" class="w-full max-w-md px-4 py-2.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-900 transition-all dark:text-white">
+              <option value="en">🇺🇸 English</option>
+              <option value="id">🇮🇩 Bahasa Indonesia</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="zh-CN">🇨🇳 中文 (Simplified)</option>
+              <option value="ja">🇯🇵 日本語 (Japanese)</option>
+              <option value="ru">🇷🇺 Русский</option>
+              <option value="ar">🇸🇦 العربية (Arabic)</option>
+              <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+              <option value="bn">🇧🇩 বাংলা (Bengali)</option>
+              <option value="pt">🇵🇹 Português</option>
+              <option value="ur">🇵🇰 اردو (Urdu)</option>
+              <option value="ko">🇰🇷 한국어 (Korean)</option>
+              <option value="it">🇮🇹 Italiano (Italian)</option>
+            </select>
+          </div>
+
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-sm text-gray-900 dark:text-white font-medium mb-1">Enable Maintenance Mode</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 max-w-md">Forces frontend mobile & desktop offline for repair. The admin panel remains accessible.</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input aria-label="Maintenance Mode" type="checkbox" value="" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const select = document.getElementById('admin-language-select-desktop') as HTMLSelectElement;
+      if (select) {
+        const currentLang = localStorage.getItem('admin_language') || 'en';
+        select.value = currentLang;
+
+        select.addEventListener('change', (e) => {
+          const newLang = (e.target as HTMLSelectElement).value;
+          localStorage.setItem('admin_language', newLang);
+          window.toast('Language updated');
+          
+          function setCookie(name: string, value: string) {
+					  const host = location.hostname;
+            document.cookie = name + '=' + value + '; path=/; max-age=31536000; SameSite=Lax';
+            document.cookie = name + '=' + value + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
+            document.cookie = name + '=' + value + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
+          }
+          if (newLang !== 'en') {
+            setCookie('googtrans', '/en/' + newLang);
+          } else {
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + location.hostname + '; path=/;';
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + location.hostname + '; path=/;';
+          }
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        });
+      }
+    });
+  </script>
+</AdminDesktopLayout>

@@ -1,0 +1,8 @@
+<svg width="180" height="48" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="180" height="48" rx="12" fill="black" fill-opacity="0.5" />
+  <g transform="translate(16, 8)">
+    <rect x="0" y="0" width="32" height="32" rx="8" fill="#f97316" />
+    <path d="M 10 9 l 6 7 v 7 M 22 9 l -6 7" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+  <text x="56" y="30" fill="white" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="18" letter-spacing="1">YONDAIME</text>
+</svg>

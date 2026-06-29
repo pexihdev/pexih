@@ -1,0 +1,23 @@
+---
+export interface Props {
+  count?: number;
+}
+const { count = 3 } = Astro.props;
+const items = Array.from({ length: count }, (_, i) => i);
+---
+
+<div class="article-skeleton-container w-full space-y-3">
+  {items.map(() => (
+    <div class="flex gap-3 items-center animate-pulse">
+      <div class="w-20 h-20 rounded-lg bg-gray-200 dark:bg-gray-800 shrink-0"></div>
+      <div class="flex-1 min-w-0 py-1 space-y-2">
+        <div class="h-2.5 bg-gray-200 dark:bg-gray-800 rounded-full w-16"></div>
+        <div class="space-y-1.5">
+          <div class="h-3 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
+          <div class="h-3 bg-gray-200 dark:bg-gray-800 rounded w-4/5"></div>
+        </div>
+        <div class="h-2.5 bg-gray-200 dark:bg-gray-800 rounded-full w-24"></div>
+      </div>
+    </div>
+  ))}
+</div>

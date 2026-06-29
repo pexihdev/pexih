@@ -1,0 +1,250 @@
+---
+import DesktopLayout from '../../layouts/DesktopLayout.astro';
+import HeaderActions from '../../components/HeaderActions.astro';
+const user = Astro.locals.user;
+---
+<DesktopLayout title="My Profile - PEXIH">
+  <!-- Header -->
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-8 py-5 flex items-center justify-between sticky top-0 z-50">
+    <div>
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white" data-i18n="nav.profile">Profile</h1>
+      <p class="text-sm text-gray-500 mt-1">Manage your account settings, language preferences, and collection stats.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <HeaderActions />
+    </div>
+  </div>
+
+  <div class="p-8 max-w-4xl mx-auto space-y-8">
+    <!-- Profile Card (Full Width) -->
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-8 flex flex-col md:flex-row items-center gap-6">
+      <div class="w-24 h-24 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-500 text-4xl font-bold border-4 border-white dark:border-gray-900 shadow-md overflow-hidden shrink-0 aspect-square">
+        {user?.avatar ? <img src={user.avatar} alt={user.name} class="w-full h-full object-cover aspect-square" width="96" height="96" loading="lazy" decoding="async" /> : (user?.name?.charAt(0).toUpperCase() || 'U')}
+      </div>
+      <div class="flex-1 text-center md:text-left">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">{user?.name || 'Guest User'}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">@{user?.username || 'guest'} • {user?.role || 'user'}</p>
+        <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+          <button class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 ease-out">Edit Profile</button>
+          <a href="/admin/desktop" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-bold rounded-lg transition-all duration-200 active:scale-95 ease-out flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            Admin Panel
+          </a>
+        </div>
+      </div>
+      <!-- Stats (Split Section) -->
+      <div class="flex gap-4 md:border-l md:border-gray-100 md:dark:border-gray-800 md:pl-8 py-2 w-full md:w-auto">
+        <div class="flex-1 md:w-24 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 text-center border border-gray-100 dark:border-gray-800">
+          <div class="text-xl font-bold text-gray-900 dark:text-white">124</div>
+          <div class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Posts</div>
+        </div>
+        <div class="flex-1 md:w-24 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 text-center border border-gray-100 dark:border-gray-800">
+          <div class="text-xl font-bold text-gray-900 dark:text-white">8.2k</div>
+          <div class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Followers</div>
+        </div>
+        <div class="flex-1 md:w-24 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 text-center border border-gray-100 dark:border-gray-800">
+          <div class="text-xl font-bold text-gray-900 dark:text-white">342</div>
+          <div class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Following</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details and Preferences Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Preferences / Settings -->
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 space-y-4">
+        <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white tracking-wider mb-2">Preferences</h3>
+        
+        <!-- Language Switcher Custom Dropdown -->
+        <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 space-y-2">
+          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Interface Language / Bahasa</label>
+          <div class="relative w-full" id="desktop-profile-lang-wrapper">
+            <button id="desktop-profile-lang-trigger" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-xs font-bold transition-colors dark:text-white cursor-pointer active:scale-98">
+              <div class="flex items-center gap-2">
+                <span id="desktop-profile-active-flag">🇺🇸</span>
+                <span id="desktop-profile-active-name">English</span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 transition-transform duration-200" id="desktop-profile-chevron"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            
+            <div id="desktop-profile-lang-menu" class="absolute left-0 right-0 mt-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-1 z-50 opacity-0 scale-95 pointer-events-none transition-all duration-200 origin-top max-h-[220px] overflow-y-auto scrollbar-none">
+              <div id="desktop-profile-lang-list" class="flex flex-col p-1 gap-0.5">
+                <!-- Generated via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Switch -->
+        <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex items-center justify-between">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Email Notifications</label>
+            <span class="text-[10px] text-gray-500 dark:text-gray-400">Get updates about trending topics.</span>
+          </div>
+          <input type="checkbox" checked class="rounded border-gray-300 dark:border-gray-600 text-orange-600 focus:ring-orange-500 dark:bg-gray-700" />
+        </div>
+      </div>
+
+      <!-- Legal & Actions -->
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-black uppercase text-gray-900 dark:text-white tracking-wider mb-4">Support & Terms</h3>
+          <div class="space-y-2">
+            <a href="/desktop/terms" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs font-bold text-gray-700 dark:text-gray-300">
+              <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Terms & Conditions
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+            
+            <a href="/desktop/privacy" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-xs font-bold text-gray-700 dark:text-gray-300">
+              <div class="flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Privacy Policy
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <button id="desktop-logout-btn" class="w-full flex items-center justify-between p-3 rounded-xl border border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-950/10 transition-colors mt-6 text-red-600 dark:text-red-500 text-xs font-bold transition-all duration-200 active:scale-95 ease-out">
+          <div class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            Log Out
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</DesktopLayout>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    // Top 15 Languages supported globally in PEXIH
+    const languages = [
+      { code: 'en', name: 'English', flag: '🇺🇸' },
+      { code: 'zh-CN', name: '中文 (Simplified)', flag: '🇨🇳' },
+      { code: 'hi', name: 'हिन्दी (Hindi)', flag: '🇮🇳' },
+      { code: 'es', name: 'Español', flag: '🇪🇸' },
+      { code: 'fr', name: 'Français', flag: '🇫🇷' },
+      { code: 'ar', name: 'العربية (Arabic)', flag: '🇸🇦' },
+      { code: 'bn', name: 'বাংলা (Bengali)', flag: '🇧🇩' },
+      { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+      { code: 'pt', name: 'Português', flag: '🇵🇹' },
+      { code: 'ur', name: 'اردو (Urdu)', flag: '🇵🇰' },
+      { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+      { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+      { code: 'ja', name: '日本語 (Japanese)', flag: '🇯🇵' },
+      { code: 'ko', name: '한국어 (Korean)', flag: '🇰🇷' },
+      { code: 'it', name: 'Italiano (Italian)', flag: '🇮🇹' }
+    ];
+
+    const wrapper = document.getElementById('desktop-profile-lang-wrapper');
+    const trigger = document.getElementById('desktop-profile-lang-trigger');
+    const menu = document.getElementById('desktop-profile-lang-menu');
+    const list = document.getElementById('desktop-profile-lang-list');
+    const activeFlag = document.getElementById('desktop-profile-active-flag');
+    const activeName = document.getElementById('desktop-profile-active-name');
+    const chevron = document.getElementById('desktop-profile-chevron');
+
+    if (wrapper && trigger && menu && list && activeFlag && activeName && chevron) {
+      const currentLang = localStorage.getItem('language') || 'en';
+      const currentLangObj = languages.find(l => l.code === currentLang) || languages[0];
+
+      activeFlag.textContent = currentLangObj.flag;
+      activeName.textContent = currentLangObj.name;
+
+      list.innerHTML = languages.map(lang => `
+        <button data-code="${lang.code}" data-flag="${lang.flag}" data-name="${lang.name}" class="desktop-profile-lang-option w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-950/20 text-left transition-colors cursor-pointer ${lang.code === currentLang ? 'bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 font-bold' : 'text-gray-700 dark:text-gray-300'}">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[15px] select-none leading-none">${lang.flag}</span>
+            <span class="text-[11px] font-bold leading-none">${lang.name}</span>
+          </div>
+          ${lang.code === currentLang ? `
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600 dark:text-orange-400"><polyline points="20 6 9 17 4 12"/></svg>
+          ` : ''}
+        </button>
+      `).join('');
+
+      const toggleDropdown = () => {
+        const isClosed = menu.classList.contains('pointer-events-none');
+        if (isClosed) {
+          menu.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+          menu.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+          chevron.classList.add('rotate-180');
+        } else {
+          menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+          menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+          chevron.classList.remove('rotate-180');
+        }
+      };
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target as Node)) {
+          menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+          menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+          chevron.classList.remove('rotate-180');
+        }
+      });
+
+      const optionBtns = list.querySelectorAll('.desktop-profile-lang-option');
+      optionBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const targetBtn = e.currentTarget as HTMLButtonElement;
+          const code = targetBtn.getAttribute('data-code') || 'en';
+          const flag = targetBtn.getAttribute('data-flag') || '🇺🇸';
+          const name = targetBtn.getAttribute('data-name') || 'English';
+
+          localStorage.setItem('language', code);
+          activeFlag.textContent = flag;
+          activeName.textContent = name;
+
+          function setCookie(name: string, value: string) {
+            const host = location.hostname;
+            document.cookie = name + '=' + value + '; path=/; max-age=31536000; SameSite=Lax';
+            document.cookie = name + '=' + value + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
+            document.cookie = name + '=' + value + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
+          }
+
+          if (code !== 'en') {
+            setCookie('googtrans', '/en/' + code);
+          } else {
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + location.hostname + '; path=/;';
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + location.hostname + '; path=/;';
+          }
+
+          if (window.toast) {
+            window.toast('Language changed');
+          }
+
+          menu.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+          menu.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+          chevron.classList.remove('rotate-180');
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 150);
+        });
+      });
+    }
+
+    const logoutBtn = document.getElementById('desktop-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+          window.location.href = '/login';
+        } catch (error) {
+          console.error('Failed to logout', error);
+        }
+      });
+    }
+  });
+</script>

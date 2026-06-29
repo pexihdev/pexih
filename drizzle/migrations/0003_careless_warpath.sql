@@ -1,0 +1,1 @@
+ALTER TABLE "authors" ADD COLUMN "has_blue_badge" integer DEFAULT 0;

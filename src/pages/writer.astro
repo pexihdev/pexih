@@ -1,0 +1,163 @@
+---
+import MobileLayout from '../layouts/MobileLayout.astro';
+---
+<MobileLayout title="Create Post" showBottomNav={false}>
+  <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+  <div class="bg-white dark:bg-gray-900 h-[52px] px-5 fixed top-0 w-full max-w-[400px] z-50 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+    <button aria-label="Back" onclick="history.back()" class="text-gray-900 dark:text-white w-8 h-8 flex items-center justify-start hover:text-orange-600 dark:hover:text-orange-500 transition-colors z-10">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <h1 class="text-[16px] font-bold text-gray-900 dark:text-white absolute left-1/2 -translate-x-1/2 w-[60%] text-center truncate">New Post</h1>
+    <button id="publish-btn" class="bg-orange-600 text-white px-3 py-1 rounded text-[10px] font-bold hover:bg-orange-700 transition-colors z-10">
+      Publish
+    </button>
+  </div>
+
+  <div class="p-5 flex flex-col gap-4 pb-[80px]" style="padding-top: calc(60px + max(env(safe-area-inset-top), 16px));">
+    <input id="post-title" type="text" placeholder="Post Title..." class="w-full text-[16px] font-bold text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none bg-transparent" />
+    
+    <div class="w-full aspect-[16/9] bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-orange-600 dark:hover:text-orange-500 hover:border-orange-200 dark:hover:border-orange-500 transition-all cursor-pointer">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+      <span class="text-[10px] font-medium">Add Cover Image</span>
+    </div>
+
+    <!-- EasyMDE Textarea Container -->
+    <div class="w-full prose-sm editor-container dark:text-white">
+      <textarea id="markdown-editor" placeholder="Write your thoughts here..." class="w-full min-h-[200px] text-[12px] text-gray-700 dark:text-gray-300 placeholder:text-gray-400 focus:outline-none bg-transparent resize-none leading-relaxed"></textarea>
+    </div>
+  </div>
+  
+  <style is:global>
+    .editor-container .editor-toolbar {
+      border: 1px solid #f3f4f6;
+      border-radius: 0.5rem 0.5rem 0 0;
+      opacity: 1;
+      padding: 0 5px;
+    }
+    .dark .editor-container .editor-toolbar {
+      border-color: #1f2937;
+      background-color: #111827;
+    }
+    .dark .editor-container .editor-toolbar button {
+      color: #d1d5db;
+    }
+    .dark .editor-container .editor-toolbar button:hover,
+    .dark .editor-container .editor-toolbar button.active {
+      background-color: #374151;
+      color: #fff;
+    }
+    .editor-container .editor-toolbar button {
+      width: 24px;
+      height: 24px;
+      padding: 3px;
+      margin: 2px;
+    }
+    .editor-container .CodeMirror {
+      border: 1px solid #f3f4f6;
+      border-radius: 0 0 0.5rem 0.5rem;
+      border-top: none;
+      min-height: 300px;
+      font-size: 12px;
+      font-family: inherit;
+    }
+    .dark .editor-container .CodeMirror {
+      border-color: #1f2937;
+      background-color: #111827;
+      color: #f3f4f6;
+    }
+    .dark .editor-container .CodeMirror-cursor {
+      border-left-color: #f3f4f6;
+    }
+    .editor-container .editor-statusbar {
+      padding: 4px 8px;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+  </style>
+
+  <script src="https://unpkg.com/easymde/dist/easymde.min.js" is:inline></script>
+  <script is:inline>
+    document.addEventListener('astro:page-load', () => {
+      const titleInput = document.getElementById('post-title');
+      
+      // Initialize EasyMDE
+      const easyMDE = new EasyMDE({ 
+        element: document.getElementById('markdown-editor'),
+        spellChecker: false,
+        placeholder: "Write your thoughts here...",
+        status: ["words"],
+        toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "image", "preview"]
+      });
+
+      // Load draft from localStorage
+      const savedTitle = localStorage.getItem('pexih_draft_title');
+      const savedContent = localStorage.getItem('pexih_draft_content');
+      
+      if (savedTitle && titleInput) titleInput.value = savedTitle;
+      if (savedContent) easyMDE.value(savedContent);
+
+      // Auto-save function
+      const saveDraft = () => {
+        if (titleInput) localStorage.setItem('pexih_draft_title', titleInput.value);
+        localStorage.setItem('pexih_draft_content', easyMDE.value());
+      };
+
+      // Listen for changes
+      if (titleInput) {
+        titleInput.addEventListener('input', saveDraft);
+      }
+      easyMDE.codemirror.on('change', saveDraft);
+
+      const publishBtn = document.getElementById('publish-btn');
+      if (publishBtn) {
+        publishBtn.addEventListener('click', async () => {
+          const title = titleInput ? titleInput.value : '';
+          const content = easyMDE.value();
+          
+          if (!title || !content) {
+            window.toast("Please fill in title and content");
+            return;
+          }
+          
+          publishBtn.disabled = true;
+          publishBtn.textContent = 'Publishing...';
+          
+          try {
+            const res = await fetch('/api/articles', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                title,
+                content,
+                category: 'General',
+                img: '' // Needs actual upload for image later
+              })
+            });
+            
+            if (res.ok) {
+              // Clear draft on success
+              localStorage.removeItem('pexih_draft_title');
+              localStorage.removeItem('pexih_draft_content');
+              
+              window.toast("Post published!");
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 1000);
+            } else {
+              const data = await res.json();
+              window.toast(data.error || "Failed to publish post");
+              publishBtn.disabled = false;
+              publishBtn.textContent = 'Publish';
+            }
+          } catch (e) {
+            window.toast("Network error");
+            publishBtn.disabled = false;
+            publishBtn.textContent = 'Publish';
+          }
+        });
+      }
+    });
+  </script>
+</MobileLayout>

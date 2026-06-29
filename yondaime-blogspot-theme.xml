@@ -1,0 +1,1349 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html b:css='false' b:defaultmessages='false' b:layoutsVersion='3' b:responsive='true' lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+<head>
+  <meta charset='utf-8'/>
+  <meta content='width=device-width, initial-scale=1, shrink-to-fit=no, minimum-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
+  
+  <!-- Dynamic Core SEO Suite -->
+  <title><data:view.title.escape/></title>
+
+  <!-- Blogger Essential Header Data -->
+  <b:include data='blog' name='all-head-content'/>
+
+  <!-- SEO Canonicalization & Dynamic AMP Endpoint Routing -->
+  <link expr:href='data:blog.url.canonical' rel='canonical'/>
+  <b:if cond='data:view.isPost'>
+    <link expr:href='data:blog.url.canonical + "?m=1&amp;amp=1"' rel='amphtml'/>
+  </b:if>
+
+  <!-- Advanced Robot Descriptions Meta Tags -->
+  <b:if cond='data:view.description'>
+    <meta expr:content='data:view.description.escape' name='description'/>
+    <meta expr:content='data:view.description.escape' property='og:description'/>
+    <meta expr:content='data:view.description.escape' name='twitter:description'/>
+  <b:else/>
+    <meta expr:content='data:blog.title + " - Explore high-fidelity tech topics, developer blogs, AI trends, and structural container architectures on our platform."' name='description'/>
+    <meta expr:content='data:blog.title + " - Explore high-fidelity tech topics, developer blogs, AI trends, and structural container architectures on our platform."' property='og:description'/>
+  </b:if>
+
+  <!-- Social OpenGraph Integration Metadata -->
+  <meta expr:content='data:view.title.escape' property='og:title'/>
+  <meta expr:content='data:blog.url.canonical' property='og:url'/>
+  <meta content='website' property='og:type'/>
+  <b:if cond='data:view.featuredImage'>
+    <meta expr:content='data:view.featuredImage' property='og:image'/>
+    <meta expr:content='data:view.featuredImage' name='twitter:image'/>
+  <b:else/>
+    <meta content='https://picsum.photos/seed/yondaime_seo/1200/630' property='og:image'/>
+  </b:if>
+
+  <meta content='summary_large_image' name='twitter:card'/>
+  <meta expr:content='data:view.title.escape' name='twitter:title'/>
+
+  <!-- Google Fonts Connection -->
+  <link href='https://fonts.googleapis.com' rel='preconnect'/>
+  <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
+  <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;family=JetBrains+Mono&amp;display=swap' rel='stylesheet'/>
+
+  <!-- Tailwind CSS CDN Integration -->
+  <script src='https://cdn.tailwindcss.com'></script>
+
+  <!-- Tailwind Custom Config mirroring Next.js Design Token standards -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Space Grotesk', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Base Custom Reset Sinks and Blogger System overrides -->
+  <b:skin><![CDATA[
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .section, .widget {
+      margin: 0;
+      padding: 0;
+    }
+    .status-msg-wrap {
+      display: none !important;
+    }
+    .post-body img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.75rem;
+      margin: 0.5rem auto;
+      display: block;
+    }
+  ]]></b:skin>
+</head>
+
+<body class='bg-slate-50 text-slate-950 leading-normal font-sans antialiased'>
+
+  <!-- JSON-LD SEO Schema Mapping -->
+  <script type='application/ld+json'>
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "<data:blog.title.escape/>",
+      "url": "<data:blog.homepageUrl.canonical.escape/>"
+    }
+  </script>
+
+  <!-- Unified Mobile Wrapper (Strictly max-w-[400px], centered layout frame) -->
+  <div class='fixed inset-0 w-full max-w-[400px] mx-auto flex flex-col bg-white shadow-2xl overflow-hidden border-x border-slate-100 z-10 font-sans'>
+    
+    <!-- Top Header: Consistent pt-3 pb-2 px-5 layout styling with styled physical logo and clock -->
+    <header class='w-full bg-white border-b border-gray-50 pt-3 pb-2 px-5 flex items-center justify-between shrink-0 z-20'>
+      <div class='flex items-center space-x-2.5'>
+        <!-- Stylized physical 'Y' logo matching Next.js App -->
+        <div class='w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center relative shadow-sm shrink-0'>
+          <svg class='w-4 h-4 text-white' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' viewBox='0 0 24 24'>
+            <path d='M5 4l7 8v8M19 4l-7 8'/>
+          </svg>
+        </div>
+        <div>
+          <div class='flex items-center space-x-1.5'>
+            <h1 class='text-[14px] font-bold tracking-tight font-display text-slate-950'>
+              <a expr:href='data:blog.homepageUrl.canonical'><data:blog.title/></a>
+            </h1>
+            <!-- Dynamic clock badge reflecting timezone -->
+            <span class='text-[7.5px] font-black text-blue-600 bg-blue-50 border border-blue-100 rounded px-1.5 py-0.2 uppercase tracking-wider font-mono' id='visitor-clock'>
+              00:00 UTC
+            </span>
+          </div>
+          <p class='text-[9px] text-slate-400 font-medium' style='margin-top: 1px;'>Share Knowledge, Explore the World</p>
+        </div>
+      </div>
+      
+      <!-- Interactive Action Buttons -->
+      <div class='flex items-center space-x-1.5'>
+        <!-- Notification button -->
+        <button class='w-7 h-7 rounded-full border border-slate-100 flex items-center justify-center shrink-0 text-slate-600 hover:bg-slate-50 relative' id='notif-toggle-btn' onclick='toggleNotificationsPanel()'>
+          <svg class='w-3.5 h-3.5' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+            <path d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9'/>
+          </svg>
+          <span class='absolute top-1 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white hidden' id='notif-dot'/>
+        </button>
+
+        <!-- Search button -->
+        <button class='w-7 h-7 rounded-full border border-slate-100 flex items-center justify-center shrink-0 text-slate-600 hover:bg-slate-50' id='search-toggle' onclick='toggleSearchBox()'>
+          <svg class='w-3.5 h-3.5' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+            <path d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' stroke-linecap='round' stroke-linejoin='round'/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Interactive Search Drawer Component -->
+    <div class='hidden bg-slate-50 px-5 py-2 border-b border-slate-100 animate-slide-down' id='search-box-container'>
+      <form action='/search' class='flex items-center space-x-2' method='get'>
+        <input class='w-full bg-white border border-slate-200 rounded-md px-2.5 py-1.5 text-[10px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400' name='q' placeholder='Search stories...' type='text'/>
+        <button class='bg-slate-950 hover:bg-slate-800 text-white rounded-md px-3 py-1.5 text-[10px] font-bold' type='submit'>GO</button>
+      </form>
+    </div>
+
+    <!-- Scrollable Content Space -->
+    <main class='flex-1 overflow-y-auto no-scrollbar pb-[64px] bg-white relative'>
+      
+      <!-- Announcement running ticker bar -->
+      <div class='bg-amber-50 border-b border-amber-100 py-1.5 px-5 flex items-center overflow-hidden gap-2 shrink-0 select-none' id='blogger-ticker-panel'>
+        <div class='bg-amber-100 text-amber-950 text-[6.5px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shrink-0 animate-pulse border border-amber-200'>
+          INFO
+        </div>
+        <div class='flex-1 overflow-hidden relative h-3.5 flex items-center font-bold text-[8.5px] text-amber-900'>
+          <marquee class='w-full' scrollamount='3'>
+            ✨ Welcome to the Yondaime Blogger Engine! Enjoy premium fast loading speeds, sitemaps, Cloudinary image integrations, dynamic comments, and bookmark panel!
+          </marquee>
+        </div>
+      </div>
+
+      <!-- CONDITIONAL PAGE HEADER: LABEL SEARCH / SEARCH RESULTS -->
+      <b:if cond='data:view.isSearch or data:view.isLabelSearch'>
+        <div class='px-5 pt-3.5 pb-2 border-b border-slate-50 bg-slate-50/50'>
+          <div class='flex items-center space-x-1.5 text-[8px] text-slate-500 uppercase tracking-widest font-mono font-bold'>
+            <span>Navigation Map</span>
+            <span>/</span>
+            <span class='text-slate-900'><data:view.search.query.escape/><data:view.search.label.escape/></span>
+          </div>
+          <h2 class='text-[12px] font-bold font-display tracking-tight text-slate-950 mt-1'>
+            Showing: <span class='text-blue-600'><data:view.search.query.escape/><data:view.search.label.escape/></span>
+          </h2>
+        </div>
+      </b:if>
+
+      <!-- TOP CATEGORY HORIZONTAL BAR SLIDER -->
+      <nav class='px-5 border-b border-slate-50' id='horizontal-tabs-nav'>
+        <div class='flex items-center space-x-4 overflow-x-auto no-scrollbar py-2 text-[10.5px] font-bold text-slate-500'>
+          <a class='tab-item whitespace-nowrap' expr:href='data:blog.homepageUrl.canonical' id='tab-Home'>Beranda</a>
+          <a class='tab-item whitespace-nowrap' expr:href='data:blog.homepageUrl.canonical + "search/label/Developer"' id='tab-Developer'>Developer</a>
+          <a class='tab-item whitespace-nowrap' expr:href='data:blog.homepageUrl.canonical + "search/label/AI"' id='tab-AI'>AI</a>
+          <a class='tab-item whitespace-nowrap' expr:href='data:blog.homepageUrl.canonical + "search/label/Technology"' id='tab-Technology'>Technology</a>
+          <a class='tab-item whitespace-nowrap' expr:href='data:blog.homepageUrl.canonical + "search/label/Football"' id='tab-Football'>Football</a>
+          <button class='whitespace-nowrap flex items-center space-x-0.5 text-slate-400 font-bold' onclick='toggleBloggerCategoriesDrawer()'>
+            <span>More</span> <span class='text-[7px]'>▼</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- HERO BANNER SPOTLIGHT SLIDER: ONLY VISIBLE ON MULTIPLE-ITEM INDEX LANDING -->
+      <b:if cond='data:view.isMultipleItems'>
+        <b:if cond='!data:view.isSearch and !data:view.isLabelSearch'>
+          <b:section id='yondaime-hero-banner' maxwidgets='1' showaddelement='yes'>
+            <b:widget id='HTML120' locked='false' title='Hero Banner Featured Slider' type='HTML' version='2'>
+              <b:includable id='main'>
+                <!-- Banner: Strictly Aspect [16/9] with rounded-xl inside px-5 container matching Next.js visual logic -->
+                <div class='px-5 pt-3.5 pb-1'>
+                  <div class='relative aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-900 group shadow-sm'>
+                    <img class='absolute inset-0 w-full h-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-700 dynamic-cloudinary' data-original-src='https://picsum.photos/seed/yondaime_hero/800/450' referrerPolicy='no-referrer' src='https://res.cloudinary.com/dr070zmrm/image/upload/f_auto,q_auto,w_400,c_fill,g_auto/v1/yondaime/fallback_hero'/>
+                    <div class='absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/30 to-transparent'/>
+                    
+                    <div class='absolute bottom-3.5 left-3.5 right-3.5 flex flex-col justify-end text-white'>
+                      <div class='flex items-center space-x-1.5 mb-2'>
+                        <span class='w-max bg-blue-600 text-[6px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-sm text-white shadow-sm uppercase-tag' data-label='Developer'>DEVELOPER</span>
+                        <span class='text-[7px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-900 px-1.5 py-0.2 rounded-full flex items-center space-x-1 animate-pulse'>
+                          <span class='w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block'></span>
+                          <span>920 READS</span>
+                        </span>
+                      </div>
+                      <h2 class='text-[12px] font-black tracking-tight leading-snug line-clamp-2 font-display'>
+                        The Ultimate Guide to Modern Micro-Services, Edge Intelligence, and Container Architecture
+                      </h2>
+                      <div class='flex items-center space-x-2 mt-1.5 opacity-90 text-[8.5px] font-mono'>
+                        <span class='font-bold text-slate-200'>Kenji Sato</span>
+                        <span class='text-slate-405 text-[8px]'>•</span>
+                        <span class='text-slate-300'>8 min read</span>
+                        <span class='text-slate-405 text-[8px]'>•</span>
+                        <span class='text-slate-300'>June 2026</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </b:includable>
+            </b:widget>
+          </b:section>
+        </b:if>
+      </b:if>
+
+      <!-- PRIMARY POST FEED MODULE -->
+      <div class='px-5 py-3.5'>
+        <b:section id='main-blog-posts' maxwidgets='1' showaddelement='no'>
+          <b:widget id='Blog1' locked='true' title='Blog Posts' type='Blog' version='2'>
+            <b:includable id='main' var='this'>
+              
+              <!-- SECTION A: LATEST STORIES (LISTINGS/HOMEPAGE & ARCHIVES) -->
+              <b:if cond='data:view.isMultipleItems'>
+                
+                <div class='flex items-center justify-between mb-3.5'>
+                  <h3 class='text-[12px] font-extrabold font-display text-slate-950 tracking-wider uppercase border-l-2 border-slate-950 pl-2'>
+                    <b:if cond='data:view.isSearch or data:view.isLabelSearch'>FILTERED STORIES<b:else/>LATEST STORIES</b:if>
+                  </h3>
+                  <span class='text-[8px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-150'><data:posts.length/> ARTICLES</span>
+                </div>
+                
+                <!-- Listings layout container: Grid pattern with aspect-[4/3] thumbnails -->
+                <div class='space-y-4'>
+                  <b:loop values='data:posts' var='post'>
+                    <article class='flex space-x-3 group border-b border-slate-100 pb-3.5 last:border-0 last:pb-0'>
+                      <!-- Aspect Ratio 4:3 for list thumbnails -->
+                      <div class='relative w-28 h-20 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0 shadow-sm'>
+                        <b:if cond='data:post.firstImageUrl'>
+                          <img expr:src='data:post.firstImageUrl' class='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 dynamic-cloudinary' expr:data-original-src='data:post.firstImageUrl' referrerPolicy='no-referrer'/>
+                        <b:else/>
+                          <img class='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 dynamic-cloudinary' data-original-src='https://picsum.photos/seed/yondaime_thumb/200/150' referrerPolicy='no-referrer' src='https://res.cloudinary.com/dr070zmrm/image/upload/f_auto,q_auto,w_200,c_fill/v1/yondaime/fallback_thumb'/>
+                        </b:if>
+                        
+                        <!-- Tag colored dynamic container matching getTagColor logic -->
+                        <span class='absolute top-1 left-1 text-[6px] font-black uppercase text-white px-1.5 py-0.5 rounded-sm tracking-widest uppercase-tag shadow-sm' expr:data-label='data:post.labels ? data:post.labels.first.name : "STORY"'>
+                          <b:if cond='data:post.labels'>
+                            <data:post.labels.first.name/>
+                          <b:else/>
+                            STORY
+                          </b:if>
+                        </span>
+                      </div>
+
+                      <!-- Text Card Layout block strictly complying with subheader/standard metadata scales -->
+                      <div class='flex flex-col justify-between flex-1 min-w-0 py-0.5'>
+                        <div>
+                          <h4 class='text-[11px] font-bold text-slate-950 tracking-tight leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors duration-200'>
+                            <a expr:href='data:post.url'><data:post.title/></a>
+                          </h4>
+                          <!-- Categories label placeholder badge -->
+                          <div class='flex space-x-1 mt-1'>
+                            <span class='text-[7px] font-extrabold bg-blue-50 text-blue-700 px-1.5 py-0.2 rounded border border-blue-100/30 uppercase tracking-widest'>INSIGHTS</span>
+                          </div>
+                        </div>
+                        
+                        <div class='flex items-center space-x-1.5 text-[8px] text-slate-400 font-mono'>
+                          <span class='truncate font-black text-slate-600'><data:post.author.name/></span>
+                          <span>•</span>
+                          <span><data:post.date.escape/></span>
+                        </div>
+                      </div>
+                    </article>
+                  </b:loop>
+                </div>
+
+                <!-- Safe Centered Navigation Pagination with chevrons -->
+                <b:if cond='data:olderPageUrl or data:newerPageUrl'>
+                  <div class='flex justify-center items-center space-x-6 mt-8 pt-4 border-t border-slate-100'>
+                    <b:if cond='data:newerPageUrl'>
+                      <a expr:href='data:newerPageUrl' class='w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors shadow-sm' title='Previous Page'>
+                        <svg class='w-3 h-3' fill='none' stroke='currentColor' stroke-width='2.5' viewBox='0 0 24 24'>
+                          <path d='M15 19l-7-7 7-7' stroke-linecap='round' stroke-linejoin='round'/>
+                        </svg>
+                      </a>
+                    </b:if>
+                    <span class='text-[9px] font-mono font-bold text-slate-800 tracking-widest uppercase'>PAGES</span>
+                    <b:if cond='data:olderPageUrl'>
+                      <a expr:href='data:olderPageUrl' class='w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors shadow-sm' title='Next Page'>
+                        <svg class='w-3 h-3' fill='none' stroke='currentColor' stroke-width='2.5' viewBox='0 0 24 24'>
+                          <path d='M9 5l7 7-7 7' stroke-linecap='round' stroke-linejoin='round'/>
+                        </svg>
+                      </a>
+                    </b:if>
+                  </div>
+                </b:if>
+              
+              <!-- SECTION B: DETAIL INDIVIDUAL POST INNER VIEWS of Blogger -->
+              <b:else/>
+                <b:loop values='data:posts' var='post'>
+                  <article class='flex flex-col space-y-3.5'>
+                    
+                    <!-- Back Dynamic Button mimicking App Inner page guidelines -->
+                    <div class='flex items-center justify-between -mt-1 mb-1'>
+                      <a expr:href='data:blog.homepageUrl.canonical' class='flex items-center text-slate-600 hover:text-slate-950 text-[10px] font-bold space-x-1 transition-colors'>
+                        <svg class='w-3.5 h-3.5' fill='none' stroke='currentColor' stroke-width='2.5' viewBox='0 0 24 24'>
+                          <path d='M15 19l-7-7 7-7' stroke-linecap='round' stroke-linejoin='round'/>
+                        </svg>
+                        <span>Back to Beranda</span>
+                      </a>
+                      
+                      <!-- Sitemapping connection reference -->
+                      <span class='text-[8px] font-mono font-extrabold text-slate-400 uppercase tracking-widest bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5 shadow-sm'>SECURE ARTICLE ROUTE</span>
+                    </div>
+
+                    <!-- Category tag block with dynamic styling -->
+                    <div class='flex flex-wrap items-center gap-1.5'>
+                      <span class='text-white text-[7px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm shadow-sm uppercase-tag' expr:data-label='data:post.labels ? data:post.labels.first.name : "STORY"'>
+                        <b:if cond='data:post.labels'>
+                          <data:post.labels.first.name/>
+                        <b:else/>
+                          STORY
+                        </b:if>
+                      </span>
+                    </div>
+
+                    <!-- Post Main Title - sized perfectly matching Next.js 16px constraint -->
+                    <h1 class='text-[16px] font-black font-display text-slate-950 tracking-tight leading-tight'><data:post.title/></h1>
+
+                    <div class='flex flex-col space-y-2.5 py-2.5 border-y border-slate-100/80'>
+                      <!-- Author details block -->
+                      <div class='flex items-center justify-between'>
+                        <div class='flex items-center space-x-2.5'>
+                          <div class='w-7 h-7 rounded-full overflow-hidden bg-slate-200 flex-shrink-0 border border-slate-150 shadow-sm'>
+                            <b:if cond='data:post.author.authorPhoto.image'>
+                              <img expr:src='data:post.author.authorPhoto.image' class='w-full h-full object-cover' referrerPolicy='no-referrer'/>
+                            <b:else/>
+                              <img src='https://res.cloudinary.com/dr070zmrm/image/upload/f_auto,q_auto,w_100/v1/yondaime/author_avatar' class='w-full h-full object-cover' referrerPolicy='no-referrer'/>
+                            </b:if>
+                          </div>
+                          <div class='flex flex-col min-w-0'>
+                            <div class='flex items-center space-x-1'>
+                              <span class='text-[9.5px] font-bold text-slate-950 leading-none'><data:post.author.name/></span>
+                              <!-- Admin verified check badge -->
+                              <span class='w-3 h-3 text-blue-500 shrink-0' title='Verified Core Member'>
+                                <svg fill='currentColor' viewBox='0 0 24 24'><path d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/></svg>
+                              </span>
+                            </div>
+                            <span class='text-[7px] text-slate-400 font-mono mt-0.5'>Publisher • <data:post.date.escape/></span>
+                          </div>
+                        </div>
+
+                        <!-- Simulated dynamic Follow button -->
+                        <button class='bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-[8px] font-extrabold px-3 py-1.5 rounded-full transition-all' id='follower-badge-btn' onclick='toggleFollowStateBlogger()'>+ FOLLOW</button>
+                      </div>
+
+                      <!-- VIEW METRICS SUITE AND LIVE ACTIVE VISITORS INDICATOR -->
+                      <div class='flex flex-wrap items-center justify-between gap-1.5 pt-1.5 border-t border-slate-100/45 text-[8.5px] text-slate-500 font-mono'>
+                        <div class='flex items-center space-x-2'>
+                          <span class='flex items-center space-x-0.5'>
+                            <svg class='w-3 h-3' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+                              <path d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'/>
+                              <path d='M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'/>
+                            </svg>
+                            <span class='font-bold' id='blogger-view-clicks'>1,240 clicks</span>
+                          </span>
+                          <span>•</span>
+                          <!-- Core interactive Ratings suite widget -->
+                          <span class='flex items-center space-x-1 cursor-pointer' onclick='triggerStarRatingPopup()'>
+                            <span class='text-amber-500'>⭐⭐⭐⭐⭐</span>
+                            <span class='font-bold text-slate-700 hover:underline'>4.9/5</span>
+                          </span>
+                        </div>
+
+                        <!-- Pulse Visitor counter widget -->
+                        <span class='flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 border border-emerald-100/50 px-2 py-0.5 rounded-full font-bold' style='font-size:7.5px;'>
+                          <span class='w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-ping'/>
+                          <span id='live-visitors-counter'>12 reading now</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Post Hero Visual Box: STRICTLY aspect-[16/9] with rounded-xl matching Next.js home image layout constraints -->
+                    <b:if cond='data:post.firstImageUrl'>
+                      <div class='relative aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-100 shadow-sm'>
+                        <img expr:src='data:post.firstImageUrl' class='w-full h-full object-cover dynamic-cloudinary' expr:data-original-src='data:post.firstImageUrl' referrerPolicy='no-referrer'/>
+                      </div>
+                    </b:if>
+
+                    <!-- Clean Premium Post Body Typography sizing directly at text-[10px] with justified spacing -->
+                    <div class='text-[10px] text-slate-800 leading-relaxed space-y-4 pt-1 text-justify font-sans break-words post-body' id='post-body-content'>
+                      <data:post.body/>
+                    </div>
+
+                    <!-- Post Dynamic Reactions Action Bar -->
+                    <div class='flex items-center justify-between pt-4 border-t border-slate-150 mt-6 shadow-sm px-2.5 py-1.5 bg-slate-50/50 rounded-xl'>
+                      <button class='flex items-center space-x-1 py-1 px-2.5 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors shadow-sm' id='b-like-button' onclick='handleBloggerLike()'>
+                        <svg class='w-3.5 h-3.5 text-slate-400 transition-colors' fill='none' id='heart-icon' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+                          <path d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' stroke-linecap='round' stroke-linejoin='round'/>
+                        </svg>
+                        <span class='text-[8px] font-bold font-mono text-slate-600' id='b-like-status'>Love</span>
+                      </button>
+
+                      <button class='flex items-center space-x-1 py-1 px-3 bg-slate-950 text-white rounded-md hover:bg-slate-850 transition-all shadow-sm active:scale-95' onclick='openBloggerSharingDrawer()'>
+                        <svg class='w-3 h-3' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+                          <path d='M8.684 10.742s-1.879-1.879-1.879-3.759a3.759 3.759 0 017.518 0l1.879 1.879m1.879 4.135s1.879 1.879 1.879 3.759a3.759 3.759 0 01-7.518 0l-1.879-1.879' stroke-linecap='round' stroke-linejoin='round'/>
+                        </svg>
+                        <span class='text-[8px] font-bold font-mono uppercase tracking-wider'>Share Link</span>
+                      </button>
+                    </div>
+
+                    <!-- INTERACTIVE COMMENT SLATE AND THREADS SECTION (Highly customized to replicate commentsList dynamic actions) -->
+                    <section class='mt-8 pt-5 border-t border-slate-100'>
+                      <div class='flex items-center justify-between mb-4'>
+                        <h4 class='text-[11px] font-extrabold text-slate-950 uppercase tracking-widest font-display flex items-center space-x-1.5'>
+                          <svg class='w-3.5 h-3.5 text-blue-600 fill-none' stroke='currentColor' stroke-width='2.5' viewBox='0 0 24 24'>
+                            <path d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' stroke-linecap='round' stroke-linejoin='round'/>
+                          </svg>
+                          <span>Discussion Forum (<span id='comments-header-counter-val'>3</span>)</span>
+                        </h4>
+                        <!-- Simulated authentication layout -->
+                        <span class='text-[8px] font-mono font-bold text-slate-400 uppercase tracking-wider bg-slate-100 rounded px-1.5 py-0.5'>THREAD CHANNEL</span>
+                      </div>
+
+                      <!-- Live dynamic commenting form -->
+                      <form class='bg-slate-50/50 p-3 rounded-xl border border-slate-100 flex flex-col space-y-2' id='comments-input-form' onsubmit='handleSendBloggerComment(event)'>
+                        <div class='flex gap-2'>
+                          <input class='w-2/5 bg-white border border-slate-200 rounded px-2.5 py-1 text-[9px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400' id='commentor-name-box' placeholder='Your name...' type='text' value='Jane Guest'/>
+                          <span class='text-[8px] font-bold text-slate-400 mt-1 flex-1 text-right'>Posting anonymously safe</span>
+                        </div>
+                        <div class='flex space-x-2'>
+                          <textarea class='flex-1 bg-white border border-slate-200 rounded px-3 py-1.5 text-[9.5px] text-slate-850 placeholder-slate-400 focus:outline-none focus:border-slate-400 min-h-[44px]' id='commentor-body-box' placeholder='Add a comment to the discussion...' required='true'></textarea>
+                          <button class='bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-lg px-3 flex items-center justify-center' type='submit'>
+                            <svg class='w-3.5 h-3.5' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' viewBox='0 0 24 24'>
+                              <path d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8'/>
+                            </svg>
+                          </button>
+                        </div>
+                      </form>
+
+                      <!-- Loaded interactive Comments List Frame -->
+                      <div class='mt-5 space-y-4' id='dyn-blogger-comments-list'>
+                        <!-- Comments populated via JS on load -->
+                        <div class='text-center py-6 text-slate-400 text-[10px]'>
+                          Loading comments channel...
+                        </div>
+                      </div>
+                    </section>
+                  </b:loop>
+                </b:if>
+              </b:if>
+              
+            </b:includable>
+          </b:widget>
+        </b:section>
+      </div>
+
+      <!-- SITEMAP DIRECTORY COMPLIANCE & WATERMARK (Reconstruction of structural metadata mapping) -->
+      <section class='mx-5 py-4 px-3.5 bg-slate-950 text-white rounded-2xl shadow-sm space-y-2.5 mb-6' id='sitemap-directory-frame'>
+        <div class='flex items-center space-x-2 border-b border-slate-800 pb-2'>
+          <span class='w-4 h-4 bg-blue-600 rounded flex items-center justify-center text-[8px] font-black font-display text-white'>#</span>
+          <h4 class='text-[10.5px] font-extrabold uppercase font-display tracking-wider'>Yondaime Sitemap Explorer</h4>
+        </div>
+        <p class='text-[8.5px] text-slate-400 leading-normal'>
+          Direct access node routes mapping. Explore label feeds, index map streams, and system RSS configurations.
+        </p>
+        <div class='grid grid-cols-2 gap-2 text-[8px] font-mono font-bold text-slate-300'>
+          <a class='flex items-center space-x-1.5 hover:text-white transition-colors bg-slate-900 border border-slate-850 p-1.5 rounded' expr:href='data:blog.homepageUrl.canonical + "feeds/posts/default"'>
+            <span class='text-emerald-500'>●</span>
+            <span>POSTS RSS</span>
+          </a>
+          <a class='flex items-center space-x-1.5 hover:text-white transition-colors bg-slate-900 border border-slate-850 p-1.5 rounded' expr:href='data:blog.homepageUrl.canonical + "sitemap.xml"'>
+            <span class='text-blue-500'>●</span>
+            <span>INDEX SITEMAP</span>
+          </a>
+          <a class='flex items-center space-x-1.5 hover:text-white transition-colors bg-slate-900 border border-slate-850 p-1.5 rounded' expr:href='data:blog.homepageUrl.canonical + "search/label/Developer"'>
+            <span class='text-purple-500'>●</span>
+            <span>DEVELOPERS LABELS</span>
+          </a>
+          <a class='flex items-center space-x-1.5 hover:text-white transition-colors bg-slate-900 border border-slate-850 p-1.5 rounded' expr:href='data:blog.homepageUrl.canonical + "search/label/AI"'>
+            <span class='text-sky-500'>●</span>
+            <span>AI REPOSITORY</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Watermark Footer Section with Premium Branding and Rules Compliance -->
+      <footer class='py-6 text-center border-t border-slate-100 mt-6 bg-slate-50/50 rounded-2xl mx-5 mb-8'>
+        <p class='text-[8px] text-slate-400 font-mono tracking-wider uppercase font-extrabold'>Powered by Yondaime Core Platform</p>
+        <p class='text-[8px] text-slate-400 font-mono mt-1'>© 2026 YONDAIME JOURNAL. All rights reserved.</p>
+        <a expr:href='data:blog.homepageUrl.canonical' class='text-[8px] text-sky-600 hover:underline font-mono mt-1.5 inline-block' target='_blank'>Standard RSS Feeds Connect</a>
+      </footer>
+
+    </main>
+
+    <!-- FLOATING SIDE RE-ROUTE SHORTCUT TRIGGER (Double threads simulator) -->
+    <button class='absolute right-4 bottom-16 w-8 h-8 rounded-full bg-slate-950 text-white shadow-xl flex items-center justify-center hover:bg-slate-850 transition-all active:scale-95 z-30 ring-4 ring-white' id='floating-thread-trigger' onclick='triggerThreadPopup()'>
+      <svg class='w-3.5 h-3.5' fill='currentColor' viewBox='0 0 24 24'><path d='M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z'/></svg>
+    </button>
+
+    <!-- BOOKMARKS DRAWER CONTROLLER (Fully-functional simulated listing with dynamic DOM rendering) -->
+    <div class='absolute inset-x-0 bottom-[52px] h-[350px] bg-white border-t border-slate-100 rounded-t-2xl shadow-2xl z-40 transform translate-y-full transition-transform duration-300 flex flex-col' id='bookmarks-drawer'>
+      <div class='px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-2xl shrink-0'>
+        <div class='flex items-center space-x-2'>
+          <svg class='w-4 h-4 text-slate-950 fill-none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+            <path d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z'/>
+          </svg>
+          <span class='text-[11px] font-bold font-display text-slate-950 uppercase tracking-wider'>My Pinned Bookmarks</span>
+        </div>
+        <button class='text-slate-400 hover:text-slate-950 transition-colors p-1 rounded-sm' onclick='toggleBloggerBookmarkDrawer()'>
+          <svg class='w-4 h-4' fill='none' stroke='currentColor' stroke-width='2.5' viewBox='0 0 24 24'>
+            <path d='M6 18L18 6M6 6l12 12' stroke-linecap='round' stroke-linejoin='round'/>
+          </svg>
+        </button>
+      </div>
+      <div class='flex-1 overflow-y-auto no-scrollbar p-5 space-y-3.5' id='bookmarks-items-list'>
+        <!-- Bookmarked items injected dynamically by client script -->
+        <div class='text-center py-10 text-slate-400 text-[10px]'>
+          No bookmark stories pinned yet.
+        </div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC CATEGORIES DRAWER (For navigation items popup matching categories tab) -->
+    <div class='absolute inset-x-0 bottom-[52px] h-[320px] bg-white border-t border-slate-100 rounded-t-2xl shadow-2xl z-45 transform translate-y-full transition-transform duration-300 flex flex-col' id='categories-drawer'>
+      <div class='px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-2xl shrink-0'>
+        <div class='flex items-center space-x-2'>
+          <svg class='w-4 h-4 text-slate-955' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+            <path d='M4 6h16M4 12h16M4 18h16' stroke-linecap='round' stroke-linejoin='round'/>
+          </svg>
+          <span class='text-[11px] font-bold font-display text-slate-950 uppercase tracking-widest'>Explore More Categories</span>
+        </div>
+        <button class='text-slate-400 hover:text-slate-950 p-1' onclick='toggleBloggerCategoriesDrawer()'>
+          <svg class='w-4 h-4' fill='none' stroke='currentColor' stroke-width='2.5' viewBox='0 0 24 24'>
+            <path d='M6 18L18 6M6 6l12 12' stroke-linecap='round' stroke-linejoin='round'/>
+          </svg>
+        </button>
+      </div>
+      <div class='flex-1 overflow-y-auto no-scrollbar p-5'>
+        <div class='grid grid-cols-2 gap-3'>
+          <a class='category-bubble p-2 flex items-center space-x-2 border border-slate-100 rounded-lg hover:bg-slate-50/50 bg-slate-50 hover:border-slate-300 transition-colors' expr:href='data:blog.homepageUrl.canonical + "search/label/Developer"'>
+            <span class='w-2 h-2 rounded-full bg-violet-600'></span>
+            <span class='text-[9.5px] font-bold text-slate-900'>Developer</span>
+          </a>
+          <a class='category-bubble p-2 flex items-center space-x-2 border border-slate-100 rounded-lg hover:bg-slate-50/50 bg-slate-50 hover:border-slate-300 transition-colors' expr:href='data:blog.homepageUrl.canonical + "search/label/AI"'>
+            <span class='w-2 h-2 rounded-full bg-emerald-600'></span>
+            <span class='text-[9.5px] font-bold text-slate-900'>AI</span>
+          </a>
+          <a class='category-bubble p-2 flex items-center space-x-2 border border-slate-100 rounded-lg hover:bg-slate-50/50 bg-slate-50 hover:border-slate-300 transition-colors' expr:href='data:blog.homepageUrl.canonical + "search/label/Technology"'>
+            <span class='w-2 h-2 rounded-full bg-sky-600'></span>
+            <span class='text-[9.5px] font-bold text-slate-900'>Technology</span>
+          </a>
+          <a class='category-bubble p-2 flex items-center space-x-2 border border-slate-100 rounded-lg hover:bg-slate-50/50 bg-slate-50 hover:border-slate-300 transition-colors' expr:href='data:blog.homepageUrl.canonical + "search/label/Football"'>
+            <span class='w-2 h-2 rounded-full bg-green-600'></span>
+            <span class='text-[9.5px] font-bold text-slate-900'>Football</span>
+          </a>
+          <a class='category-bubble p-2 flex items-center space-x-2 border border-slate-100 rounded-lg hover:bg-slate-50/50 bg-slate-50 hover:border-slate-300 transition-colors' expr:href='data:blog.homepageUrl.canonical + "search/label/Viral"'>
+            <span class='w-2 h-2 rounded-full bg-rose-600'></span>
+            <span class='text-[9.5px] font-bold text-slate-900'>Viral</span>
+          </a>
+          <a class='category-bubble p-2 flex items-center space-x-2 border border-slate-100 rounded-lg hover:bg-slate-50/50 bg-slate-50 hover:border-slate-300 transition-colors' expr:href='data:blog.homepageUrl.canonical + "search/label/Business"'>
+            <span class='w-2 h-2 rounded-full bg-amber-500'></span>
+            <span class='text-[9.5px] font-bold text-slate-900'>Business</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC NOTIFICATION FEED BOTTOM DRAWER -->
+    <div class='absolute inset-x-0 bottom-[52px] h-[330px] bg-white border-t border-slate-100 rounded-t-2xl shadow-2xl z-40 transform translate-y-full transition-transform duration-300 flex flex-col' id='notifications-drawer'>
+      <div class='px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-2xl shrink-0'>
+        <div class='flex items-center space-x-2'>
+          <svg class='w-4 h-4 text-blue-600' fill='currentColor' viewBox='0 0 24 24'><path d='M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z'/></svg>
+          <span class='text-[11px] font-extrabold font-display text-slate-950 uppercase tracking-widest'>Notifications Hub</span>
+        </div>
+        <button class='text-slate-400 hover:text-slate-950 p-1' onclick='toggleNotificationsPanel()'>
+          <svg class='w-4 h-4' fill='none' stroke='currentColor' stroke-width='2.5' viewBox='0 0 24 24'>
+            <path d='M6 18L18 6M6 6l12 12' stroke-linecap='round' stroke-linejoin='round'/>
+          </svg>
+        </button>
+      </div>
+      <div class='flex-1 overflow-y-auto no-scrollbar p-5 space-y-3' id='notifications-list-container'>
+        <div class='text-center py-10 text-slate-405 text-[10px]' id='notif-empty-state'>
+          No unread notifications right now.
+        </div>
+      </div>
+    </div>
+
+    <!-- SHARE DRAWER SHEET: OVERLAY DYNAMIC MULTIPLIER -->
+    <div class='absolute inset-x-0 bottom-[52px] h-[220px] bg-white border-t border-slate-100 rounded-t-2xl shadow-2xl z-40 transform translate-y-full transition-transform duration-300 flex flex-col' id='sharing-drawer'>
+      <div class='px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-2xl shrink-0'>
+        <span class='text-[11px] font-bold font-display text-slate-950 uppercase tracking-wider h-max'>Share Current Page</span>
+        <button class='text-slate-400 hover:text-slate-950 p-1' onclick='closeBloggerSharingDrawer()'>
+          <svg class='w-4 h-4' fill='none' stroke='currentColor' stroke-width='2.5' viewBox='0 0 24 24'>
+            <path d='M6 18L18 6M6 6l12 12' stroke-linecap='round' stroke-linejoin='round'/>
+          </svg>
+        </button>
+      </div>
+      <div class='p-5 flex-1 flex flex-col justify-between'>
+        <!-- Link dynamic clipboard holder -->
+        <div class='flex gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-150'>
+          <input class='flex-1 text-[8.5px] font-mono text-slate-500 bg-transparent border-0 focus:outline-none pointer-events-none' id='share-link-input-field' readonly='true' type='text' value='http://currentpath'/>
+          <button class='text-blue-600 hover:text-blue-800 text-[8.5px] font-extrabold uppercase tracking-widest font-mono shrink-0' onclick='copyPostLinkInsideDrawer()'>COPY</button>
+        </div>
+        <!-- Official Social Media integration shortcuts -->
+        <div class='grid grid-cols-4 gap-2.5 text-center pt-2'>
+          <a class='flex flex-col items-center justify-center p-1.5 border border-slate-100 rounded-xl hover:bg-slate-50' id='share-wa-link' href='#' target='_blank'>
+            <span class='text-[16px]'>💬</span>
+            <span style='font-size:7px;' class='font-bold mt-1 text-slate-600 block uppercase'>WhatsApp</span>
+          </a>
+          <a class='flex flex-col items-center justify-center p-1.5 border border-slate-100 rounded-xl hover:bg-slate-50' id='share-fb-link' href='#' target='_blank'>
+            <span class='text-[16px]'>👥</span>
+            <span style='font-size:7px;' class='font-bold mt-1 text-slate-600 block uppercase'>Facebook</span>
+          </a>
+          <a class='flex flex-col items-center justify-center p-1.5 border border-slate-100 rounded-xl hover:bg-slate-50' id='share-tw-link' href='#' target='_blank'>
+            <span class='text-[16px]'>🐦</span>
+            <span style='font-size:7px;' class='font-bold mt-1 text-slate-600 block uppercase'>Twitter</span>
+          </a>
+          <a class='flex flex-col items-center justify-center p-1.5 border border-slate-100 rounded-xl hover:bg-slate-50' id='share-tg-link' href='#' target='_blank'>
+            <span class='text-[16px]'>📢</span>
+            <span style='font-size:7px;' class='font-bold mt-1 text-slate-600 block uppercase'>Telegram</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Bar: Fixed height strictly [52px] with precise label font-sizes of [8px] -->
+    <nav class='absolute bottom-0 left-0 right-0 h-[52px] bg-white border-t border-slate-100 flex items-center justify-between z-30 px-6 shadow-lg shrink-0 pb-env-safe'>
+      
+      <!-- Home tab button -->
+      <a expr:href='data:blog.homepageUrl.canonical' class='flex flex-col items-center justify-center gap-0.5 w-10 text-slate-400 hover:text-slate-950 transition-colors group' id='nav-home-btn'>
+        <svg class='w-4 h-4 transition-transform group-hover:scale-105' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+          <path d='M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' stroke-linecap='round' stroke-linejoin='round'/>
+        </svg>
+        <span class='text-[8px] font-bold tracking-wide mt-0.5'>Home</span>
+      </a>
+
+      <!-- Categories drawer toggle button (recreating List items list) -->
+      <button class='flex flex-col items-center justify-center gap-0.5 w-10 text-slate-400 hover:text-slate-950 transition-colors group' id='nav-categories-btn' onclick='toggleBloggerCategoriesDrawer()'>
+        <svg class='w-4 h-4 transition-transform group-hover:scale-105' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+          <path d='M4 6h16M4 12h16M4 18h16' stroke-linecap='round' stroke-linejoin='round'/>
+        </svg>
+        <span class='text-[8px] font-bold tracking-wide mt-0.5'>Categories</span>
+      </button>
+
+      <!-- Search button mimicking Explore -->
+      <button class='flex flex-col items-center justify-center gap-0.5 w-10 text-slate-400 hover:text-slate-950 transition-colors group' id='nav-explore-btn' onclick='toggleSearchBox()'>
+        <svg class='w-4 h-4 transition-transform group-hover:scale-105' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+          <path d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' stroke-linecap='round' stroke-linejoin='round'/>
+        </svg>
+        <span class='text-[8px] font-bold tracking-wide mt-0.5'>Explore</span>
+      </button>
+
+      <!-- Bookmark tab trigger (Simulated on front-end storage) -->
+      <button class='flex flex-col items-center justify-center gap-0.5 w-10 text-slate-400 hover:text-slate-950 transition-colors group' id='nav-bookmark-btn' onclick='toggleBloggerBookmarkDrawer()'>
+        <svg class='w-4 h-4 transition-transform group-hover:scale-105' fill='none' id='nav-bookmark-icon' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+          <path d='M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z' stroke-linecap='round' stroke-linejoin='round'/>
+        </svg>
+        <span class='text-[8px] font-bold tracking-wide mt-0.5'>Bookmark</span>
+      </button>
+
+      <!-- Profile popup simulation tab -->
+      <button class='flex flex-col items-center justify-center gap-0.5 w-10 text-slate-400 hover:text-slate-950 transition-colors group' id='nav-profile-btn' onclick='toggleBloggerProfilePopup()'>
+        <svg class='w-4 h-4 transition-transform group-hover:scale-105' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+          <path d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' stroke-linecap='round' stroke-linejoin='round'/>
+        </svg>
+        <span class='text-[8px] font-bold tracking-wide mt-0.5'>Profile</span>
+      </button>
+
+    </nav>
+  </div>
+
+  <!-- Micro Toast Alert Notification -->
+  <div class='fixed top-4 left-1/2 -translate-x-1/2 bg-slate-950/95 backdrop-blur-md text-white text-[9px] font-bold px-3 py-1.5 rounded-full pointer-events-none opacity-0 scale-95 transition-all duration-300 z-50 text-center shadow-lg' id='custom-toast'>
+    Link copied to clipboard
+  </div>
+
+  <!-- INTERACTIVE POPUP DIALOGS - No Native alert allowed -->
+  <!-- profile details dialogue -->
+  <div class='fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-6 hidden' id='profile-dialog-box' onclick='toggleBloggerProfilePopup()'>
+    <div class='bg-white rounded-2xl w-full max-w-[320px] p-5 shadow-2xl animate-scale-in text-center space-y-4' onclick='event.stopPropagation()'>
+      <!-- Avatar mock -->
+      <div class='w-14 h-14 bg-blue-105 bg-blue-50 border border-blue-150 rounded-full flex items-center justify-center mx-auto text-blue-600 text-[18px] font-black font-display shadow-sm'>
+        YG
+      </div>
+      <div>
+        <h5 class='text-[13px] font-extrabold text-slate-950 leading-tight' id='profile-user-name'>Yondaime Guest</h5>
+        <p class='text-[8.5px] text-slate-400 tracking-wider uppercase font-mono mt-1 font-bold'>Standard Registered Member</p>
+      </div>
+      <div class='border-y border-slate-100 py-3 grid grid-cols-2 gap-2 text-left'>
+        <div class='bg-slate-50 p-2 rounded-lg border border-slate-100'>
+          <p class='text-[7.5px] font-mono text-slate-400 uppercase tracking-widest'>SAVED STORY</p>
+          <p class='text-[12px] font-extrabold text-slate-950 mt-1 font-display' id='profile-bookmark-count-val'>0</p>
+        </div>
+        <div class='bg-slate-50 p-2 rounded-lg border border-slate-100'>
+          <p class='text-[7.5px] font-mono text-slate-400 uppercase tracking-widest'>STATUS CODE</p>
+          <p class='text-[10px] font-bold text-sky-600 mt-1 font-display'>ACTIVE ●</p>
+        </div>
+      </div>
+      <div class='space-y-2 pt-1'>
+        <!-- Option to edit category dynamically -->
+        <a class='block w-full py-2 bg-slate-950 text-white rounded-xl text-[10px] font-bold hover:bg-slate-850 active:scale-95 transition-all text-center' expr:href='data:blog.homepageUrl.canonical + "search/label/Developer"'>
+          Go to Developer Lab
+        </a>
+        <button class='w-full py-2 border border-slate-205 border-slate-200 text-slate-700 rounded-xl text-[10px] font-bold hover:bg-slate-50 active:scale-95 transition-all' onclick='toggleBloggerProfilePopup()'>
+          Close Panel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic Threads Popup / Ratings feedback panel -->
+  <div class='fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-6 hidden' id='general-modal-threads' onclick='triggerThreadPopup()'>
+    <div class='bg-white rounded-2xl w-full max-w-[320px] p-5 shadow-2xl space-y-4' onclick='event.stopPropagation()'>
+      <div class='flex items-center justify-between border-b border-slate-100 pb-2.5'>
+        <h5 class='text-[11px] font-extrabold text-slate-950 uppercase tracking-widest font-display'>Write Anonymous Thread</h5>
+        <button class='text-slate-400 hover:text-slate-950 p-1' onclick='triggerThreadPopup()'>✕</button>
+      </div>
+      <p class='text-[9px] text-slate-500 leading-normal'>
+        Contribute to the decentralized Yondaime community by throwing high-fidelity feedback directly onto our global sitemap layers.
+      </p>
+      <input class='w-full bg-slate-50 border border-slate-150 rounded-lg px-3 py-1.5 text-[9.5px] text-slate-750 focus:outline-none focus:border-slate-400 placeholder-slate-400' id='thread-anonymous-topic' placeholder='Topic of discussions...' type='text'/>
+      <textarea class='w-full bg-slate-50 border border-slate-150 rounded-lg px-3 py-2 text-[10px] text-slate-800 focus:outline-none focus:border-slate-400 placeholder-slate-400 min-h-[64px]' id='thread-anonymous-body' placeholder='What is on your mind today?'></textarea>
+      <div class='flex space-x-2 pt-1'>
+        <button class='flex-1 py-2 border border-slate-200 text-slate-700 rounded-lg text-[9.5px] font-bold hover:bg-slate-50 transition-colors' onclick='triggerThreadPopup()'>Cancel</button>
+        <button class='flex-1 py-2 bg-blue-600 text-white rounded-lg text-[9.5px] font-bold hover:bg-blue-700 transition-colors' onclick='submitThreadAnonymous()'>Post Thread</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client-side script handlers to make Blogspot behaves dynamic and matches features -->
+  <script type='text/javascript'>
+    //<![CDATA[
+    const CLOUDINARY_CLOUD_NAME = "dr070zmrm";
+
+    // Dynamic tag matching styling rules of getTagColor helper inside app
+    const TAG_COLOR_MAPPING = {
+      'DEVELOPER': 'bg-purple-600',
+      'AI': 'bg-emerald-600',
+      'VIRAL': 'bg-rose-600',
+      'TECH': 'bg-sky-600',
+      'TECHNOLOGY': 'bg-sky-600',
+      'DESIGN': 'bg-amber-500',
+      'NEWS': 'bg-slate-900',
+      'STORY': 'bg-slate-900',
+      'TRENDS': 'bg-blue-600',
+      'FOOTBALL': 'bg-green-600',
+      'BUSINESS': 'bg-amber-500'
+    };
+
+    function dynamicColorTags() {
+      const tagContainers = document.querySelectorAll('.uppercase-tag');
+      tagContainers.forEach(tag => {
+        const rawLabel = tag.getAttribute('data-label') || tag.innerText || 'STORY';
+        const normalized = rawLabel.trim().toUpperCase();
+        
+        let colorClass = 'bg-slate-900'; // Fallback default grey background
+        if (TAG_COLOR_MAPPING[normalized]) {
+          colorClass = TAG_COLOR_MAPPING[normalized];
+        } else {
+          const colors = ['bg-indigo-600', 'bg-blue-600', 'bg-teal-600', 'bg-pink-600'];
+          let hashCode = 0;
+          for (let i = 0; i < normalized.length; i++) {
+            hashCode = normalized.charCodeAt(i) + ((hashCode << 5) - hashCode);
+          }
+          const index = Math.abs(hashCode) % colors.length;
+          colorClass = colors[index];
+        }
+
+        tag.className = tag.className.replace(/bg-\w+-\d+/g, '').trim() + ' ' + colorClass;
+      });
+    }
+    
+    // Auto Optimizer Cloudinary Handler
+    function optimizeAllBloggerImages() {
+      const images = document.querySelectorAll('.dynamic-cloudinary');
+      images.forEach(img => {
+        const original = img.getAttribute('data-original-src') || img.src || '';
+        if (original && !original.includes('cloudinary.com') && original.startsWith('http')) {
+          img.src = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/fetch/f_auto,q_auto,w_400,c_fill,g_auto/${original}`;
+        }
+      });
+    }
+
+    // Toggle Blogger dynamic search input drawer
+    function toggleSearchBox() {
+      const box = document.getElementById('search-box-container');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+      } else {
+        box.classList.add('hidden');
+      }
+    }
+
+    // Modern styled toast popup helper matching Next.js styling
+    function showToastNotification(msg) {
+      const toast = document.getElementById('custom-toast');
+      toast.innerText = msg;
+      toast.classList.remove('opacity-0', 'scale-95');
+      toast.classList.add('opacity-100', 'scale-100');
+      
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'scale-100');
+        toast.classList.add('opacity-0', 'scale-95');
+      }, 2500);
+    }
+
+    // Copying dynamic Blogspot current post URL to clipboard
+    function copyPostLink() {
+      const currentUrl = window.location.href;
+      navigator.clipboard.writeText(currentUrl).then(() => {
+        showToastNotification("Link copied to clipboard!");
+      }).catch(() => {
+         const tempInput = document.createElement("input");
+         tempInput.value = currentUrl;
+         document.body.appendChild(tempInput);
+         tempInput.select();
+         document.execCommand("copy");
+         document.body.removeChild(tempInput);
+         showToastNotification("Link copied to clipboard!");
+      });
+    }
+
+    // Double tab / love like simulation
+    let blogspotLovedState = false;
+    function handleBloggerLike() {
+      const parentUrl = window.location.pathname;
+      const key = "is_liked_map_" + btoa(parentUrl);
+      const statusText = document.getElementById('b-like-status');
+      const heartIcon = document.getElementById('heart-icon');
+
+      if (!blogspotLovedState) {
+        blogspotLovedState = true;
+        statusText.innerText = "Loved!";
+        statusText.className = "text-[8px] font-bold font-mono text-red-600 animate-pulse";
+        heartIcon.classList.remove('text-slate-400');
+        heartIcon.classList.add('text-red-500');
+        heartIcon.setAttribute('fill', 'currentColor');
+        localStorage.setItem(key, "true");
+        showToastNotification("Added to Liked stories!");
+        triggerSystemPushNotification("Community Event", "You loved a story: '" + (document.querySelector('h1')?.innerText || 'Article') + "'");
+      } else {
+        blogspotLovedState = false;
+        statusText.innerText = "Love";
+        statusText.className = "text-[8px] font-bold font-mono text-slate-600";
+        heartIcon.classList.remove('text-red-500');
+        heartIcon.classList.add('text-slate-400');
+        heartIcon.removeAttribute('fill');
+        localStorage.removeItem(key);
+        showToastNotification("Removed from Liked stories");
+      }
+    }
+
+    // Double-feature Bookmarking Core & Interactive bottom drawer synchronizer
+    let isBloggerDrawerOpen = false;
+    function toggleBloggerBookmarkDrawer() {
+      const drawer = document.getElementById('bookmarks-drawer');
+      const navBtn = document.getElementById('nav-bookmark-btn');
+      
+      // Close other drawers
+      document.getElementById('categories-drawer').classList.add('translate-y-full');
+      document.getElementById('notifications-drawer').classList.add('translate-y-full');
+      document.getElementById('sharing-drawer').classList.add('translate-y-full');
+      
+      if (!isBloggerDrawerOpen) {
+        isBloggerDrawerOpen = true;
+        drawer.classList.remove('translate-y-full');
+        navBtn.classList.remove('text-slate-300', 'text-slate-400');
+        navBtn.classList.add('text-slate-950');
+        renderBloggerBookmarksList();
+      } else {
+        isBloggerDrawerOpen = false;
+        drawer.classList.add('translate-y-full');
+        navBtn.classList.remove('text-slate-950');
+        navBtn.classList.add('text-slate-400');
+      }
+    }
+
+    // Bookmark list generator
+    function renderBloggerBookmarksList() {
+      const container = document.getElementById('bookmarks-items-list');
+      const items = [];
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('bookmark_map_')) {
+          try {
+            const artData = JSON.parse(localStorage.getItem(key));
+            items.push(artData);
+          } catch(e) { console.error("Bad storage load", e); }
+        }
+      }
+
+      // Update counters profile
+      const profCount = document.getElementById('profile-bookmark-count-val');
+      if (profCount) profCount.innerText = items.length;
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <p class="text-slate-400 text-[9px] font-bold uppercase tracking-widest leading-relaxed">No Bookmarks Pinned</p>
+            <p class="text-slate-400 text-[8px] mt-1 leading-normal px-6">Articles you bookmark from post pages will appear inside this frame.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let htmlOutput = '<div class="space-y-3">';
+      items.forEach(item => {
+        htmlOutput += `
+          <div class="flex items-center justify-between border-b border-slate-50 pb-2.5 last:border-0 last:pb-0">
+            <a href="${item.url}" class="flex-1 min-w-0 pr-3">
+              <h5 class="text-[10px] font-bold text-slate-100 text-slate-950 tracking-tight leading-snug line-clamp-2 hover:text-blue-600 transition-colors">${item.title}</h5>
+              <p class="text-[7.5px] font-mono text-slate-400 mt-1 uppercase tracking-wider">${item.label ? item.label : 'STORY'}</p>
+            </a>
+            <button class="text-rose-500 hover:text-rose-700 p-1.5 bg-rose-50 hover:bg-rose-100 rounded-md transition-colors" onclick="removeIndexedBookmark('${item.url}')">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        `;
+      });
+      htmlOutput += '</div>';
+      container.innerHTML = htmlOutput;
+    }
+
+    function removeIndexedBookmark(targetUrl) {
+      const key = "bookmark_map_" + btoa(targetUrl);
+      localStorage.removeItem(key);
+      showToastNotification("Story unpinned successfully");
+      renderBloggerBookmarksList();
+
+      // Check if current details bookmark status matches
+      if (window.location.pathname === targetUrl) {
+        blogspotBookmarkState = false;
+        const bookmarkIcon = document.getElementById('nav-bookmark-icon');
+        if (bookmarkIcon) {
+          bookmarkIcon.removeAttribute('fill');
+          bookmarkIcon.classList.remove('text-slate-950');
+        }
+      }
+    }
+
+    // Bookmark core status simulator
+    let blogspotBookmarkState = false;
+    function toggleBloggerBookmark() {
+      const targetUrl = window.location.pathname;
+      const key = "bookmark_map_" + btoa(targetUrl);
+      const postTitle = document.querySelector('h1')?.innerText || 'Yondaime Core Story';
+      const rawLabels = document.querySelector('.uppercase-tag')?.innerText || 'STORY';
+      const bookmarkIcon = document.getElementById('nav-bookmark-icon');
+
+      if (!blogspotBookmarkState) {
+        blogspotBookmarkState = true;
+        bookmarkIcon.setAttribute('fill', 'currentColor');
+        bookmarkIcon.classList.add('text-slate-950');
+        
+        const saveItem = {
+          url: targetUrl,
+          title: postTitle,
+          label: rawLabels
+        };
+        localStorage.setItem(key, JSON.stringify(saveItem));
+        showToastNotification("Pinned to Bookmarks folder!");
+        triggerSystemPushNotification("Bookmark Sync", "Added story: '" + postTitle.substring(0, 25) + "...'");
+      } else {
+        blogspotBookmarkState = false;
+        bookmarkIcon.removeAttribute('fill');
+        bookmarkIcon.classList.remove('text-slate-950');
+        localStorage.removeItem(key);
+        showToastNotification("Bookmark storage unpinned");
+      }
+    }
+
+    // Dynamic Categories Drawer toggler
+    let isBloggerCategoriesOpen = false;
+    function toggleBloggerCategoriesDrawer() {
+      const drawer = document.getElementById('categories-drawer');
+      const navBtn = document.getElementById('nav-categories-btn');
+      
+      // Close other drawers
+      document.getElementById('bookmarks-drawer').classList.add('translate-y-full');
+      document.getElementById('notifications-drawer').classList.add('translate-y-full');
+      document.getElementById('sharing-drawer').classList.add('translate-y-full');
+      isBloggerDrawerOpen = false;
+
+      if (!isBloggerCategoriesOpen) {
+        isBloggerCategoriesOpen = true;
+        drawer.classList.remove('translate-y-full');
+        navBtn.classList.remove('text-slate-400');
+        navBtn.classList.add('text-slate-950');
+      } else {
+        isBloggerCategoriesOpen = false;
+        drawer.classList.add('translate-y-full');
+        navBtn.classList.remove('text-slate-950');
+        navBtn.classList.add('text-slate-400');
+      }
+    }
+
+    // Dynamic Profile Modal Dialogue toggler
+    function toggleBloggerProfilePopup() {
+      const modal = document.getElementById('profile-dialog-box');
+      
+      // Update bookmark totals on open
+      let totalPinned = 0;
+      for(let i=0; i<localStorage.length; i++) {
+        if(localStorage.key(i).startsWith('bookmark_map_')) totalPinned++;
+      }
+      const profCount = document.getElementById('profile-bookmark-count-val');
+      if (profCount) profCount.innerText = totalPinned;
+
+      if (modal.classList.contains('hidden')) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    // SYSTEM NOTIFICATION SIMULATION ENGINE (Highly customized and synchronized)
+    function toggleNotificationsPanel() {
+      const drawer = document.getElementById('notifications-drawer');
+      const badgeDot = document.getElementById('notif-dot');
+      
+      // Close other drawers
+      document.getElementById('bookmarks-drawer').classList.add('translate-y-full');
+      document.getElementById('categories-drawer').classList.add('translate-y-full');
+      document.getElementById('sharing-drawer').classList.add('translate-y-full');
+      isBloggerDrawerOpen = false;
+      isBloggerCategoriesOpen = false;
+
+      if (drawer.classList.contains('translate-y-full')) {
+        drawer.classList.remove('translate-y-full');
+        badgeDot.classList.add('hidden'); // Clear notifications visual alert
+        renderBloggerNotificationsHub();
+      } else {
+        drawer.classList.add('translate-y-full');
+      }
+    }
+
+    // Push new alerts securely 
+    let notificationStorage = [
+      { id: 1, title: "Engine Boosted", text: "Cloudinary Dynamic Delivery caching has been established successfully.", time: "Just now" },
+      { id: 2, title: "Sitemaps Integrated", text: "Index standard RSS Sitemap has successfully piped into search engines maps.", time: "10m ago" },
+      { id: 3, title: "Welcome!", text: "Thank you for migrating to the ultra-high fidelity Yondaime Blogger engine built in 2026.", time: "1h ago" }
+    ];
+
+    function triggerSystemPushNotification(title, msg) {
+      notificationStorage.unshift({
+        id: Date.now(),
+        title: title,
+        text: msg,
+        time: "Just now"
+      });
+      
+      // Show alerts visual dot dot
+      const badgeDot = document.getElementById('notif-dot');
+      if (badgeDot) badgeDot.classList.remove('hidden');
+      showToastNotification(`🔔 ${title}: ${msg.substring(0, 20)}...`);
+    }
+
+    function renderBloggerNotificationsHub() {
+      const container = document.getElementById('notifications-list-container');
+      if (notificationStorage.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10">
+            <p class="text-slate-400 text-[10px] uppercase font-bold tracking-widest">No Notifications</p>
+          </div>
+        `;
+        return;
+      }
+
+      let out = '<div class="space-y-2.5">';
+      notificationStorage.forEach(item => {
+        out += `
+          <div class="p-3 bg-slate-50 border border-slate-100 rounded-xl space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[9.5px] font-extrabold text-slate-900">${item.title}</span>
+              <span class="text-[7.5px] text-slate-400 font-mono">${item.time}</span>
+            </div>
+            <p class="text-[8.5px] text-slate-600 leading-normal">${item.text}</p>
+          </div>
+        `;
+      });
+      out += '</div>';
+      container.innerHTML = out;
+    }
+
+    // Dynamic Follow interaction
+    let followerStatusSimulated = false;
+    function toggleFollowStateBlogger() {
+      const btn = document.getElementById('follower-badge-btn');
+      if (!btn) return;
+      if (!followerStatusSimulated) {
+        followerStatusSimulated = true;
+        btn.innerText = "FOLLOWED ✓";
+        btn.className = "bg-slate-100 text-slate-700 border border-slate-300 text-[8px] font-extrabold px-3 py-1.5 rounded-full transition-all";
+        showToastNotification("You are now following this author!");
+        triggerSystemPushNotification("Author Hub", "Followed author: " + (document.querySelector('.font-bold.text-slate-950.leading-none')?.innerText || 'Kenji'));
+      } else {
+        followerStatusSimulated = false;
+        btn.innerText = "+ FOLLOW";
+        btn.className = "bg-blue-600 hover:bg-blue-700 text-white text-[8px] font-extrabold px-3 py-1.5 rounded-full transition-all";
+        showToastNotification("Author un-followed successfully.");
+      }
+    }
+
+    // STAR RATINGS POPUP SIMULATOR 
+    function triggerStarRatingPopup() {
+      showToastNotification("⭐️ Thank you! You rated this story 5 Stars!");
+      triggerSystemPushNotification("Dynamic Ratings", "Submitted 5-Star review rating successfully!");
+    }
+
+    // ANONYMOUS SLIDER THREAD CREATION
+    let isThreadBoxOpen = false;
+    function triggerThreadPopup() {
+      const box = document.getElementById('general-modal-threads');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+      } else {
+        box.classList.add('hidden');
+      }
+    }
+
+    function submitThreadAnonymous() {
+      const topicInput = document.getElementById('thread-anonymous-topic');
+      const bodyInput = document.getElementById('thread-anonymous-body');
+      
+      if (!bodyInput.value.trim()) {
+        showToastNotification("Thread message content cannot be empty.");
+        return;
+      }
+
+      showToastNotification("Your anonymous thread is posted successfully!");
+      triggerSystemPushNotification("Thread Contribution", "Post created: '" + (topicInput.value || "Discussion") + "...'");
+      
+      // Clear inputs
+      topicInput.value = "";
+      bodyInput.value = "";
+      triggerThreadPopup();
+    }
+
+    // SHARING UTILITIES CONTROLLER
+    function openBloggerSharingDrawer() {
+      const drawer = document.getElementById('sharing-drawer');
+      const linkBox = document.getElementById('share-link-input-field');
+      const currentLoc = window.location.href;
+      
+      // Close other drawers
+      document.getElementById('bookmarks-drawer').classList.add('translate-y-full');
+      document.getElementById('categories-drawer').classList.add('translate-y-full');
+      document.getElementById('notifications-drawer').classList.add('translate-y-full');
+      isBloggerDrawerOpen = false;
+
+      linkBox.value = currentLoc;
+      
+      // Dynamic mapping href socials
+      document.getElementById('share-wa-link').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(currentLoc)}`;
+      document.getElementById('share-fb-link').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentLoc)}`;
+      document.getElementById('share-tw-link').href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentLoc)}`;
+      document.getElementById('share-tg-link').href = `https://telegram.me/share/url?url=${encodeURIComponent(currentLoc)}`;
+
+      drawer.classList.remove('translate-y-full');
+    }
+
+    function closeBloggerSharingDrawer() {
+      document.getElementById('sharing-drawer').classList.add('translate-y-full');
+    }
+
+    function copyPostLinkInsideDrawer() {
+      const linkBox = document.getElementById('share-link-input-field');
+      navigator.clipboard.writeText(linkBox.value).then(() => {
+        showToastNotification("Link copied to clipboard!");
+        closeBloggerSharingDrawer();
+      });
+    }
+
+    // COMMENT SECTION LIVE SYSTEM FOR INDIVIDUAL POSTS (Mimics real-time syncing)
+    let commentStorage = [
+      { author: "Kenji Sato", date: "June 08, 2026", text: "Distributed micro-kernels are absolutely the future of portable edge systems. This is a very clean breakdown on Blogger integration workflow." },
+      { author: "Ahmad_Dev", date: "June 08, 2026", text: "Desain temanya cantik, presisi responsif rasionya mirip sekali dengan framework nextjs murni. Mantap!" },
+      { author: "Michael", date: "June 07, 2026", text: "Bookmarks feature is fully working on local state, epic Blogger theme code!" }
+    ];
+
+    function handleSendBloggerComment(event) {
+      event.preventDefault();
+      const nameBox = document.getElementById('commentor-name-box');
+      const bodyBox = document.getElementById('commentor-body-box');
+      
+      if (!bodyBox.value.trim()) return;
+
+      const commenterName = nameBox.value.trim() || "Anonymous Guest";
+      
+      // Unshift to local state
+      commentStorage.unshift({
+        author: commenterName,
+        date: "June 08, 2026",
+        text: bodyBox.value.trim()
+      });
+
+      bodyBox.value = ""; // Clear Input
+      showToastNotification("Comment posted successfully!");
+      triggerSystemPushNotification("New Comment", `${commenterName} left a comment: '${commentStorage[0].text.substring(0, 15)}...'`);
+      renderDynamicBloggerComments();
+    }
+
+    function renderDynamicBloggerComments() {
+      const container = document.getElementById('dyn-blogger-comments-list');
+      const counterVal = document.getElementById('comments-header-counter-val');
+      
+      if (!container) return; // Exit if multiple posts list view (homepage)
+
+      if (counterVal) counterVal.innerText = commentStorage.length;
+
+      let htmlVal = '<div class="space-y-3.5 pt-2">';
+      commentStorage.forEach(comment => {
+        htmlVal += `
+          <div class="bg-slate-50 border border-slate-100 p-3 rounded-xl flex space-x-2.5 items-start">
+            <div class="w-6 h-6 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-slate-700 text-[9px] shrink-0 font-display">
+              ${comment.author.substring(0, 2).toUpperCase()}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-extrabold text-slate-950">${comment.author}</span>
+                <span class="text-[7.5px] font-mono text-slate-400">${comment.date}</span>
+              </div>
+              <p class="text-[9px] text-slate-700 leading-normal mt-1 pr-1" style="word-break: break-all;">${comment.text}</p>
+            </div>
+          </div>
+        `;
+      });
+      htmlVal += '</div>';
+      container.innerHTML = htmlVal;
+    }
+
+    // Dynamic Clock ticking helper
+    function updateClockTimeBlogger() {
+      const badge = document.getElementById('visitor-clock');
+      if (!badge) return;
+      const now = new Date();
+      const stringVal = now.toISOString().substring(11, 16) + " UTC";
+      badge.innerText = stringVal;
+    }
+
+    // Set Active bottom tab highlights
+    function setupActiveStates() {
+      const currentLoc = window.location.href;
+      const homeBtn = document.getElementById('nav-home-btn');
+      
+      // Default to highlighting Home button
+      if (homeBtn) {
+        homeBtn.className = homeBtn.className.replace('text-slate-400', 'text-slate-950');
+      }
+
+      // Read current horizontal active link
+      const links = document.querySelectorAll('.tab-item');
+      links.forEach(lnk => {
+        if (currentLoc.includes(lnk.getAttribute('href'))) {
+          lnk.className = lnk.className + ' text-slate-950 border-b-2 border-slate-950 pb-1.5';
+        }
+      });
+    }
+
+    // Initialize individual States dynamically on DOM load
+    window.addEventListener("DOMContentLoaded", () => {
+      const currentUrl = window.location.pathname;
+      const likeKey = "is_liked_map_" + btoa(currentUrl);
+      const bookmarkKey = "bookmark_map_" + btoa(currentUrl);
+
+      // Trigger Cloudinary optimizer pipeline
+      optimizeAllBloggerImages();
+
+      // Trigger standard responsive tags coloring mapping
+      dynamicColorTags();
+
+      // Setup dynamic active tab indicator colors
+      setupActiveStates();
+
+      // Comments loader
+      renderDynamicBloggerComments();
+
+      // Run dynamic clock
+      updateClockTimeBlogger();
+      setInterval(updateClockTimeBlogger, 60000);
+
+      // Initial Notification setup alert
+      setTimeout(() => {
+        const badgeDot = document.getElementById('notif-dot');
+        if (badgeDot) badgeDot.classList.remove('hidden');
+      }, 5000);
+
+      // Check local Likes state
+      if (localStorage.getItem(likeKey) === "true") {
+        blogspotLovedState = true;
+        const statusText = document.getElementById('b-like-status');
+        const heartIcon = document.getElementById('heart-icon');
+        if (statusText && heartIcon) {
+          statusText.innerText = "Loved!";
+          statusText.className = "text-[8px] font-black font-mono text-red-650";
+          heartIcon.classList.remove('text-slate-400');
+          heartIcon.classList.add('text-red-500');
+          heartIcon.setAttribute('fill', 'currentColor');
+        }
+      }
+
+      // Check bookmark pins
+      if (localStorage.getItem(bookmarkKey)) {
+        blogspotBookmarkState = true;
+        const bookmarkIcon = document.getElementById('nav-bookmark-icon');
+        if (bookmarkIcon) {
+          bookmarkIcon.setAttribute('fill', 'currentColor');
+          bookmarkIcon.classList.add('text-slate-950');
+        }
+      }
+    });
+    //]]>
+  </script>
+
+</body>
+</html>

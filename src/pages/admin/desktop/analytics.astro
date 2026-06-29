@@ -1,0 +1,457 @@
+---
+import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
+---
+
+<AdminDesktopLayout title="Analytics Dashboard">
+  <div class="p-8 max-w-7xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-150 dark:border-gray-800 pb-5">
+      <div>
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+          PE<span class="text-orange-600">X</span>IH Analytics
+        </h1>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Pelacakan tren artikel terpopuler, jumlah penayangan per kategori, dan retensi pembaca mingguan.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Range Filter -->
+        <select id="time-range-select" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-300 px-3.5 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all cursor-pointer shadow-sm">
+          <option value="7">7 Hari Terakhir</option>
+          <option value="30">30 Hari Terakhir</option>
+          <option value="90">90 Hari Terakhir</option>
+        </select>
+        <!-- Print / Export Button -->
+        <button onclick="window.print()" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          Cetak Laporan
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[
+        { title: "Total Tayangan", val: "142,842", diff: "+14.2%", positive: true, label: "vs minggu lalu" },
+        { title: "Pembaca Unik", val: "48,310", diff: "+8.6%", positive: true, label: "vs minggu lalu" },
+        { title: "Durasi Membaca", val: "2m 45s", diff: "+4.1%", positive: true, label: "vs minggu lalu" },
+        { title: "Rasio Pantulan", val: "41.2%", diff: "-2.5%", positive: true, label: "vs minggu lalu" }
+      ].map((stat) => (
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5 shadow-sm space-y-2">
+          <span class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{stat.title}</span>
+          <div class="flex items-baseline justify-between">
+            <span class="text-xl font-black text-gray-900 dark:text-white">{stat.val}</span>
+            <span class={`text-[10px] font-bold px-2 py-0.5 rounded-full ${stat.positive ? 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400' : 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400'}`}>
+              {stat.diff}
+            </span>
+          </div>
+          <p class="text-[9px] text-gray-400 dark:text-gray-500">{stat.label}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Main Trend Chart Row -->
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h2 class="text-sm font-bold text-gray-900 dark:text-white">Tren Artikel Terpopuler (Pageviews)</h2>
+          <p class="text-[11px] text-gray-400 dark:text-gray-500">Performa harian dari 3 artikel dengan impresi tertinggi</p>
+        </div>
+        <!-- Chart Legend -->
+        <div class="flex items-center gap-4 text-[10px] font-bold">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-orange-600"></span>
+            <span class="text-gray-700 dark:text-gray-300">Desain Minimalis</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-orange-400"></span>
+            <span class="text-gray-700 dark:text-gray-300">Tren Teknologi 2026</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-gray-400"></span>
+            <span class="text-gray-700 dark:text-gray-300">Kultur Fotografi</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Interactive D3 Line Chart Container -->
+      <div id="trend-chart-container" class="w-full h-80 relative overflow-hidden">
+        <!-- Interactive Tooltip -->
+        <div id="trend-tooltip" class="absolute hidden bg-gray-900 text-white rounded-lg p-2.5 text-[10px] shadow-lg pointer-events-none z-10 border border-gray-800 max-w-[200px] space-y-1"></div>
+        <svg id="trend-chart" class="w-full h-full overflow-visible"></svg>
+      </div>
+    </div>
+
+    <!-- Bottom Secondary Charts Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Donut Chart: Views per Category -->
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm space-y-4">
+        <div>
+          <h2 class="text-sm font-bold text-gray-900 dark:text-white">Jumlah Penayangan per Kategori</h2>
+          <p class="text-[11px] text-gray-400 dark:text-gray-500">Distribusi persentase minat baca pembaca</p>
+        </div>
+        <div id="category-chart-container" class="w-full h-64 flex items-center justify-center relative">
+          <!-- Interactive Center Label -->
+          <div id="category-center-label" class="absolute flex flex-col items-center justify-center pointer-events-none">
+            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total</span>
+            <span class="text-lg font-black text-gray-900 dark:text-white">100%</span>
+          </div>
+          <svg id="category-chart" class="w-full h-full max-w-[300px] overflow-visible"></svg>
+        </div>
+      </div>
+
+      <!-- Bar Chart: Weekly Reader Retention Metrics -->
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-gray-900 dark:text-white">Metrik Retensi Pembaca Mingguan</h2>
+            <p class="text-[11px] text-gray-400 dark:text-gray-500">Perbandingan pengunjung baru vs pengunjung lama</p>
+          </div>
+          <!-- Legend -->
+          <div class="flex items-center gap-3 text-[10px] font-bold">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-sm bg-orange-600"></span>
+              <span class="text-gray-600 dark:text-gray-400">Pembaca Baru</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-sm bg-orange-200 dark:bg-orange-900/40"></span>
+              <span class="text-gray-600 dark:text-gray-400">Pembaca Kembali</span>
+            </div>
+          </div>
+        </div>
+        <div id="retention-chart-container" class="w-full h-64 relative">
+          <!-- Tooltip -->
+          <div id="retention-tooltip" class="absolute hidden bg-gray-900 text-white rounded-lg p-2 text-[9px] shadow-lg pointer-events-none z-10 border border-gray-800"></div>
+          <svg id="retention-chart" class="w-full h-full overflow-visible"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load D3.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7" is:inline></script>
+  
+  <!-- Chart Rendering scripts -->
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Data Mock for Charts
+      const trendData = [
+        { day: 'Sen', articleA: 1200, articleB: 950, articleC: 600 },
+        { day: 'Sel', articleA: 1550, articleB: 1100, articleC: 800 },
+        { day: 'Rab', articleA: 1400, articleB: 1450, articleC: 750 },
+        { day: 'Kam', articleA: 1800, articleB: 1300, articleC: 900 },
+        { day: 'Jum', articleA: 2100, articleB: 1600, articleC: 1150 },
+        { day: 'Sab', articleA: 2600, articleB: 2050, articleC: 1400 },
+        { day: 'Min', articleA: 2450, articleB: 1850, articleC: 1200 }
+      ];
+
+      const categoryData = [
+        { label: 'Teknologi', value: 45, color: '#FF6B00' },
+        { label: 'Gaya Hidup', value: 25, color: '#FFA366' },
+        { label: 'Desain', value: 15, color: '#FFC299' },
+        { label: 'Fotografi', value: 10, color: '#D1D5DB' },
+        { label: 'Budaya', value: 5, color: '#9CA3AF' }
+      ];
+
+      const retentionData = [
+        { week: 'Minggu 1', newUsers: 12000, returningUsers: 4500 },
+        { week: 'Minggu 2', newUsers: 14500, returningUsers: 6200 },
+        { week: 'Minggu 3', newUsers: 13200, returningUsers: 7100 },
+        { week: 'Minggu 4', newUsers: 16800, returningUsers: 9500 }
+      ];
+
+      // === 1. TREND CHART (D3 LINE CHART) ===
+      function renderTrendChart() {
+        const container = document.getElementById('trend-chart-container');
+        const svg = d3.select('#trend-chart');
+        if (!container || svg.empty()) return;
+
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        svg.html(''); // Clear previous drawings
+
+        const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+
+        const g = svg.append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Scales
+        const xScale = d3.scalePoint()
+          .domain(trendData.map(d => d.day))
+          .range([0, chartWidth]);
+
+        const yScale = d3.scaleLinear()
+          .domain([0, d3.max(trendData, d => Math.max(d.articleA, d.articleB, d.articleC)) * 1.1])
+          .range([chartHeight, 0]);
+
+        // Draw Axes with soft lines
+        g.append('g')
+          .attr('class', 'grid-axis')
+          .attr('transform', `translate(0,${chartHeight})`)
+          .call(d3.axisBottom(xScale).tickSize(0).tickPadding(10))
+          .call(g => g.select('.domain').attr('stroke', '#E5E7EB'))
+          .call(g => g.selectAll('text').attr('fill', '#9CA3AF').style('font-size', '9px').style('font-family', 'inherit'));
+
+        g.append('g')
+          .attr('class', 'grid-axis')
+          .call(d3.axisLeft(yScale).ticks(5).tickSize(-chartWidth).tickPadding(10))
+          .call(g => g.select('.domain').remove())
+          .call(g => g.selectAll('.tick line').attr('stroke', '#F3F4F6').attr('stroke-dasharray', '3,3'))
+          .call(g => g.selectAll('text').attr('fill', '#9CA3AF').style('font-size', '9px').style('font-family', 'inherit'));
+
+        // Line generators
+        const lineA = d3.line().x(d => xScale(d.day)).y(d => yScale(d.articleA)).curve(d3.curveMonotoneX);
+        const lineB = d3.line().x(d => xScale(d.day)).y(d => yScale(d.articleB)).curve(d3.curveMonotoneX);
+        const lineC = d3.line().x(d => xScale(d.day)).y(d => yScale(d.articleC)).curve(d3.curveMonotoneX);
+
+        // Draw Line paths with smooth entry transition
+        const pathA = g.append('path')
+          .datum(trendData)
+          .attr('fill', 'none')
+          .attr('stroke', '#FF6B00')
+          .attr('stroke-width', 3)
+          .attr('d', lineA);
+
+        const pathB = g.append('path')
+          .datum(trendData)
+          .attr('fill', 'none')
+          .attr('stroke', '#FFA366')
+          .attr('stroke-width', 3)
+          .attr('d', lineB);
+
+        const pathC = g.append('path')
+          .datum(trendData)
+          .attr('fill', 'none')
+          .attr('stroke', '#9CA3AF')
+          .attr('stroke-width', 2.5)
+          .attr('d', lineC);
+
+        // Draw interaction dots
+        const keys = ['articleA', 'articleB', 'articleC'];
+        const colors = { articleA: '#FF6B00', articleB: '#FFA366', articleC: '#9CA3AF' };
+        const titles = { articleA: 'Desain Minimalis', articleB: 'Tren Teknologi 2026', articleC: 'Kultur Fotografi' };
+
+        // Overlay transparent panel for interactive tooltip triggering
+        const tooltip = d3.select('#trend-tooltip');
+
+        g.selectAll('.hover-points')
+          .data(trendData)
+          .enter()
+          .append('g')
+          .each(function(d) {
+            const group = d3.select(this);
+            keys.forEach(key => {
+              const cy = yScale(d[key]);
+              const cx = xScale(d.day);
+
+              group.append('circle')
+                .attr('cx', cx)
+                .attr('cy', cy)
+                .attr('r', 4)
+                .attr('fill', '#ffffff')
+                .attr('stroke', colors[key])
+                .attr('stroke-width', 2)
+                .attr('class', 'cursor-pointer hover:scale-150 transition-transform duration-200')
+                .on('mouseover', function(event) {
+                  d3.select(this).attr('r', 6);
+                  tooltip.classed('hidden', false)
+                    .html(`
+                      <div class="font-bold border-b border-gray-800 pb-1 mb-1 text-gray-300">${d.day}day</div>
+                      <div class="flex items-center gap-1.5 font-black">
+                        <span class="w-2 h-2 rounded-full" style="background-color: ${colors[key]}"></span>
+                        <span class="text-white">${titles[key]}</span>
+                      </div>
+                      <div class="text-[12px] font-black text-orange-500 mt-0.5">${d[key].toLocaleString()} Tayangan</div>
+                    `);
+                })
+                .on('mousemove', function(event) {
+                  const [mx, my] = d3.pointer(event, container);
+                  tooltip.style('left', `${mx + 15}px`).style('top', `${my - 20}px`);
+                })
+                .on('mouseout', function() {
+                  d3.select(this).attr('r', 4);
+                  tooltip.classed('hidden', true);
+                });
+            });
+          });
+      }
+
+      // === 2. CATEGORY CHART (D3 DONUT CHART) ===
+      function renderCategoryChart() {
+        const container = document.getElementById('category-chart-container');
+        const svg = d3.select('#category-chart');
+        if (!container || svg.empty()) return;
+
+        svg.html(''); // Clear previous drawings
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const radius = Math.min(width, height) / 2.2;
+
+        const g = svg.append('g')
+          .attr('transform', `translate(${width / 2},${height / 2})`);
+
+        const pie = d3.pie().value(d => d.value).sort(null);
+        const arc = d3.arc().innerRadius(radius * 0.65).outerRadius(radius);
+        const hoverArc = d3.arc().innerRadius(radius * 0.6).outerRadius(radius * 1.05);
+
+        const path = g.selectAll('path')
+          .data(pie(categoryData))
+          .enter()
+          .append('path')
+          .attr('d', arc)
+          .attr('fill', d => d.data.color)
+          .attr('stroke', '#ffffff')
+          .attr('stroke-width', 2)
+          .attr('class', 'cursor-pointer transition-all duration-300')
+          .on('mouseover', function(event, d) {
+            d3.select(this).attr('d', hoverArc);
+            const labelEl = document.getElementById('category-center-label');
+            if (labelEl) {
+              labelEl.innerHTML = `
+                <span class="text-[9px] font-black text-orange-600 dark:text-orange-500 uppercase tracking-widest">${d.data.label}</span>
+                <span class="text-xl font-black text-gray-900 dark:text-white">${d.data.value}%</span>
+              `;
+            }
+          })
+          .on('mouseout', function() {
+            d3.select(this).attr('d', arc);
+            const labelEl = document.getElementById('category-center-label');
+            if (labelEl) {
+              labelEl.innerHTML = `
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Total</span>
+                <span class="text-lg font-black text-gray-900 dark:text-white">100%</span>
+              `;
+            }
+          });
+      }
+
+      // === 3. RETENTION CHART (D3 STACKED BAR CHART) ===
+      function renderRetentionChart() {
+        const container = document.getElementById('retention-chart-container');
+        const svg = d3.select('#retention-chart');
+        if (!container || svg.empty()) return;
+
+        svg.html(''); // Clear previous drawings
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        const margin = { top: 20, right: 20, bottom: 30, left: 45 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+
+        const g = svg.append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        // Scales
+        const xScale = d3.scaleBand()
+          .domain(retentionData.map(d => d.week))
+          .range([0, chartWidth])
+          .padding(0.35);
+
+        const yScale = d3.scaleLinear()
+          .domain([0, d3.max(retentionData, d => d.newUsers + d.returningUsers) * 1.1])
+          .range([chartHeight, 0]);
+
+        // Draw Axes
+        g.append('g')
+          .attr('transform', `translate(0,${chartHeight})`)
+          .call(d3.axisBottom(xScale).tickSize(0).tickPadding(8))
+          .call(g => g.select('.domain').attr('stroke', '#E5E7EB'))
+          .call(g => g.selectAll('text').attr('fill', '#9CA3AF').style('font-size', '9px').style('font-family', 'inherit'));
+
+        g.append('g')
+          .call(d3.axisLeft(yScale).ticks(5).tickSize(-chartWidth).tickFormat(d3.format('~s')).tickPadding(10))
+          .call(g => g.select('.domain').remove())
+          .call(g => g.selectAll('.tick line').attr('stroke', '#F3F4F6').attr('stroke-dasharray', '3,3'))
+          .call(g => g.selectAll('text').attr('fill', '#9CA3AF').style('font-size', '9px').style('font-family', 'inherit'));
+
+        // Tooltip
+        const tooltip = d3.select('#retention-tooltip');
+
+        // Draw Bars
+        const barGroups = g.selectAll('.bar-group')
+          .data(retentionData)
+          .enter()
+          .append('g')
+          .attr('transform', d => `translate(${xScale(d.week)},0)`);
+
+        // Returning users (bottom stacked bar)
+        barGroups.append('rect')
+          .attr('x', 0)
+          .attr('y', d => yScale(d.returningUsers))
+          .attr('width', xScale.bandwidth())
+          .attr('height', d => chartHeight - yScale(d.returningUsers))
+          .attr('fill', '#FFEAD6')
+          .attr('class', 'dark:fill-orange-950/30 cursor-pointer transition-all duration-200 hover:opacity-90')
+          .on('mouseover', function(event, d) {
+            tooltip.classed('hidden', false)
+              .html(`
+                <p class="font-bold text-gray-400 border-b border-gray-800 pb-0.5 mb-1">${d.week}</p>
+                <p class="flex items-center gap-1"><span class="w-1.5 h-1.5 bg-orange-300 rounded"></span> Pembaca Kembali: <b>${d.returningUsers.toLocaleString()}</b></p>
+              `);
+          })
+          .on('mousemove', function(event) {
+            const [mx, my] = d3.pointer(event, container);
+            tooltip.style('left', `${mx + 12}px`).style('top', `${my - 12}px`);
+          })
+          .on('mouseout', function() {
+            tooltip.classed('hidden', true);
+          });
+
+        // New users (top stacked bar)
+        barGroups.append('rect')
+          .attr('x', 0)
+          .attr('y', d => yScale(d.newUsers + d.returningUsers))
+          .attr('width', xScale.bandwidth())
+          .attr('height', d => yScale(d.returningUsers) - yScale(d.newUsers + d.returningUsers))
+          .attr('fill', '#FF6B00')
+          .attr('class', 'cursor-pointer transition-all duration-200 hover:bg-orange-700')
+          .on('mouseover', function(event, d) {
+            tooltip.classed('hidden', false)
+              .html(`
+                <p class="font-bold text-gray-400 border-b border-gray-800 pb-0.5 mb-1">${d.week}</p>
+                <p class="flex items-center gap-1"><span class="w-1.5 h-1.5 bg-orange-600 rounded"></span> Pembaca Baru: <b>${d.newUsers.toLocaleString()}</b></p>
+                <p class="flex items-center gap-1 text-[8px] text-gray-400 mt-0.5">Total: ${(d.newUsers + d.returningUsers).toLocaleString()}</p>
+              `);
+          })
+          .on('mousemove', function(event) {
+            const [mx, my] = d3.pointer(event, container);
+            tooltip.style('left', `${mx + 12}px`).style('top', `${my - 12}px`);
+          })
+          .on('mouseout', function() {
+            tooltip.classed('hidden', true);
+          });
+      }
+
+      // Master Render All function
+      function renderAllCharts() {
+        renderTrendChart();
+        renderCategoryChart();
+        renderRetentionChart();
+      }
+
+      // Initial execution
+      renderAllCharts();
+
+      // Debounce and Resize Handling conforming to design principles
+      let resizeTimer;
+      const observer = new ResizeObserver(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          renderAllCharts();
+        }, 150);
+      });
+
+      // Observe container elements for responsive visual quality
+      const trendCont = document.getElementById('trend-chart-container');
+      const catCont = document.getElementById('category-chart-container');
+      const retCont = document.getElementById('retention-chart-container');
+
+      if (trendCont) observer.observe(trendCont);
+      if (catCont) observer.observe(catCont);
+      if (retCont) observer.observe(retCont);
+    });
+  </script>
+</AdminDesktopLayout>

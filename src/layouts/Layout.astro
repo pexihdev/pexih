@@ -1,0 +1,253 @@
+---
+import '@/src/styles/globals.css';
+import { ClientRouter } from 'astro:transitions';
+import ToastProvider from '@/src/components/ToastProvider.astro';
+
+interface Props {
+	title?: string;
+	description?: string;
+	keywords?: string;
+	image?: string;
+	type?: string;
+	url?: string;
+	publishedTime?: string;
+	author?: string;
+	schema?: object;
+}
+
+const { 
+	title = "PEXIH - Share Knowledge, Explore the World",
+	description = "PEXIH: A modern platform for sharing knowledge, insightful articles, and exploring the world.",
+	keywords,
+	image = "/favicon.svg",
+	type = "website",
+	url = "https://pexih.com",
+	publishedTime,
+	author,
+	schema
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="bg-gray-50 dark:bg-gray-900">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		{keywords && <meta name="keywords" content={keywords} />}
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://images.unsplash.com" />
+		<meta name="theme-color" content="#ffffff" />
+		<meta name="robots" content="index, follow" />
+		<link rel="manifest" href="/manifest.json" />
+		
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content={type} />
+		<meta property="og:url" content={url} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={image} />
+		
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content={url} />
+		<meta property="twitter:title" content={title} />
+		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content={image} />
+		
+		{publishedTime && <meta property="article:published_time" content={publishedTime} />}
+		{author && <meta property="article:author" content={author} />}
+
+		<title>{title}</title>
+		
+		{schema && (
+			<script type="application/ld+json" set:html={JSON.stringify(schema)} />
+		)}
+		
+		<slot name="head" />
+		<ClientRouter />
+		<style is:inline>
+			/* Hide Google Translate UI */
+			.goog-te-banner-frame { display: none !important; }
+			.goog-te-gadget-icon { display: none !important; }
+			.goog-te-gadget-simple { display: none !important; }
+			.goog-te-gadget { display: none !important; }
+			body { top: 0 !important; }
+			#goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+			.goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+			.goog-te-spinner-pos { display: none !important; }
+		</style>
+		<script is:inline>
+			function applyTheme() {
+				const theme = localStorage.getItem('theme') || 'light';
+				if (theme === 'dark') {
+					document.documentElement.classList.add('dark');
+				} else {
+					document.documentElement.classList.remove('dark');
+				}
+			}
+			applyTheme();
+			document.addEventListener('astro:after-swap', applyTheme);
+
+			// Language logic
+			(function() {
+				const targetLanguages = ['en','zh-CN','hi','es','fr','ar','bn','ru','pt','ur','id','de','ja','ko','it'];
+				const isAdmin = window.location.pathname.startsWith('/admin');
+				const langKey = isAdmin ? 'admin_language' : 'language';
+				let currentLang = localStorage.getItem(langKey);
+				
+				if (currentLang && !targetLanguages.includes(currentLang)) {
+					currentLang = 'en';
+					localStorage.setItem(langKey, 'en');
+					// Clear cookie
+					document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+					document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + location.hostname + '; path=/;';
+					document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + location.hostname + '; path=/;';
+				}
+				
+				if (!currentLang) {
+					if (!isAdmin) {
+						let browserLang = navigator.language.split('-')[0].toLowerCase();
+						if (navigator.language === 'zh-CN' || navigator.language === 'zh-TW') {
+							browserLang = navigator.language;
+						}
+						if (targetLanguages.includes(browserLang)) {
+							currentLang = browserLang;
+						} else {
+							currentLang = 'en';
+						}
+					} else {
+						currentLang = 'en';
+					}
+					localStorage.setItem(langKey, currentLang);
+				}
+
+				function setCookie(name, value) {
+					const host = location.hostname;
+					document.cookie = name + '=' + value + '; path=/; max-age=31536000; SameSite=Lax';
+					document.cookie = name + '=' + value + '; domain=' + host + '; path=/; max-age=31536000; SameSite=Lax';
+					document.cookie = name + '=' + value + '; domain=.' + host + '; path=/; max-age=31536000; SameSite=Lax';
+				}
+
+				if (currentLang !== 'en') {
+					setCookie('googtrans', '/en/' + currentLang);
+				} else {
+					document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+					document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=' + location.hostname + '; path=/;';
+					document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.' + location.hostname + '; path=/;';
+				}
+			})();
+		</script>
+	</head>
+	<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 font-sans antialiased text-[11px] sm:text-[12px] md:text-sm selection:bg-orange-500/30 selection:text-orange-900">
+		<div id="google_translate_element" style="display:none;"></div>
+		<script is:inline>
+			function googleTranslateElementInit() {
+				new google.translate.TranslateElement({pageLanguage: 'en', autoDisplay: false}, 'google_translate_element');
+			}
+			
+			document.addEventListener('astro:page-load', () => {
+				// Re-initialize Google Translate on every page load/transition
+				const isAdmin = window.location.pathname.startsWith('/admin');
+				const langKey = isAdmin ? 'admin_language' : 'language';
+				const currentLang = localStorage.getItem(langKey) || 'en';
+				
+				if (currentLang !== 'en') {
+					// 1. Load Google Translate script
+					const gtScript = document.createElement('script');
+					gtScript.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+					gtScript.type = "text/javascript";
+					document.body.appendChild(gtScript);
+					
+					// 2. Load Local JSON Translations for Frontend only
+					if (!isAdmin) {
+						let appliedFromCache = false;
+						try {
+							const cached = sessionStorage.getItem(`translations_${currentLang}`);
+							if (cached) {
+								const translations = JSON.parse(cached);
+								document.querySelectorAll('[data-i18n]').forEach(el => {
+									const key = el.getAttribute('data-i18n');
+									if (translations[key]) {
+										if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+											el.setAttribute('placeholder', translations[key]);
+										} else {
+											el.textContent = translations[key];
+										}
+									}
+								});
+								appliedFromCache = true;
+							}
+						} catch (e) {
+							console.error('Failed to parse cached translations', e);
+						}
+
+						fetch(`/locales/${currentLang}.json`)
+							.then(res => {
+								if(res.ok) return res.json();
+								return null;
+							})
+							.then(translations => {
+								if (translations) {
+									try {
+										sessionStorage.setItem(`translations_${currentLang}`, JSON.stringify(translations));
+									} catch(e) {}
+									
+									// If not applied from cache, apply now
+									if (!appliedFromCache) {
+										document.querySelectorAll('[data-i18n]').forEach(el => {
+											const key = el.getAttribute('data-i18n');
+											if (translations[key]) {
+												if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+													el.setAttribute('placeholder', translations[key]);
+												} else {
+													el.textContent = translations[key];
+												}
+											}
+										});
+									}
+								}
+							})
+							.catch(err => console.log('No local translations found for this language.'));
+					}
+				}
+			});
+		</script>
+		<script is:inline>
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/sw.js').then(registration => {
+						console.log('SW registered: ', registration);
+					}).catch(registrationError => {
+						console.log('SW registration failed: ', registrationError);
+					});
+				});
+			}
+		</script>
+		<slot />
+		<ToastProvider />
+		<script>
+			// Use event delegation for global interactive elements to show toasts
+			document.addEventListener('click', (e) => {
+				const target = e.target as HTMLElement;
+				const btn = target.closest('button');
+				if (!btn) return;
+				
+				const ariaLabel = btn.getAttribute('aria-label') || '';
+				const text = btn.textContent?.trim() || '';
+
+				if (ariaLabel === 'Bookmark') {
+					window.toast('Article saved');
+				} else if (ariaLabel === 'Share' || text === 'Share') {
+					window.toast('Link copied');
+				} else if (ariaLabel === 'Like') {
+					window.toast('Liked');
+				} else if (text === 'Save' || text === 'Save Changes') {
+					window.toast('Settings saved');
+				} else if (text === 'Create Post' || text === 'Add User') {
+					window.toast('Successfully added');
+				}
+			});
+		</script>
+	</body>
+</html>

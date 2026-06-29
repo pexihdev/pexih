@@ -1,0 +1,105 @@
+---
+import MobileLayout from '../layouts/MobileLayout.astro';
+import { getUserFromCookies } from '../lib/auth';
+
+// Redirect if already logged in
+const user = await getUserFromCookies(Astro.cookies);
+if (user) {
+  return Astro.redirect('/');
+}
+---
+<MobileLayout title="Register" showBottomNav={false}>
+  <div class="fixed top-0 w-full max-w-[400px] z-50">
+    <div class="w-full h-[max(env(safe-area-inset-top),16px)] bg-white dark:bg-gray-900"></div>
+    <div class="bg-white dark:bg-gray-900 h-[52px] px-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+      <button aria-label="Back" onclick="history.back()" class="text-gray-900 dark:text-white w-8 h-8 flex items-center justify-start hover:text-orange-600 dark:hover:text-orange-500 transition-colors z-10">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <h1 class="text-[16px] font-bold text-gray-900 dark:text-white absolute left-1/2 -translate-x-1/2 w-[60%] text-center truncate">Register</h1>
+      <div class="w-8 h-8"></div>
+    </div>
+  </div>
+
+  <div class="flex-1 flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 min-h-screen " style="padding-top: calc(52px + max(env(safe-area-inset-top), 16px));">
+    <div class="w-full max-w-sm space-y-8">
+      <div class="text-center">
+        <h1 class="text-[24px] font-black text-gray-900 dark:text-white mb-2">PE<span class="text-orange-600 dark:text-orange-500">X</span>IH</h1>
+        <p class="text-[12px] text-gray-500 dark:text-gray-400">Create an account to join our community.</p>
+      </div>
+      
+      <form id="register-form" class="space-y-4 mt-8">
+        <div>
+          <label for="name" class="block text-[11px] font-bold text-gray-900 dark:text-gray-300 mb-1.5">Full Name</label>
+          <input type="text" id="name" name="name" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-600 focus:bg-white dark:focus:bg-gray-900 transition-colors dark:text-white" placeholder="John Doe">
+        </div>
+
+        <div>
+          <label for="username" class="block text-[11px] font-bold text-gray-900 dark:text-gray-300 mb-1.5">Username</label>
+          <input type="text" id="username" name="username" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-600 focus:bg-white dark:focus:bg-gray-900 transition-colors dark:text-white" placeholder="johndoe">
+        </div>
+
+        <div>
+          <label for="email" class="block text-[11px] font-bold text-gray-900 dark:text-gray-300 mb-1.5">Email</label>
+          <input type="email" id="email" name="email" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-600 focus:bg-white dark:focus:bg-gray-900 transition-colors dark:text-white" placeholder="you@example.com">
+        </div>
+        
+        <div>
+          <label for="password" class="block text-[11px] font-bold text-gray-900 dark:text-gray-300 mb-1.5">Password</label>
+          <input type="password" id="password" name="password" required class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-[12px] focus:outline-none focus:ring-2 focus:ring-orange-600 focus:bg-white dark:focus:bg-gray-900 transition-colors dark:text-white" placeholder="••••••••">
+        </div>
+        
+        <button type="submit" id="register-btn" class="w-full py-3.5 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-[12px] font-bold transition-all active:scale-95 shadow-sm mt-4 flex justify-center items-center">
+          Create Account
+        </button>
+      </form>
+      
+      <div class="text-center mt-6">
+        <p class="text-[11px] text-gray-500 dark:text-gray-400">Already have an account? <a href="/login" class="font-bold text-orange-600 dark:text-orange-500 hover:underline">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const form = document.getElementById('register-form') as HTMLFormElement;
+      const btn = document.getElementById('register-btn') as HTMLButtonElement;
+      
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = (document.getElementById('name') as HTMLInputElement).value;
+          const username = (document.getElementById('username') as HTMLInputElement).value;
+          const email = (document.getElementById('email') as HTMLInputElement).value;
+          const password = (document.getElementById('password') as HTMLInputElement).value;
+          
+          btn.disabled = true;
+          btn.textContent = 'Creating Account...';
+          
+          try {
+            const res = await fetch('/api/auth/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, username, email, password })
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok) {
+              window.toast('Registrasi berhasil!');
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 1000);
+            } else {
+              window.toast(data.error || 'Failed to register');
+            }
+          } catch (err) {
+            window.toast('Network error. Please try again.');
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Create Account';
+          }
+        });
+      }
+    });
+  </script>
+</MobileLayout>

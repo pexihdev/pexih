@@ -1,0 +1,1235 @@
+---
+import AdminDesktopLayout from '../../../layouts/AdminDesktopLayout.astro';
+
+const id = Astro.url.searchParams.get('id');
+let article = null;
+let categoryOptions = ['Minimalism', 'UI/UX', 'Technology', 'Culture', 'General'];
+
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+
+try {
+  if (id) {
+    const res = await fetch(`${backendUrl}/api/articles/${id}`);
+    if (res.ok) {
+      article = await res.json();
+    }
+  }
+  
+  const catRes = await fetch(`${backendUrl}/api/categories`);
+  if (catRes.ok) {
+    const cats = await catRes.json();
+    if (cats.length > 0) {
+      categoryOptions = cats.map(c => c.title);
+    }
+  }
+} catch (e) {
+  console.error("Failed to fetch data for editor", e);
+}
+
+// Helper to format date for input datetime-local
+function formatDatetimeLocal(timestamp: number | null | undefined): string {
+  const date = timestamp ? new Date(timestamp) : new Date();
+  const pad = (num: number) => String(num).padStart(2, '0');
+  
+  const yyyy = date.getFullYear();
+  const MM = pad(date.getMonth() + 1);
+  const dd = pad(date.getDate());
+  const hh = pad(date.getHours());
+  const mm = pad(date.getMinutes());
+  
+  return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+}
+
+const publishDateValue = article ? formatDatetimeLocal(article.publishedAt || article.createdAt) : formatDatetimeLocal(Date.now());
+const initialImgValue = article ? article.img : 'https://images.unsplash.com/photo-1550000000000?auto=format&fit=crop&w=800&q=80';
+---
+<AdminDesktopLayout title={article ? "Edit Article" : "Create Article"}>
+  <div class="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 px-5 h-[52px] flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-4">
+      <button aria-label="Back" onclick="history.back()" class="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div>
+        <h1 class="text-[16px] font-bold text-gray-900 dark:text-white">{article ? "Edit Article" : "Create Article"}</h1>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button 
+        id="save-btn"
+        class="bg-orange-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors hover:bg-orange-700 flex items-center gap-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span id="save-text">Save Changes</span>
+        <span id="save-spinner" class="hidden animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Include Quill stylesheet -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  
+  <style is:global>
+    /* Quill custom overrides for dark mode & desktop */
+    .ql-toolbar.ql-snow {
+      border-color: #e5e7eb;
+      border-radius: 0.75rem 0.75rem 0 0;
+      background: #f9fafb;
+      padding: 12px;
+    }
+    .ql-container.ql-snow {
+      border-color: #e5e7eb;
+      border-radius: 0 0 0.75rem 0.75rem;
+      min-height: 400px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    
+    html.dark .ql-toolbar.ql-snow {
+      border-color: #374151;
+      background: #1f2937;
+    }
+    html.dark .ql-toolbar.ql-snow .ql-stroke {
+      stroke: #d1d5db;
+    }
+    html.dark .ql-toolbar.ql-snow .ql-fill {
+      fill: #d1d5db;
+    }
+    html.dark .ql-toolbar.ql-snow .ql-picker {
+      color: #d1d5db;
+    }
+    html.dark .ql-container.ql-snow {
+      border-color: #374151;
+      background: #111827;
+      color: #f3f4f6;
+    }
+  </style>
+
+  <div class="p-8 max-w-6xl mx-auto flex gap-8 items-start">
+    <input type="hidden" id="article-id" value={id || ''} />
+    <input type="hidden" id="server-timestamp" value={article ? (article.publishedAt || article.createdAt || 0) : 0} />
+
+    <!-- Main Content Area -->
+    <div class="flex-1 space-y-6">
+      {id && (
+        <div id="revision-history-section" class="bg-orange-50/20 dark:bg-orange-950/5 border border-orange-100/50 dark:border-orange-900/30 rounded-xl p-5 space-y-2 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-orange-600"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+              <span class="text-xs font-bold text-gray-950 dark:text-white uppercase tracking-wider">Riwayat Sunting (Revisions)</span>
+            </div>
+            <button type="button" id="toggle-revisions-btn" class="text-xs font-bold text-orange-600 uppercase hover:underline cursor-pointer">Lihat Semua</button>
+          </div>
+          <div id="revisions-list-container" class="hidden space-y-2 pt-3 border-t border-gray-100 dark:border-gray-800 max-h-[220px] overflow-y-auto">
+            <div class="text-xs text-gray-400 font-bold uppercase tracking-wider text-center py-2">Memuat riwayat...</div>
+          </div>
+        </div>
+      )}
+
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+        <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Article Title</label>
+        <input 
+          type="text" 
+          id="title-input"
+          placeholder="Enter an engaging title..." 
+          class="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-base focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all dark:text-white font-semibold" 
+          value={article ? article.title : ''} 
+          required
+        />
+        
+        <div class="mt-6">
+          <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Content</label>
+          <div id="editor-container" class="bg-white dark:bg-gray-900">
+            {article ? <Fragment set:html={article.content} /> : <><h1>Introduction</h1><p>Web development is evolving faster than ever...</p></>}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Configuration -->
+    <div class="w-80 space-y-6 shrink-0">
+      <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 space-y-6">
+        <div>
+          <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Category</label>
+          <select 
+            id="category-select"
+            class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all dark:text-white"
+          >
+            {categoryOptions.map((cat) => (
+              <option value={cat} selected={article && article.category === cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Status</label>
+          <select 
+            id="status-select"
+            class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all dark:text-white"
+          >
+            <option value="draft" selected={article && article.status === 'draft'}>Draft</option>
+            <option value="published" selected={!article || article.status === 'published' || article.status === 'approved'}>Published</option>
+            <option value="archived" selected={article && article.status === 'archived'}>Archived</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Publish Date (Schedule)</label>
+          <input 
+            type="datetime-local" 
+            id="publish-date-input"
+            class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all dark:text-white" 
+            value={publishDateValue} 
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Setting a future date will automatically schedule the post.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">Thumbnail URL</label>
+          <div class="flex gap-2 mb-3">
+            <input 
+              type="url" 
+              id="img-input"
+              placeholder="https://..." 
+              class="flex-1 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all dark:text-white" 
+              value={initialImgValue} 
+            />
+            <button 
+              type="button"
+              id="open-media-library-btn"
+              class="px-3 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-900/50 hover:bg-orange-100 dark:hover:bg-orange-950/40 rounded-lg text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5 shrink-0 cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              Media
+            </button>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-gray-150 dark:border-gray-850 bg-gray-50 dark:bg-gray-900">
+            <img 
+              id="thumbnail-preview"
+              src={initialImgValue} 
+              width="400" 
+              height="225" 
+              loading="lazy" 
+              decoding="async" 
+              alt="Thumbnail Preview" 
+              class="w-full aspect-video object-cover" 
+              referrerpolicy="no-referrer" 
+            />
+          </div>
+        </div>
+
+        <!-- SEO Configuration -->
+        <div class="border-t border-gray-100 dark:border-gray-800 pt-6 space-y-4">
+          <h3 class="text-xs font-bold text-orange-600 uppercase tracking-wider">SEO Meta Configuration</h3>
+          
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-bold text-gray-900 dark:text-white">Meta Description</label>
+              <span id="meta-description-counter" class="text-[10px] text-gray-400 font-medium">0 / 150</span>
+            </div>
+            <textarea 
+              id="meta-description-input" 
+              placeholder="Summary of max 150 characters for search engine optimization..." 
+              maxlength="150"
+              rows="3"
+              class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all dark:text-white resize-none"
+            >{article ? article.metaDescription : ''}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-900 dark:text-white mb-2">Meta Keywords</label>
+            <input 
+              type="text" 
+              id="meta-keywords-input" 
+              placeholder="e.g. minimalism, photography, design" 
+              class="w-full px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all dark:text-white" 
+              value={article ? article.metaKeywords : ''} 
+            />
+          </div>
+        </div>
+
+        <!-- SEO Meta Quality Assistant Widget -->
+        <div class="bg-orange-50/50 dark:bg-orange-950/10 border border-orange-100 dark:border-orange-900/40 rounded-xl p-5 space-y-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-orange-600"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+              <span class="text-xs font-bold text-gray-950 dark:text-white uppercase tracking-wider">SEO Assistant</span>
+            </div>
+            <div class="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-orange-200 dark:border-orange-900/45 rounded-full px-2.5 py-1 shadow-sm">
+              <span class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Score:</span>
+              <span id="seo-score-badge" class="text-xs font-black text-orange-600 dark:text-orange-500">0/100</span>
+            </div>
+          </div>
+
+          <div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+            <div id="seo-score-bar" class="bg-orange-600 h-full rounded-full transition-all duration-300 w-[0%]"></div>
+          </div>
+
+          <div class="space-y-3 pt-1">
+            <div id="seo-check-title" class="flex items-start gap-3">
+              <span class="status-icon text-xs shrink-0">❌</span>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-800 dark:text-gray-200">Keunikan & Panjang Judul</p>
+                <p class="explanation text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Judul kosong atau terlalu pendek (min 10 karakter).</p>
+              </div>
+            </div>
+            <div id="seo-check-desc" class="flex items-start gap-3">
+              <span class="status-icon text-xs shrink-0">❌</span>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-800 dark:text-gray-200">Panjang Deskripsi Meta</p>
+                <p class="explanation text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Panjang deskripsi meta kosong atau belum ideal.</p>
+              </div>
+            </div>
+            <div id="seo-check-keywords" class="flex items-start gap-3">
+              <span class="status-icon text-xs shrink-0">❌</span>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-800 dark:text-gray-200">Meta Keywords</p>
+                <p class="explanation text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Sebutkan minimal 3 kata kunci yang dipisahkan dengan koma.</p>
+              </div>
+            </div>
+            <div id="seo-check-readability" class="flex items-start gap-3">
+              <span class="status-icon text-xs shrink-0">❌</span>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-800 dark:text-gray-200">Keterbacaan Konten (Readability)</p>
+                <p class="explanation text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">Konten kosong atau kurang dari 50 kata untuk analisis.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Konfirmasi Pemulihan Draf -->
+  <div id="restore-toast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] max-w-[360px] w-[90%] bg-white dark:bg-gray-800 border-2 border-orange-600 rounded-xl shadow-lg p-3 flex flex-col gap-2 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-2">
+    <div class="flex items-start gap-2.5">
+      <div class="w-5 h-5 rounded-full bg-orange-100 dark:bg-orange-950 flex items-center justify-center shrink-0 text-orange-600 mt-0.5">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-[11px] font-bold text-gray-950 dark:text-white">Draf lokal ditemukan. Pulihkan?</p>
+        <p class="text-[9px] text-gray-500 dark:text-gray-400 mt-0.5">Draf tersimpan otomatis terakhir kali Anda mengedit halaman ini.</p>
+      </div>
+    </div>
+    <div class="flex items-center justify-end gap-2 border-t border-gray-100 dark:border-gray-700 pt-2">
+      <button id="dismiss-restore" class="px-2.5 py-1 rounded text-[9px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Abaikan</button>
+      <button id="confirm-restore" class="px-3 py-1 rounded bg-orange-600 text-white text-[9px] font-bold hover:bg-orange-700 transition-colors">Pulihkan</button>
+    </div>
+  </div>
+
+  <!-- Media Library Modal -->
+  <div id="media-library-modal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 opacity-0 pointer-events-none transition-all duration-300 backdrop-blur-sm">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-[720px] overflow-hidden shadow-2xl flex flex-col border border-gray-100 dark:border-gray-800 h-[80vh] transform scale-95 transition-all duration-300">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 sticky top-0 z-10">
+        <div class="flex items-center gap-2.5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-orange-600"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          <span class="text-sm font-bold text-gray-950 dark:text-white uppercase tracking-wider">Advanced Media Library</span>
+        </div>
+        <button id="close-media-library-btn" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="flex border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900">
+        <button id="tab-unsplash-btn" class="flex-1 py-3 text-xs font-black uppercase tracking-wider text-orange-600 border-b-2 border-orange-600 transition-all cursor-pointer">
+          Search Unsplash
+        </button>
+        <button id="tab-upload-btn" class="flex-1 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 dark:hover:text-gray-350 transition-all cursor-pointer">
+          Upload Custom (Cloudinary)
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <!-- Unsplash Tab Content -->
+        <div id="media-tab-unsplash" class="space-y-4">
+          <div class="flex gap-3">
+            <input 
+              type="text" 
+              id="unsplash-search-input" 
+              placeholder="Search high-res photos on Unsplash..." 
+              class="flex-1 px-4 py-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all dark:text-white"
+            />
+            <button 
+              id="unsplash-search-btn" 
+              class="px-5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
+            >
+              Search
+            </button>
+          </div>
+
+          <div id="unsplash-results-loader" class="hidden py-16 flex flex-col items-center justify-center gap-3">
+            <span class="animate-spin w-8 h-8 border-3 border-orange-600 border-t-transparent rounded-full"></span>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Searching beautiful photography...</span>
+          </div>
+
+          <div id="unsplash-results-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Upload Custom Tab Content -->
+        <div id="media-tab-upload" class="hidden space-y-6">
+          <!-- Dropzone area -->
+          <div 
+            id="media-dropzone" 
+            class="border-2 border-dashed border-gray-250 dark:border-gray-750 hover:border-orange-500 dark:hover:border-orange-500 rounded-2xl p-10 text-center cursor-pointer transition-all bg-gray-50 dark:bg-gray-850/30 flex flex-col items-center justify-center gap-3 group"
+          >
+            <input type="file" id="media-file-input" class="hidden" accept="image/*" />
+            <div class="w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-950/40 flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+            </div>
+            <p class="text-sm font-bold text-gray-800 dark:text-gray-200">Drag & drop your files here, or <span class="text-orange-600 hover:underline">browse</span></p>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Supports PNG, JPG, WEBP or GIF up to 10MB</p>
+          </div>
+
+          <!-- Preview & Progress -->
+          <div id="upload-preview-container" class="hidden border border-gray-150 dark:border-gray-850 rounded-2xl p-5 bg-white dark:bg-gray-850 space-y-4">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0 shadow-sm">
+                <img id="upload-preview-img" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p id="upload-file-name" class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">file-name.jpg</p>
+                <p id="upload-file-size" class="text-xs text-gray-400 uppercase tracking-wider">1.2 MB</p>
+              </div>
+              <button id="remove-upload-btn" class="text-red-500 hover:text-red-600 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              </button>
+            </div>
+
+            <button 
+              id="start-upload-btn" 
+              class="w-full py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-sm font-bold transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Upload and Apply Image</span>
+              <span id="upload-spinner" class="hidden animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js" is:inline></script>
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      let quillInstance = null;
+
+      if (typeof Quill !== 'undefined') {
+        quillInstance = new Quill('#editor-container', {
+          theme: 'snow',
+          modules: {
+            toolbar: [
+              [{ 'header': [1, 2, 3, false] }],
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'code-block'],
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'script': 'sub'}, { 'script': 'super' }],
+              [{ 'indent': '-1'}, { 'indent': '+1' }],
+              ['link', 'image', 'video'],
+              ['clean']
+            ]
+          }
+        });
+      }
+
+      // Live update thumbnail preview
+      const imgInput = document.getElementById('img-input');
+      const previewImg = document.getElementById('thumbnail-preview');
+      if (imgInput && previewImg) {
+        imgInput.addEventListener('input', (e) => {
+          const val = e.target.value.trim();
+          if (val) {
+            previewImg.src = val;
+          }
+        });
+      }
+
+      // Character counter for Meta Description
+      const metaDescInput = document.getElementById('meta-description-input');
+      const metaDescCounter = document.getElementById('meta-description-counter');
+      if (metaDescInput && metaDescCounter) {
+        const updateCounter = () => {
+          metaDescCounter.textContent = `${metaDescInput.value.length} / 150`;
+        };
+        metaDescInput.addEventListener('input', updateCounter);
+        // initial update
+        updateCounter();
+      }
+
+      // === SEO SCORE LOGIC ===
+      function updateSeoScore() {
+        const titleInput = document.getElementById('title-input');
+        const metaDescInput = document.getElementById('meta-description-input');
+        const metaKeywordsInput = document.getElementById('meta-keywords-input');
+        
+        const title = titleInput ? titleInput.value.trim() : '';
+        const metaDesc = metaDescInput ? metaDescInput.value.trim() : '';
+        const keywords = metaKeywordsInput ? metaKeywordsInput.value.trim() : '';
+        const contentText = quillInstance ? quillInstance.root.innerText.trim() : '';
+        
+        let score = 0;
+        
+        // 1. Title Uniqueness & Length (Max 25 pts)
+        let titleScore = 0;
+        let titleMsg = "Judul kosong atau terlalu pendek (min 10 karakter).";
+        let titleStatus = "❌";
+        
+        if (title.length >= 10) {
+          titleScore = 15;
+          titleMsg = "Panjang judul cukup baik.";
+          titleStatus = "⚠️";
+          if (title.length >= 25 && title.length <= 65) {
+            titleScore = 25;
+            titleMsg = "Panjang & keunikan judul sangat ideal (25-65 karakter).";
+            titleStatus = "✅";
+          } else if (title.length > 65) {
+            titleScore = 18;
+            titleMsg = "Judul terlalu panjang (idealnya 25-65 karakter).";
+            titleStatus = "⚠️";
+          }
+        }
+        score += titleScore;
+        
+        const checkTitle = document.getElementById('seo-check-title');
+        if (checkTitle) {
+          const iconEl = checkTitle.querySelector('.status-icon');
+          const descEl = checkTitle.querySelector('.explanation');
+          if (iconEl) iconEl.textContent = titleStatus;
+          if (descEl) descEl.textContent = titleMsg;
+        }
+
+        // 2. Meta Description Length (Max 25 pts)
+        let descScore = 0;
+        let descMsg = "Panjang deskripsi meta kosong atau terlalu pendek (min 45 karakter).";
+        let descStatus = "❌";
+        
+        if (metaDesc.length >= 45) {
+          descScore = 15;
+          descMsg = "Panjang deskripsi meta cukup baik.";
+          descStatus = "⚠️";
+          if (metaDesc.length >= 70 && metaDesc.length <= 150) {
+            descScore = 25;
+            descMsg = "Panjang deskripsi meta sangat ideal (70-150 karakter).";
+            descStatus = "✅";
+          }
+        }
+        score += descScore;
+        
+        const checkDesc = document.getElementById('seo-check-desc');
+        if (checkDesc) {
+          const iconEl = checkDesc.querySelector('.status-icon');
+          const descEl = checkDesc.querySelector('.explanation');
+          if (iconEl) iconEl.textContent = descStatus;
+          if (descEl) descEl.textContent = descMsg;
+        }
+
+        // 3. Meta Keywords Match (Max 25 pts)
+        let kwScore = 0;
+        let kwMsg = "Sebutkan minimal 3 kata kunci yang dipisahkan dengan koma.";
+        let kwStatus = "❌";
+        
+        if (keywords) {
+          const parts = keywords.split(',').map(k => k.trim()).filter(Boolean);
+          if (parts.length >= 1) {
+            kwScore = 10;
+            kwMsg = "Tambahkan minimal 3 kata kunci (baru " + parts.length + ").";
+            kwStatus = "⚠️";
+            if (parts.length >= 3) {
+              kwScore = 25;
+              kwMsg = "Kata kunci meta ideal (" + parts.length + " kata kunci terdaftar).";
+              kwStatus = "✅";
+            }
+          }
+        }
+        score += kwScore;
+        
+        const checkKeywords = document.getElementById('seo-check-keywords');
+        if (checkKeywords) {
+          const iconEl = checkKeywords.querySelector('.status-icon');
+          const descEl = checkKeywords.querySelector('.explanation');
+          if (iconEl) iconEl.textContent = kwStatus;
+          if (descEl) descEl.textContent = kwMsg;
+        }
+
+        // 4. Content Readability (Max 25 pts)
+        let readScore = 0;
+        let readMsg = "Konten kosong atau kurang dari 50 kata untuk analisis.";
+        let readStatus = "❌";
+        
+        const words = contentText.split(/\s+/).filter(Boolean);
+        const sentences = contentText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+        
+        if (words.length >= 50) {
+          readScore = 10;
+          readMsg = "Konten cukup panjang. Tulis minimal 200 kata untuk skor maksimal.";
+          readStatus = "⚠️";
+          
+          if (words.length >= 200) {
+            readScore = 25;
+            const avgSentenceLength = words.length / (sentences.length || 1);
+            if (avgSentenceLength > 18) {
+              readMsg = "Keterbacaan baik (" + words.length + " kata), tapi kalimat cenderung panjang (rata-rata " + Math.round(avgSentenceLength) + " kata).";
+              readStatus = "⚠️";
+            } else {
+              readMsg = "Struktur & Keterbacaan sangat baik (" + words.length + " kata, rata-rata " + Math.round(avgSentenceLength) + " kata/kalimat).";
+              readStatus = "✅";
+            }
+          }
+        }
+        score += readScore;
+        
+        const checkReadability = document.getElementById('seo-check-readability');
+        if (checkReadability) {
+          const iconEl = checkReadability.querySelector('.status-icon');
+          const descEl = checkReadability.querySelector('.explanation');
+          if (iconEl) iconEl.textContent = readStatus;
+          if (descEl) descEl.textContent = readMsg;
+        }
+
+        // Set main badge and score bar
+        const scoreBadge = document.getElementById('seo-score-badge');
+        const scoreBar = document.getElementById('seo-score-bar');
+        
+        if (scoreBadge) scoreBadge.textContent = score + "/100";
+        if (scoreBar) {
+          scoreBar.style.width = score + "%";
+          if (score < 40) {
+            scoreBar.className = "h-full rounded-full transition-all duration-300 bg-red-500";
+          } else if (score < 80) {
+            scoreBar.className = "h-full rounded-full transition-all duration-300 bg-yellow-500";
+          } else {
+            scoreBar.className = "h-full rounded-full transition-all duration-300 bg-green-500";
+          }
+        }
+      }
+
+      // Attach event listeners for real-time SEO updates
+      const titleInput = document.getElementById('title-input');
+      const keywordsInput = document.getElementById('meta-keywords-input');
+      
+      if (titleInput) titleInput.addEventListener('input', updateSeoScore);
+      if (metaDescInput) metaDescInput.addEventListener('input', updateSeoScore);
+      if (keywordsInput) keywordsInput.addEventListener('input', updateSeoScore);
+      
+      if (quillInstance) {
+        quillInstance.on('text-change', updateSeoScore);
+      }
+
+      // Initial run
+      setTimeout(updateSeoScore, 100);
+
+      const articleId = document.getElementById('article-id').value || 'new';
+      const draftKey = `peXih_draft_${articleId}`;
+
+      // 1. Detect and handle Local Draft Recovery
+      const handleDraftRecovery = (draft) => {
+        const serverTime = parseInt(document.getElementById('server-timestamp').value || '0', 10);
+        const isNewAndHasDraft = articleId === 'new' && (
+          draft.title || (draft.content && draft.content !== '<p><br></p>' && draft.content !== '<h1>Introduction</h1><p>Web development is evolving faster than ever...</p>')
+        );
+        const isEditAndDraftNewer = articleId !== 'new' && draft.updatedAt > (serverTime + 5000);
+        
+        if (isNewAndHasDraft || isEditAndDraftNewer) {
+          const restoreToast = document.getElementById('restore-toast');
+          const confirmBtn = document.getElementById('confirm-restore');
+          const dismissBtn = document.getElementById('dismiss-restore');
+          
+          if (restoreToast) {
+            restoreToast.classList.remove('pointer-events-none', 'opacity-0', '-translate-y-2');
+            restoreToast.classList.add('opacity-100', 'translate-y-0');
+            
+            confirmBtn.addEventListener('click', () => {
+              if (draft.title) document.getElementById('title-input').value = draft.title;
+              if (draft.category) document.getElementById('category-select').value = draft.category;
+              if (draft.status) document.getElementById('status-select').value = draft.status;
+              if (draft.publishDateStr) document.getElementById('publish-date-input').value = draft.publishDateStr;
+              if (draft.img) {
+                document.getElementById('img-input').value = draft.img;
+                if (typeof previewImg !== 'undefined' && previewImg) previewImg.src = draft.img;
+              }
+              if (quillInstance && draft.content) quillInstance.root.innerHTML = draft.content;
+              
+              if (draft.metaDescription !== undefined) {
+                document.getElementById('meta-description-input').value = draft.metaDescription;
+                if (typeof metaDescCounter !== 'undefined' && metaDescCounter) metaDescCounter.textContent = `${draft.metaDescription.length} / 150`;
+              }
+              if (draft.metaKeywords !== undefined) {
+                document.getElementById('meta-keywords-input').value = draft.metaKeywords;
+              }
+              
+              if (window.toast) window.toast('Draft restored successfully');
+              hideRestoreToast();
+            });
+            
+            dismissBtn.addEventListener('click', () => {
+              localStorage.removeItem(draftKey);
+              hideRestoreToast();
+            });
+            
+            function hideRestoreToast() {
+              restoreToast.classList.remove('opacity-100', 'translate-y-0');
+              restoreToast.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none');
+            }
+          }
+        }
+      };
+
+      const loadDrafts = () => {
+        const savedDraftStr = localStorage.getItem(draftKey);
+        let localDraft = null;
+        if (savedDraftStr) {
+          try { localDraft = JSON.parse(savedDraftStr); } catch (e) {}
+        }
+
+        if (articleId !== 'new') {
+          fetch(`/api/drafts/latest?articleId=${articleId}`)
+            .then(res => res.json())
+            .then(cloudDraft => {
+              if (cloudDraft && localDraft) {
+                const cloudDraftMapped = { ...cloudDraft, updatedAt: cloudDraft.createdAt };
+                handleDraftRecovery(cloudDraft.createdAt > localDraft.updatedAt ? cloudDraftMapped : localDraft);
+              } else if (cloudDraft) {
+                handleDraftRecovery({ ...cloudDraft, updatedAt: cloudDraft.createdAt });
+              } else if (localDraft) {
+                handleDraftRecovery(localDraft);
+              }
+            })
+            .catch(e => {
+              if (localDraft) handleDraftRecovery(localDraft);
+            });
+        } else {
+          if (localDraft) handleDraftRecovery(localDraft);
+        }
+      };
+      
+      loadDrafts();
+
+      // 2. Set up Auto-Save Interval (every 12 seconds)
+      setInterval(() => {
+        const title = document.getElementById('title-input').value.trim();
+        const category = document.getElementById('category-select').value;
+        const status = document.getElementById('status-select').value;
+        const publishDateStr = document.getElementById('publish-date-input').value;
+        const img = document.getElementById('img-input').value.trim();
+        const content = quillInstance ? quillInstance.root.innerHTML : '';
+        const metaDescription = document.getElementById('meta-description-input') ? document.getElementById('meta-description-input').value.trim() : '';
+        const metaKeywords = document.getElementById('meta-keywords-input') ? document.getElementById('meta-keywords-input').value.trim() : '';
+
+        // Only save if there is actually some content or title or meta to save
+        if (!title && !metaDescription && !metaKeywords && (!content || content === '<p><br></p>' || content === '<h1>Introduction</h1><p>Web development is evolving faster than ever...</p>')) {
+          return;
+        }
+
+        const draftData = {
+          title,
+          category,
+          status,
+          publishDateStr,
+          img,
+          content,
+          metaDescription,
+          metaKeywords,
+          updatedAt: Date.now()
+        };
+
+        localStorage.setItem(draftKey, JSON.stringify(draftData));
+        
+        // Auto-save to cloud
+        try {
+          fetch('/api/revisions/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(draftData)
+          }).catch(err => console.error('Cloud auto-save error:', err));
+        } catch (err) {}
+        
+        console.log('Draft auto-saved to localStorage and cloud.');
+      }, 12000);
+
+      const saveBtn = document.getElementById('save-btn');
+      const saveText = document.getElementById('save-text');
+      const saveSpinner = document.getElementById('save-spinner');
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+          const articleIdVal = document.getElementById('article-id').value;
+          const title = document.getElementById('title-input').value.trim();
+          const category = document.getElementById('category-select').value;
+          const status = document.getElementById('status-select').value;
+          const publishDateStr = document.getElementById('publish-date-input').value;
+          const img = document.getElementById('img-input').value.trim();
+          const content = quillInstance ? quillInstance.root.innerHTML : '';
+          const metaDescription = document.getElementById('meta-description-input') ? document.getElementById('meta-description-input').value.trim() : '';
+          const metaKeywords = document.getElementById('meta-keywords-input') ? document.getElementById('meta-keywords-input').value.trim() : '';
+
+          if (!title) {
+            if (window.toast) window.toast('Title is required');
+            return;
+          }
+
+          if (!content || content === '<p><br></p>') {
+            if (window.toast) window.toast('Content is required');
+            return;
+          }
+
+          // Show loading
+          if (saveText) saveText.textContent = 'Saving Changes...';
+          if (saveSpinner) saveSpinner.classList.remove('hidden');
+          saveBtn.disabled = true;
+
+          const publishTimestamp = publishDateStr ? new Date(publishDateStr).getTime() : Date.now();
+          
+          // Generate slug
+          const slug = title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+
+          // Calc read time
+          const wordCount = quillInstance ? quillInstance.root.innerText.trim().split(/\s+/).length : 100;
+          const readTime = Math.max(1, Math.ceil(wordCount / 200)) + ' min read';
+
+          const payload = {
+            title,
+            category,
+            content,
+            status,
+            publishedAt: publishTimestamp,
+            img: img || 'https://images.unsplash.com/photo-1550000000000?auto=format&fit=crop&w=800&q=80',
+            slug,
+            readTime,
+            metaDescription,
+            metaKeywords,
+            author: {
+              name: 'Admin',
+              avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'
+            }
+          };
+
+          const url = articleIdVal ? `/api/articles?id=${articleIdVal}` : '/api/articles';
+          const method = articleIdVal ? 'PUT' : 'POST';
+
+          try {
+            const res = await fetch(url, {
+              method,
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            const result = await res.json();
+
+            if (res.ok && (result.success || result.data)) {
+              // Successfully saved to server -> clear local draft
+              localStorage.removeItem(draftKey);
+
+              if (window.toast) {
+                window.toast(articleIdVal ? 'Article updated successfully' : 'Article created successfully');
+              }
+              setTimeout(() => {
+                window.location.href = '/admin/desktop/content';
+              }, 1000);
+            } else {
+              if (window.toast) window.toast(result.error || 'Failed to save article');
+              resetLoading();
+            }
+          } catch (err) {
+            console.error('Error saving article:', err);
+            if (window.toast) window.toast('Error occurred while saving');
+            resetLoading();
+          }
+        });
+      }
+
+      function resetLoading() {
+        if (saveText) saveText.textContent = 'Save Changes';
+        if (saveSpinner) saveSpinner.classList.add('hidden');
+        if (saveBtn) saveBtn.disabled = false;
+      }
+
+      // === MEDIA LIBRARY DIALOG LOGIC ===
+      const openMediaBtn = document.getElementById('open-media-library-btn');
+      const closeMediaBtn = document.getElementById('close-media-library-btn');
+      const mediaModal = document.getElementById('media-library-modal');
+      const mediaModalContent = mediaModal ? mediaModal.firstElementChild : null;
+
+      // Tab Buttons
+      const tabUnsplashBtn = document.getElementById('tab-unsplash-btn');
+      const tabUploadBtn = document.getElementById('tab-upload-btn');
+      const tabUnsplashContent = document.getElementById('media-tab-unsplash');
+      const tabUploadContent = document.getElementById('media-tab-upload');
+
+      // Unsplash selectors
+      const unsplashSearchInput = document.getElementById('unsplash-search-input');
+      const unsplashSearchBtn = document.getElementById('unsplash-search-btn');
+      const unsplashLoader = document.getElementById('unsplash-results-loader');
+      const unsplashGrid = document.getElementById('unsplash-results-grid');
+
+      // Upload selectors
+      const mediaDropzone = document.getElementById('media-dropzone');
+      const mediaFileInput = document.getElementById('media-file-input');
+      const uploadPreviewContainer = document.getElementById('upload-preview-container');
+      const uploadPreviewImg = document.getElementById('upload-preview-img');
+      const uploadFileName = document.getElementById('upload-file-name');
+      const uploadFileSize = document.getElementById('upload-file-size');
+      const removeUploadBtn = document.getElementById('remove-upload-btn');
+      const startUploadBtn = document.getElementById('start-upload-btn');
+      const uploadSpinner = document.getElementById('upload-spinner');
+
+      const imgInput = document.getElementById('img-input');
+      const thumbnailPreview = document.getElementById('thumbnail-preview');
+
+      let selectedFile = null;
+
+      // Close / Open modal
+      if (openMediaBtn && mediaModal && closeMediaBtn) {
+        openMediaBtn.addEventListener('click', () => {
+          mediaModal.classList.remove('opacity-0', 'pointer-events-none');
+          mediaModal.classList.add('opacity-100');
+          if (mediaModalContent) {
+            mediaModalContent.classList.remove('scale-95');
+            mediaModalContent.classList.add('scale-100');
+          }
+          // Load default curated images immediately
+          triggerUnsplashSearch('');
+        });
+
+        closeMediaBtn.addEventListener('click', () => {
+          closeMediaLibraryModal();
+        });
+
+        // Click outside to close
+        mediaModal.addEventListener('click', (e) => {
+          if (e.target === mediaModal) {
+            closeMediaLibraryModal();
+          }
+        });
+      }
+
+      function closeMediaLibraryModal() {
+        if (mediaModal) {
+          mediaModal.classList.add('opacity-0', 'pointer-events-none');
+          mediaModal.classList.remove('opacity-100');
+          if (mediaModalContent) {
+            mediaModalContent.classList.add('scale-95');
+            mediaModalContent.classList.remove('scale-100');
+          }
+        }
+      }
+
+      // Live update preview on input change
+      if (imgInput && thumbnailPreview) {
+        imgInput.addEventListener('input', () => {
+          thumbnailPreview.src = imgInput.value.trim() || 'https://images.unsplash.com/photo-1550000000000?auto=format&fit=crop&w=800&q=80';
+        });
+      }
+
+      // Switch Tabs
+      if (tabUnsplashBtn && tabUploadBtn && tabUnsplashContent && tabUploadContent) {
+        tabUnsplashBtn.addEventListener('click', () => {
+          tabUnsplashBtn.className = "flex-1 py-3 text-xs font-black uppercase tracking-wider text-orange-600 border-b-2 border-orange-600 transition-all cursor-pointer";
+          tabUploadBtn.className = "flex-1 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 dark:hover:text-gray-350 transition-all cursor-pointer";
+          tabUnsplashContent.classList.remove('hidden');
+          tabUploadContent.classList.add('hidden');
+        });
+
+        tabUploadBtn.addEventListener('click', () => {
+          tabUploadBtn.className = "flex-1 py-3 text-xs font-black uppercase tracking-wider text-orange-600 border-b-2 border-orange-600 transition-all cursor-pointer";
+          tabUnsplashBtn.className = "flex-1 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 border-b-2 border-transparent hover:text-gray-600 dark:hover:text-gray-350 transition-all cursor-pointer";
+          tabUploadContent.classList.remove('hidden');
+          tabUnsplashContent.classList.add('hidden');
+        });
+      }
+
+      // Unsplash Search Logic
+      async function triggerUnsplashSearch(query) {
+        if (!unsplashGrid || !unsplashLoader) return;
+        
+        unsplashGrid.innerHTML = '';
+        unsplashLoader.classList.remove('hidden');
+
+        try {
+          const res = await fetch(`/api/media/unsplash?query=${encodeURIComponent(query)}`);
+          const data = await res.json();
+          unsplashLoader.classList.add('hidden');
+
+          if (data && data.results && data.results.length > 0) {
+            unsplashGrid.innerHTML = data.results.map(img => `
+              <div class="group relative rounded-xl overflow-hidden aspect-video border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 hover:border-orange-500 cursor-pointer transition-all active:scale-98 select-image-btn" data-url="${img.urls.regular}">
+                <img src="${img.urls.small}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="${img.description || 'Stock photo'}" referrerpolicy="no-referrer" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p class="text-[9px] text-gray-300 truncate">By ${img.user.name}</p>
+                </div>
+              </div>
+            `).join('');
+
+            // Click listener for image selection
+            const imageBtns = unsplashGrid.querySelectorAll('.select-image-btn');
+            imageBtns.forEach(btn => {
+              btn.addEventListener('click', () => {
+                const targetUrl = btn.getAttribute('data-url');
+                if (targetUrl && imgInput && thumbnailPreview) {
+                  imgInput.value = targetUrl;
+                  thumbnailPreview.src = targetUrl;
+                  if (window.toast) window.toast('Thumbnail updated');
+                  closeMediaLibraryModal();
+                }
+              });
+            });
+
+          } else {
+            unsplashGrid.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-gray-400 font-bold uppercase">No photos found</div>`;
+          }
+        } catch (e) {
+          console.error(e);
+          unsplashLoader.classList.add('hidden');
+          if (unsplashGrid) {
+            unsplashGrid.innerHTML = `<div class="col-span-3 text-center py-8 text-xs text-red-500 font-bold uppercase">Failed to load photos</div>`;
+          }
+        }
+      }
+
+      if (unsplashSearchBtn && unsplashSearchInput) {
+        unsplashSearchBtn.addEventListener('click', () => {
+          triggerUnsplashSearch(unsplashSearchInput.value.trim());
+        });
+
+        unsplashSearchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            triggerUnsplashSearch(unsplashSearchInput.value.trim());
+          }
+        });
+      }
+
+      // Drag & Drop / Upload Logic
+      if (mediaDropzone && mediaFileInput) {
+        mediaDropzone.addEventListener('click', () => {
+          mediaFileInput.click();
+        });
+
+        mediaDropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          mediaDropzone.classList.add('border-orange-500', 'bg-orange-50/20');
+        });
+
+        ['dragleave', 'dragend'].forEach(evt => {
+          mediaDropzone.addEventListener(evt, () => {
+            mediaDropzone.classList.remove('border-orange-500', 'bg-orange-50/20');
+          });
+        });
+
+        mediaDropzone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          mediaDropzone.classList.remove('border-orange-500', 'bg-orange-50/20');
+          if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+            handleFileSelect(e.dataTransfer.files[0]);
+          }
+        });
+
+        mediaFileInput.addEventListener('change', (e) => {
+          if (mediaFileInput.files && mediaFileInput.files.length > 0) {
+            handleFileSelect(mediaFileInput.files[0]);
+          }
+        });
+      }
+
+      function handleFileSelect(file) {
+        if (!file.type.startsWith('image/')) {
+          if (window.toast) window.toast('File must be an image');
+          return;
+        }
+
+        selectedFile = file;
+        if (uploadPreviewContainer && uploadPreviewImg && uploadFileName && uploadFileSize && mediaDropzone) {
+          uploadFileName.textContent = file.name;
+          // Format size
+          const sizeKb = file.size / 1024;
+          uploadFileSize.textContent = sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb.toFixed(0)} KB`;
+          
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            uploadPreviewImg.src = e.target.result;
+            mediaDropzone.classList.add('hidden');
+            uploadPreviewContainer.classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      if (removeUploadBtn) {
+        removeUploadBtn.addEventListener('click', () => {
+          selectedFile = null;
+          if (uploadPreviewContainer && mediaDropzone && mediaFileInput) {
+            uploadPreviewContainer.classList.add('hidden');
+            mediaDropzone.classList.remove('hidden');
+            mediaFileInput.value = '';
+          }
+        });
+      }
+
+      if (startUploadBtn) {
+        startUploadBtn.addEventListener('click', async () => {
+          if (!selectedFile) return;
+
+          startUploadBtn.disabled = true;
+          if (uploadSpinner) uploadSpinner.classList.remove('hidden');
+
+          const formData = new FormData();
+          formData.append('file', selectedFile);
+
+          try {
+            const res = await fetch('/api/media/upload', {
+              method: 'POST',
+              body: formData
+            });
+
+            const data = await res.json();
+            startUploadBtn.disabled = false;
+            if (uploadSpinner) uploadSpinner.classList.add('hidden');
+
+            if (res.ok && data.success && data.url) {
+              if (imgInput && thumbnailPreview) {
+                imgInput.value = data.url;
+                thumbnailPreview.src = data.url;
+                if (window.toast) window.toast('Uploaded successfully!');
+                
+                // Reset dropzone
+                selectedFile = null;
+                if (uploadPreviewContainer && mediaDropzone && mediaFileInput) {
+                  uploadPreviewContainer.classList.add('hidden');
+                  mediaDropzone.classList.remove('hidden');
+                  mediaFileInput.value = '';
+                }
+
+                closeMediaLibraryModal();
+              }
+            } else {
+              if (window.toast) window.toast(data.error || 'Upload failed');
+            }
+          } catch (e) {
+            console.error(e);
+            startUploadBtn.disabled = false;
+            if (uploadSpinner) uploadSpinner.classList.add('hidden');
+            if (window.toast) window.toast('Gagal mengunggah gambar');
+          }
+        });
+      }
+
+      // Revisions / Riwayat Sunting Handler
+      const toggleRevisionsBtn = document.getElementById('toggle-revisions-btn');
+      const revisionsListContainer = document.getElementById('revisions-list-container');
+      const articleIdVal = document.getElementById('article-id')?.value;
+
+      if (toggleRevisionsBtn && revisionsListContainer && articleIdVal) {
+        let revisionsLoaded = false;
+
+        toggleRevisionsBtn.addEventListener('click', async () => {
+          const isHidden = revisionsListContainer.classList.contains('hidden');
+          if (isHidden) {
+            revisionsListContainer.classList.remove('hidden');
+            toggleRevisionsBtn.textContent = 'Tutup';
+
+            if (!revisionsLoaded) {
+              try {
+                const res = await fetch(`/api/revisions?articleId=${encodeURIComponent(articleIdVal)}`);
+                if (res.ok) {
+                  const revisions = await res.json();
+                  revisionsLoaded = true;
+
+                  if (revisions.length === 0) {
+                    revisionsListContainer.innerHTML = `<div class="text-xs text-gray-400 dark:text-gray-500 font-bold text-center py-4 uppercase tracking-wider">Belum ada riwayat suntingan.</div>`;
+                  } else {
+                    revisionsListContainer.innerHTML = '';
+                    revisions.forEach((rev) => {
+                      const dateStr = new Date(rev.createdAt).toLocaleString('id-ID', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                      });
+
+                      const item = document.createElement('div');
+                      item.className = 'flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-800 transition-all gap-3';
+                      item.innerHTML = `
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                          <img src="${rev.editor.avatar}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-orange-200" referrerpolicy="no-referrer" />
+                          <div class="min-w-0 flex-1">
+                            <p class="text-xs font-bold text-gray-900 dark:text-white truncate">${rev.title}</p>
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-0.5">${dateStr} &bull; ${rev.editor.name}</p>
+                          </div>
+                        </div>
+                        <button type="button" class="restore-rev-btn px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-md text-xs font-bold transition-all active:scale-95 shrink-0" data-id="${rev.id}">
+                          Pulihkan
+                        </button>
+                      `;
+                      
+                      // Bind restore button handler
+                      const btn = item.querySelector('.restore-rev-btn');
+                      btn.addEventListener('click', async () => {
+                        if (confirm('Apakah Anda yakin ingin memulihkan artikel ke versi ini? Draf saat ini akan disimpan sebagai riwayat baru.')) {
+                          btn.disabled = true;
+                          btn.textContent = 'Memulihkan...';
+
+                          try {
+                            const restoreRes = await fetch('/api/revisions', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ revisionId: rev.id })
+                            });
+
+                            if (restoreRes.ok) {
+                              const result = await restoreRes.json();
+                              // Update local state without reload
+                              document.getElementById('title-input').value = rev.title;
+                              document.getElementById('category-select').value = rev.category;
+                              document.getElementById('img-input').value = rev.img;
+                              document.getElementById('thumbnail-preview').src = rev.img;
+                              if (quillInstance) {
+                                quillInstance.root.innerHTML = rev.content;
+                              }
+                              
+                              if (window.toast) {
+                                window.toast('Draf berhasil dipulihkan!');
+                              }
+
+                              // Force reload list
+                              revisionsLoaded = false;
+                              revisionsListContainer.classList.add('hidden');
+                              toggleRevisionsBtn.click();
+                            } else {
+                              const err = await restoreRes.json();
+                              alert('Gagal memulihkan draf: ' + (err.error || 'Unknown error'));
+                              btn.disabled = false;
+                              btn.textContent = 'Pulihkan';
+                            }
+                          } catch (restoreErr) {
+                            console.error(restoreErr);
+                            alert('Gagal memulihkan draf');
+                            btn.disabled = false;
+                            btn.textContent = 'Pulihkan';
+                          }
+                        }
+                      });
+
+                      revisionsListContainer.appendChild(item);
+                    });
+                  }
+                } else {
+                  revisionsListContainer.innerHTML = `<div class="text-xs text-red-500 font-bold text-center py-4 uppercase tracking-wider">Gagal memuat riwayat.</div>`;
+                }
+              } catch (err) {
+                console.error(err);
+                revisionsListContainer.innerHTML = `<div class="text-xs text-red-500 font-bold text-center py-4 uppercase tracking-wider">Gagal memuat riwayat.</div>`;
+              }
+            }
+          } else {
+            revisionsListContainer.classList.add('hidden');
+            toggleRevisionsBtn.textContent = 'Lihat Semua';
+          }
+        });
+      }
+    });
+  </script>
+</AdminDesktopLayout>

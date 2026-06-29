@@ -1,0 +1,125 @@
+---
+import MobileLayout from '../layouts/MobileLayout.astro';
+import EmptyState from '../components/EmptyState.astro';
+import ArticleSkeleton from '../components/ArticleSkeleton.astro';
+
+const savedPosts = [1, 2, 3, 4]; // Change to [] to see empty state
+---
+<MobileLayout title="Saved Posts">
+  <div class="fixed top-0 w-full max-w-[400px] z-50">
+    <div class="w-full h-[max(env(safe-area-inset-top),16px)] bg-white dark:bg-gray-900"></div>
+    <div class="bg-white dark:bg-gray-900 h-[52px] px-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+      <h1 class="text-[16px] font-bold text-gray-900 dark:text-white" data-i18n="nav.bookmark">Saved</h1>
+    </div>
+  </div>
+
+  <div class="" style="height: calc(52px + max(env(safe-area-inset-top), 16px));"></div>
+  <div class="p-4 space-y-4">
+    <!-- Categories -->
+    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <button class="px-4 py-1.5 rounded-full bg-orange-600 text-white text-[10px] font-bold whitespace-nowrap">All Collections</button>
+      <button class="px-4 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700">Reading List</button>
+      <button class="px-4 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700">Inspirations</button>
+    </div>
+
+    <!-- List Posts -->
+    <div class="article-transition-wrapper">
+      <div class="skeleton-container hidden">
+        <ArticleSkeleton count={4} />
+      </div>
+      
+      <div class="actual-content-container space-y-3">
+        {savedPosts.length > 0 ? (
+          savedPosts.map((item) => (
+            <a href={`/article/${item}`} class="flex gap-3 items-center group bg-white dark:bg-gray-900 p-2 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all">
+              <div class="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
+                <img 
+                  src={`https://images.unsplash.com/photo-${1550000000000 + item * 2}?auto=format,compress&fit=crop&w=200&q=80`} 
+                  alt={`Thumbnail for saved post ${item}`} 
+                  width="64"
+                  height="64"
+                  class="w-full h-full object-cover aspect-square" 
+                  loading={item === 1 ? "eager" : "lazy"} 
+                  fetchpriority={item === 1 ? "high" : "auto"}
+                  decoding="async"
+                  referrerpolicy="no-referrer" 
+                />
+              </div>
+              <div class="flex-1 min-w-0 pr-2">
+                <h4 class="text-[12px] font-bold text-gray-900 dark:text-white leading-tight mb-1 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors line-clamp-2">How to build intuitive mobile interfaces in 2026</h4>
+                <div class="flex items-center gap-2 text-[9px] text-gray-500 dark:text-gray-400">
+                  <span class="font-medium text-gray-700 dark:text-gray-300">Jane Doe</span>
+                  <span>•</span>
+                  <span>10 min read</span>
+                </div>
+              </div>
+              <button class="p-2 text-orange-600 dark:text-orange-500" aria-label="Remove from saved">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              </button>
+            </a>
+          ))
+        ) : (
+          <EmptyState 
+            title="No Bookmarks Yet" 
+            description="You haven't saved any articles. Explore and save your favorite posts to read them later."
+            icon={`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>`}
+          >
+            <a href="/explore" class="mt-4 px-5 py-2 bg-orange-600 text-white text-[10px] font-bold rounded-full hover:bg-orange-700 transition-colors">
+              Explore Articles
+            </a>
+          </EmptyState>
+        )}
+      </div>
+      
+      <!-- Empty state for search/filter -->
+      <div class="search-empty-state hidden">
+        <EmptyState 
+          title="No Results Found" 
+          description="We couldn't find any articles matching your search. Try different keywords or categories."
+          icon={`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`}
+        />
+      </div>
+    </div>
+  </div>
+</MobileLayout>
+
+<script>
+  // Handle client-side category filtering and skeleton transition
+  document.addEventListener('astro:page-load', () => {
+    const categoryBtns = document.querySelectorAll('.scrollbar-hide button');
+    const skeleton = document.querySelector('.skeleton-container');
+    const content = document.querySelector('.actual-content-container');
+    const searchEmptyState = document.querySelector('.search-empty-state');
+    
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        // Update active state
+        categoryBtns.forEach(b => {
+          b.className = 'px-4 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700';
+        });
+        const target = e.target as HTMLElement;
+        target.className = 'px-4 py-1.5 rounded-full bg-orange-600 text-white text-[10px] font-bold whitespace-nowrap';
+        
+        // Show skeleton
+        if (content && skeleton && searchEmptyState) {
+          content.classList.add('hidden');
+          searchEmptyState.classList.add('hidden');
+          skeleton.classList.remove('hidden');
+          
+          // Simulate network request
+          setTimeout(() => {
+            skeleton.classList.add('hidden');
+            
+            // Just for demonstration, if "Inspirations" is clicked, show empty state
+            if (target.textContent === 'Inspirations') {
+              searchEmptyState.classList.remove('hidden');
+            } else {
+              content.classList.remove('hidden');
+            }
+          }, 600);
+        }
+      });
+    });
+  });
+</script>
+

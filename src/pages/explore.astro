@@ -1,0 +1,407 @@
+---
+import MobileLayout from '../layouts/MobileLayout.astro';
+import HeaderActions from '../components/HeaderActions.astro';
+import EmptyState from '../components/EmptyState.astro';
+import ArticleSkeleton from '../components/ArticleSkeleton.astro';
+
+// Fetch articles from the Backend API for SSR
+let exploreArticles = [];
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://localhost:8080';
+try {
+  const res = await fetch(`${backendUrl}/api/articles`);
+  if (res.ok) {
+    const data = await res.json();
+    // Sort by views if possible, else just take top 4
+    exploreArticles = data
+      .sort((a, b) => (Number(b.views) || 0) - (Number(a.views) || 0))
+      .slice(0, 4);
+  } else {
+    throw new Error('Failed to fetch from API');
+  }
+} catch (e) {
+  console.error("Failed to fetch articles from API", e);
+}
+
+// Fallback to dummy data if API fails or returns empty
+if (exploreArticles.length === 0) {
+  exploreArticles = [1, 2, 3, 4].map((post) => ({
+    id: String(post),
+    title: `Understanding Minimalist Interfaces in Modern Apps ${post}`,
+    content: "An in-depth look at how modern technology is reshaping our daily lives.",
+    author: { name: "Alex Rivers" },
+    img: `https://images.unsplash.com/photo-${1550000000000 + post}?auto=format,compress&fit=crop&w=600&q=80`,
+    category: "Design",
+    readTime: "5 min read",
+    views: "1.2k"
+  }));
+}
+
+const featuredPost = exploreArticles[0];
+const trendingPosts = exploreArticles.slice(1);
+---
+<MobileLayout title="Explore">
+  <div class="fixed top-0 w-full max-w-[400px] z-50">
+    <div class="w-full h-[max(env(safe-area-inset-top),16px)] bg-white dark:bg-gray-900"></div>
+    <div class="bg-white dark:bg-gray-900 h-[52px] px-5 border-b border-gray-100 dark:border-gray-800">
+      <!-- Standard Header View -->
+      <div id="header-standard-view" class="h-full flex items-center justify-between w-full">
+        <h1 class="text-[16px] font-bold text-gray-900 dark:text-white" data-i18n="nav.explore">Explore</h1>
+        <div class="flex items-center gap-1">
+          <button id="toggle-search-btn" class="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-500 transition-colors cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </button>
+          <HeaderActions />
+        </div>
+      </div>
+
+      <!-- Active Search Header View -->
+      <div id="header-search-view" class="hidden h-full flex items-center gap-2 w-full relative">
+        <button id="close-search-btn" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-orange-600 dark:text-gray-400 transition-colors cursor-pointer shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <div class="relative flex-1">
+          <input type="text" id="mobile-explore-search" placeholder="Cari artikel, kategori..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-250 dark:border-gray-700 text-[11px] font-medium focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white dark:focus:bg-gray-800 transition-all dark:text-white" autocomplete="off" />
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        
+        <!-- Suggestion dropdown for mobile search -->
+        <div id="mobile-search-suggestions-dropdown" class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg shadow-xl z-[100] max-h-60 overflow-y-auto hidden divide-y divide-gray-50 dark:divide-gray-750"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spacer to prevent overlap with fixed header -->
+  <div class="" style="height: calc(52px + max(env(safe-area-inset-top), 16px));"></div>
+
+  <div class="px-4 py-2 space-y-4">
+    <!-- Categories -->
+    <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <button class="px-4 py-1.5 rounded-full bg-orange-600 text-white text-[10px] font-bold whitespace-nowrap">All Topics</button>
+      <button class="px-4 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700">Technology</button>
+      <button class="px-4 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700">Design</button>
+      <button class="px-4 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700">Lifestyle</button>
+    </div>
+
+    <div class="article-transition-wrapper">
+      <div class="skeleton-container hidden space-y-4">
+        <div class="w-full aspect-[16/9] rounded-xl bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
+        <ArticleSkeleton count={3} />
+      </div>
+      
+      <div class="actual-content-container">
+        {exploreArticles.length > 0 ? (
+          <>
+            <!-- Featured Post -->
+            <a href={`/article/${featuredPost.id}`} class="block rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm relative mb-4">
+              <div class="aspect-[16/9] bg-gray-200 dark:bg-gray-800 w-full relative">
+                <img 
+                  src={featuredPost.img || "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format,compress&fit=crop&w=600&q=80"} 
+                  alt={`Featured Post: ${featuredPost.title}`} 
+                  width="600"
+                  height="337"
+                  class="w-full h-full object-cover aspect-[16/9]" 
+                  loading="eager" 
+                  fetchpriority="high"
+                  decoding="async"
+                  referrerpolicy="no-referrer" 
+                />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <div class="absolute bottom-3 left-3 right-3 text-white">
+                  <span class="bg-orange-600 text-white text-[8px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-1.5 inline-block">{featuredPost.category || 'Featured'}</span>
+                  <h2 class="text-[14px] font-bold leading-tight line-clamp-2">{featuredPost.title}</h2>
+                </div>
+              </div>
+            </a>
+            
+            <!-- List Posts -->
+            <div class="space-y-3 list-posts-wrapper">
+              <h3 class="text-[12px] font-bold text-gray-900 dark:text-white mb-2">Trending Now</h3>
+              
+              {trendingPosts.map((item, index) => (
+                <a href={`/article/${item.id}`} class="flex gap-3 items-center group article-item">
+                  <div class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
+                    <img 
+                      src={item.img || `https://images.unsplash.com/photo-${1550000000000 + index}?auto=format,compress&fit=crop&w=200&q=80`} 
+                      alt={`Thumbnail for ${item.title}`} 
+                      width="80"
+                      height="80"
+                      class="w-full h-full object-cover aspect-square" 
+                      loading="lazy" 
+                      decoding="async"
+                      referrerpolicy="no-referrer" 
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <span class="text-[9px] text-orange-600 dark:text-orange-500 font-bold uppercase tracking-wider">{item.category || 'Trending'}</span>
+                    <h4 class="text-[12px] font-bold text-gray-900 dark:text-white leading-tight mt-0.5 mb-1 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors line-clamp-2">{item.title}</h4>
+                    <p class="text-[9px] text-gray-500 dark:text-gray-400">{item.createdAt ? new Date(Number(item.createdAt)).toLocaleDateString() : 'Recent'} • {item.readTime || '5 min read'}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </>
+        ) : (
+          <EmptyState 
+            title="No Content Yet" 
+            description="We are preparing awesome content for you. Check back soon for the latest updates."
+            icon={`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`}
+          />
+        )}
+      </div>
+      
+      <!-- Empty state for search/filter -->
+      <div class="search-empty-state hidden">
+        <EmptyState 
+          title="No Results Found" 
+          description="We couldn't find any articles matching your search. Try different keywords or categories."
+          icon={`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-600"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`}
+        />
+      </div>
+      
+      <!-- Infinite Scroll Sentinel -->
+      <div id="mobile-explore-sentinel" data-backend-url={backendUrl} class="py-4 w-full opacity-0 transition-opacity">
+        <div class="flex gap-3 items-center animate-pulse">
+          <div class="w-20 h-20 rounded-lg bg-gray-200 dark:bg-gray-800 shrink-0"></div>
+          <div class="flex-1 space-y-2">
+            <div class="w-16 h-2 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            <div class="w-full h-3 bg-gray-200 dark:bg-gray-800 rounded"></div>
+            <div class="w-3/4 h-3 bg-gray-200 dark:bg-gray-800 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</MobileLayout>
+
+<script>
+  // Handle client-side category filtering and skeleton transition
+  document.addEventListener('astro:page-load', () => {
+    const categoryBtns = document.querySelectorAll('.scrollbar-hide button');
+    const skeleton = document.querySelector('.skeleton-container');
+    const content = document.querySelector('.actual-content-container');
+    const searchEmptyState = document.querySelector('.search-empty-state');
+    
+    categoryBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        // Update active state
+        categoryBtns.forEach(b => {
+          b.className = 'px-4 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-medium whitespace-nowrap border border-gray-100 dark:border-gray-700';
+        });
+        const target = e.target as HTMLElement;
+        target.className = 'px-4 py-1.5 rounded-full bg-orange-600 text-white text-[10px] font-bold whitespace-nowrap';
+        
+        // Show skeleton
+        if (content && skeleton && searchEmptyState) {
+          content.classList.add('hidden');
+          searchEmptyState.classList.add('hidden');
+          skeleton.classList.remove('hidden');
+          
+          // Simulate network request
+          setTimeout(() => {
+            skeleton.classList.add('hidden');
+            
+            // Just for demonstration, if "Lifestyle" is clicked, show empty state
+            if (target.textContent === 'Lifestyle') {
+              searchEmptyState.classList.remove('hidden');
+            } else {
+              content.classList.remove('hidden');
+            }
+          }, 600);
+        }
+      });
+    });
+
+    // Mobile Dynamic Search suggestions integration
+    const toggleSearchBtn = document.getElementById('toggle-search-btn');
+    const closeSearchBtn = document.getElementById('close-search-btn');
+    const headerStandardView = document.getElementById('header-standard-view');
+    const headerSearchView = document.getElementById('header-search-view');
+    const mobileSearchInput = document.getElementById('mobile-explore-search') as HTMLInputElement;
+    const mobileSuggestionsDropdown = document.getElementById('mobile-search-suggestions-dropdown');
+
+    if (toggleSearchBtn && closeSearchBtn && headerStandardView && headerSearchView) {
+      toggleSearchBtn.addEventListener('click', () => {
+        headerStandardView.classList.add('hidden');
+        headerSearchView.classList.remove('hidden');
+        if (mobileSearchInput) {
+          mobileSearchInput.focus();
+        }
+      });
+
+      closeSearchBtn.addEventListener('click', () => {
+        headerSearchView.classList.add('hidden');
+        headerStandardView.classList.remove('hidden');
+        if (mobileSearchInput) {
+          mobileSearchInput.value = '';
+        }
+        if (mobileSuggestionsDropdown) {
+          mobileSuggestionsDropdown.classList.add('hidden');
+          mobileSuggestionsDropdown.innerHTML = '';
+        }
+      });
+    }
+
+    if (mobileSearchInput && mobileSuggestionsDropdown) {
+      let debounceTimeout: any = null;
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mobileSearchInput.contains(e.target as Node) && !mobileSuggestionsDropdown.contains(e.target as Node)) {
+          mobileSuggestionsDropdown.classList.add('hidden');
+        }
+      });
+
+      mobileSearchInput.addEventListener('focus', () => {
+        if (mobileSearchInput.value.trim().length >= 2) {
+          mobileSuggestionsDropdown.classList.remove('hidden');
+        }
+      });
+
+      mobileSearchInput.addEventListener('input', () => {
+        const query = mobileSearchInput.value.trim();
+        clearTimeout(debounceTimeout);
+
+        if (query.length < 2) {
+          mobileSuggestionsDropdown.innerHTML = '';
+          mobileSuggestionsDropdown.classList.add('hidden');
+          return;
+        }
+
+        mobileSuggestionsDropdown.classList.remove('hidden');
+        mobileSuggestionsDropdown.innerHTML = `
+          <div class="p-3 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center flex items-center justify-center gap-1.5">
+            <svg class="animate-spin h-3 w-3 text-orange-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Mencari...
+          </div>
+        `;
+
+        debounceTimeout = setTimeout(async () => {
+          try {
+            const cacheKey = `pexih_search_${query.toLowerCase()}`;
+            const cachedData = sessionStorage.getItem(cacheKey);
+            let data;
+            
+            if (cachedData) {
+              data = JSON.parse(cachedData);
+            } else {
+              const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+              if (!res.ok) throw new Error('Search failed');
+              data = await res.json();
+              sessionStorage.setItem(cacheKey, JSON.stringify(data));
+            }
+
+            if (data.length === 0) {
+              mobileSuggestionsDropdown.innerHTML = `
+                <div class="p-3 text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">
+                  Tidak ada hasil
+                </div>
+              `;
+              return;
+            }
+
+            mobileSuggestionsDropdown.innerHTML = '';
+            data.forEach((item: any) => {
+              const suggestionEl = document.createElement('a');
+              suggestionEl.href = `/article/${item.id}`;
+              suggestionEl.className = 'flex items-center gap-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer text-left w-full block';
+              suggestionEl.innerHTML = `
+                <img src="${item.img}" class="w-8 h-8 object-cover rounded-md shrink-0 border border-gray-100 dark:border-gray-800" referrerpolicy="no-referrer" />
+                <div class="min-w-0 flex-1">
+                  <p class="text-[10px] font-bold text-gray-900 dark:text-white truncate leading-tight">${item.title}</p>
+                  <p class="text-[8px] font-bold text-orange-600 dark:text-orange-500 uppercase tracking-wider mt-0.5">${item.category}</p>
+                </div>
+              `;
+              mobileSuggestionsDropdown.appendChild(suggestionEl);
+            });
+          } catch (err) {
+            console.error('Search error:', err);
+            mobileSuggestionsDropdown.innerHTML = `
+              <div class="p-3 text-[9px] font-bold text-red-500 uppercase tracking-wider text-center">
+                Gagal memuat hasil
+              </div>
+            `;
+          }
+        }, 300);
+      });
+    }
+
+    // Infinite Scrolling Logic
+    const sentinel = document.getElementById('mobile-explore-sentinel');
+    const articlesContainer = document.querySelector('.list-posts-wrapper');
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMore = true;
+    
+    if (sentinel && articlesContainer) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading && hasMore) {
+          loadMoreArticles();
+        }
+      }, { rootMargin: '100px' });
+      
+      observer.observe(sentinel);
+      
+      async function loadMoreArticles() {
+        isLoading = true;
+        sentinel.classList.remove('opacity-0');
+        
+        try {
+          currentPage++;
+          const cacheKey = `pexih_explore_page_${currentPage}`;
+          const cachedData = sessionStorage.getItem(cacheKey);
+          let newArticles;
+          
+          if (cachedData) {
+            newArticles = JSON.parse(cachedData);
+          } else {
+            const backendUrl = sentinel.getAttribute('data-backend-url') || '';
+            const res = await fetch(`${backendUrl}/api/articles?page=${currentPage}&limit=5`); 
+            if (!res.ok) throw new Error('Failed');
+            newArticles = await res.json();
+            sessionStorage.setItem(cacheKey, JSON.stringify(newArticles));
+          }
+          
+          if (newArticles.length === 0) {
+            hasMore = false;
+            sentinel.classList.add('hidden');
+            return;
+          }
+          
+          newArticles.forEach((item: any, index: number) => {
+            const articleHtml = `
+              <a href="/article/${item.id}" class="flex gap-3 items-center group article-item">
+                <div class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 aspect-square">
+                  <img 
+                    src="${item.img || `https://images.unsplash.com/photo-${1550000000000 + index}?auto=format,compress&fit=crop&w=200&q=80`}" 
+                    alt="Thumbnail for ${item.title}" 
+                    width="80"
+                    height="80"
+                    class="w-full h-full object-cover aspect-square" 
+                    loading="lazy" 
+                    decoding="async"
+                    referrerpolicy="no-referrer" 
+                  />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="text-[9px] text-orange-600 dark:text-orange-500 font-bold uppercase tracking-wider">${item.category || 'Trending'}</span>
+                  <h4 class="text-[12px] font-bold text-gray-900 dark:text-white leading-tight mt-0.5 mb-1 group-hover:text-orange-600 dark:group-hover:text-orange-500 transition-colors line-clamp-2">${item.title}</h4>
+                  <p class="text-[9px] text-gray-500 dark:text-gray-400">${item.createdAt ? new Date(Number(item.createdAt)).toLocaleDateString() : 'Recent'} • ${item.readTime || '5 min read'}</p>
+                </div>
+              </a>
+            `;
+            articlesContainer.insertAdjacentHTML('beforeend', articleHtml);
+          });
+        } catch (e) {
+          console.error("Failed to load more articles", e);
+        } finally {
+          isLoading = false;
+          sentinel.classList.add('opacity-0');
+        }
+      }
+    }
+  });
+</script>
+
