@@ -76,6 +76,15 @@ const {
 			#goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
 			.goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
 			.goog-te-spinner-pos { display: none !important; }
+			
+			/* Prevent body scroll bounce and freeze on mobile */
+			html, body {
+				height: 100%;
+				overflow: hidden;
+				width: 100%;
+				margin: 0;
+				padding: 0;
+			}
 		</style>
 		<script is:inline>
 			function applyTheme() {
